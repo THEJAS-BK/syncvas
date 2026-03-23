@@ -36,7 +36,7 @@ export default function Register():JSX.Element {
      if(res.status===200){
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);
-      navigate("/login");
+      navigate("/dashboard");
      }
       
     }

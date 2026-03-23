@@ -33,7 +33,9 @@ export default function Login():JSX.Element {
       })
 
      if(res.status===200){
-      console.log("success")
+      localStorage.setItem("accessToken", res.data.accessToken);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
+      navigate("/dashboard");
      }
       
     }
