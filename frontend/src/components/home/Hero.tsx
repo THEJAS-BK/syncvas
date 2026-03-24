@@ -14,7 +14,6 @@ export default function Hero() {
                 <Button variant="contained" color="success">create Room</Button>
             </Stack>    
            </div>
-
         </div>
     ) 
 };

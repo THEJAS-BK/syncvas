@@ -1,8 +1,8 @@
 import React, { useState, type JSX } from "react";
 import type {Formdata} from "../../types/Auth"
-import "./Register.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Button from '@mui/material/Button';
 export default function Register():JSX.Element {
     const [formData,setFormData]=useState<Formdata>(
         {
@@ -42,16 +42,16 @@ export default function Register():JSX.Element {
     }
 
   return (
-    <form className="container" onSubmit={handleSubmit}>
-      <div className="signup">
-        <h1>Signup</h1>
-        <div className="content">
-          <input onChange={handleChange} placeholder="Name" type="text" name="name" id="" />
-          <input onChange={handleChange} placeholder="Email" type="text" name="email" id="" />
-          <input onChange={handleChange} placeholder="Password" type="password" name="password" id="" />
+    <div className="h-screen flex justify-center items-center">
+      <form className="border-2 flex flex-col p-5 gap-12" onSubmit={handleSubmit}>
+        <h1 className="text-center text-2xl">Signup</h1>
+        <div className="flex flex-col gap-3">
+          <input className="border rounded-l p-2 w-100" onChange={handleChange} placeholder="Name" type="text" name="name" id="" />
+          <input className="border rounded-l p-2 w-100" onChange={handleChange} placeholder="Email" type="text" name="email" id="" />
+          <input className="border rounded-l p-2 w-100" onChange={handleChange} placeholder="Password" type="password" name="password" id="" />
         </div>
-        <button className="send">Register</button>
-      </div>
+        <Button  variant="contained" type="submit">Register</Button>
     </form>
+    </div>
   );
 }

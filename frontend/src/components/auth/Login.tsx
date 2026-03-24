@@ -1,8 +1,8 @@
 import React, { useState, type JSX } from "react";
 import type {LoginFormData} from "../../types/Auth"
-import "./Register.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
 export default function Login():JSX.Element {
     const [formData,setFormData]=useState<LoginFormData>(
         {
@@ -41,15 +41,15 @@ export default function Login():JSX.Element {
     }
 
   return (
-    <form className="container" onSubmit={handleSubmit}>
-      <div className="signup">
-        <h1>Login</h1>
-        <div className="content">
-          <input onChange={handleChange} placeholder="Email" type="text" name="email" id="" />
-          <input onChange={handleChange} placeholder="Password" type="password" name="password" id="" />
+    <div className="h-screen flex justify-center items-center">
+      <form className="border-2 flex flex-col p-5 gap-12" onSubmit={handleSubmit}>
+        <h1 className="text-center text-2xl">Login</h1>
+        <div className="flex flex-col gap-3">
+          <input className="border rounded-l p-2 w-100" onChange={handleChange} placeholder="Email" type="text" name="email" id="" />
+          <input className="border rounded-l p-2 w-100" onChange={handleChange} placeholder="Password" type="password" name="password" id="" />
         </div>
-        <button className="send">Login</button>
-      </div>
+        <Button  variant="contained" type="submit">Login</Button>
     </form>
+    </div>
   );
 }
