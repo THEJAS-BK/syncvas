@@ -39,7 +39,9 @@ const setSocketConnection = (server: any) => {
       io.to(toId).emit("signal", message);
     });
 
-    socket.on("chat-message", (data, sender) => {});
+    socket.on("chat-message", (data, sender) => {
+      
+    });
 
     socket.on("disconnect", () => {});
   });
