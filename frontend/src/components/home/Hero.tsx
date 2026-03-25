@@ -1,6 +1,12 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import { useNavigate } from 'react-router-dom';
 export default function Hero() {
+    const navigate=useNavigate();
+
+    const handleCreateRoom=()=>{
+        navigate('/room');
+    }
     return(
         <div className= "flex flex-col flex-1 items-center">
            <div className='flex flex-col mt-60 border-2 items-center p-4 rounded-lg'>
@@ -11,7 +17,7 @@ export default function Hero() {
             <Stack spacing={2} direction="row" className='mx-auto'>
                 <Button variant="outlined">join Room</Button>
                 <p>Or</p>
-                <Button variant="contained" color="success">create Room</Button>
+                <Button onClick={handleCreateRoom} variant="contained" color="success">create Room</Button>
             </Stack>    
            </div>
         </div>
