@@ -1,9 +1,6 @@
 
 import { Server } from "socket.io";
 
-let connections: { [key: string]: string[]|any } = {};
-let messages: { [key: string]: any } = {};
-let timeOnline: { [key: string]: Date } = {};
 
 const setSocketConnection = (server: any) => {
   const io = new Server(server, {
@@ -12,7 +9,16 @@ const setSocketConnection = (server: any) => {
       credentials: true,
     },
   });
- 
+  io.on("connection", (socket) => {
+    console.log("User connected:", socket.id);
+    
+
+    socket.on("message", (data) => {
+      socket.broadcast.emit("message", data);
+    });
+
+  });
+
   return io;
 };
 
