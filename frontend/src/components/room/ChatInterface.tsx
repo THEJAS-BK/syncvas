@@ -3,11 +3,16 @@ import Button from "@mui/material/Button";
 import { socket } from "../../services/socket";
 import { useEffect, useState } from "react";
 import type { Message } from "../../types/Chat";
+import { useParams } from "react-router-dom";
+
 export default function ChatInterface() {
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const { roomId } = useParams();
   useEffect(() => {
     socket.connect();
+
+    socket.emit("join_room", roomId);
 
     socket.on("connect", () => {
       console.log("Connected :", socket.id);
@@ -21,17 +26,16 @@ export default function ChatInterface() {
     socket.off("receive_message");
     socket.off("connect");
   };
-  },[]);
+  },[roomId]);
   const handleMesSend = ():void => {
-
-    if(!inputText.trim())return;
-
     const newMessage:Message={
       text:inputText,
       sender:socket.id||"unknown"
     }
-    socket.emit("send_message", newMessage);
-    setMessages((prev)=>[...prev,newMessage]);
+    socket.emit("send_message", {
+      message:newMessage,
+      roomId
+    });
     setInputText("")
   };
   return (

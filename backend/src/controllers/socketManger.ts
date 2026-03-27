@@ -1,4 +1,3 @@
-
 import { Server } from "socket.io";
 import { Message } from "../types/chat";
 
@@ -11,12 +10,19 @@ const setSocketConnection = (server: any) => {
   });
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
-    
 
-    socket.on("send_message", (data: Message) => {
-      socket.broadcast.emit("receive_message", data);
+    //join room
+    socket.on("join_room", (roomId: string) => {
+      socket.join(roomId);
+    });
+    //leave
+    socket.on("leave_room", (roomId: string) => {
+      socket.leave(roomId);
     });
 
+    socket.on("send_message", ({ message, roomId }) => {
+      io.to(roomId).emit("receive_message", message);
+    });
   });
 
   return io;

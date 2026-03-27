@@ -11,7 +11,7 @@ export default function AllRoutes(){
          <Route path="/" element={<Login/>}/>
          <Route path="/login" element={<Login/>}/>
          <Route path="/dashboard" element={<Dashboard/>}/>
-         <Route path="/room" element={<RoomPage/>}/>
+         <Route path="/room/:roomId" element={<RoomPage/>}/>
        </Routes>
     )
 }

@@ -5,7 +5,8 @@ export default function Hero() {
     const navigate=useNavigate();
 
     const handleCreateRoom=()=>{
-        navigate('/room');
+        const roomId=crypto.randomUUID();
+        navigate(`/room/${roomId}`);
     }
     return(
         <div className= "flex flex-col flex-1 items-center">
