@@ -1,6 +1,6 @@
 
 import { Server } from "socket.io";
-
+import { Message } from "../types/chat";
 
 const setSocketConnection = (server: any) => {
   const io = new Server(server, {
@@ -13,8 +13,8 @@ const setSocketConnection = (server: any) => {
     console.log("User connected:", socket.id);
     
 
-    socket.on("message", (data) => {
-      socket.broadcast.emit("message", data);
+    socket.on("send_message", (data: Message) => {
+      socket.broadcast.emit("receive_message", data);
     });
 
   });
