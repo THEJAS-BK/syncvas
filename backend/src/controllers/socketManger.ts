@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
-import { Message } from "../types/chat";
+import { generateRoomCode } from "../utils/helper";
+const rooms:Record<string,any>={};
 
 const setSocketConnection = (server: any) => {
   const io = new Server(server, {
@@ -19,6 +20,13 @@ const setSocketConnection = (server: any) => {
     socket.on("leave_room", (roomId: string) => {
       socket.leave(roomId);
     });
+    //create room
+    socket.on("create_room", (callback: (roomId: string) => void) => {
+      const roomId = generateRoomCode();
+  
+      callback(roomId);
+    });
+
 
     socket.on("send_message", ({ message, roomId }) => {
       io.to(roomId).emit("receive_message", message);
