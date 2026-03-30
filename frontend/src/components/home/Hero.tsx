@@ -1,20 +1,33 @@
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { socket } from "../../services/socket";
 export default function Hero() {
   const navigate = useNavigate();
+  useEffect(() => {
+  if (!socket.connected) {
+    socket.connect();
+  }
+}, []);
 
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleCreateRoom = () => {
-    const roomId = crypto.randomUUID();
-    navigate(`/room/${roomId}`);
+    socket.emit("create_room",(roomId:string)=>{
+      console.log("This is room id",roomId)
+        navigate(`/room/${roomId}`)
+    });
+   
   };
 
-  const handleJoinRoom = () => {
+  const handleOpenJoinRoom = () => {
     setShowConfirm(true);
   };
+  const handleJoinRoom=()=>{
+    const roomCode = (document.querySelector('input[placeholder="Room code"]') as HTMLInputElement)?.value;
+    navigate(`/room/${roomCode}`)
+  }
   return (
     <>
       {showConfirm && (
@@ -30,7 +43,7 @@ export default function Hero() {
               <Button variant="outlined" onClick={() => setShowConfirm(false)}>
                 Cancel
               </Button>
-              <Button variant="contained" color="success">
+              <Button onClick={handleJoinRoom} variant="contained" color="success">
                 Join Room
               </Button>
             </Stack>
@@ -46,7 +59,7 @@ export default function Hero() {
             <Button variant="contained">Get whiteboard</Button>
           </div>
           <Stack spacing={2} direction="row" className="mx-auto">
-            <Button variant="outlined" onClick={handleJoinRoom}>
+            <Button variant="outlined" onClick={handleOpenJoinRoom}>
               join Room
             </Button>
             <p>Or</p>
