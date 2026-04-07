@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { socket } from "../../services/socket";
 export default function Hero() {
   const navigate = useNavigate();
-  useEffect(() => {
-  if (!socket.connected) {
-    socket.connect();
-  }
-}, []);
+//   useEffect(() => {
+//   if (!socket.connected) {
+//     socket.connect();
+//   }
+// }, []);
 
   const [showConfirm, setShowConfirm] = useState(false);
 

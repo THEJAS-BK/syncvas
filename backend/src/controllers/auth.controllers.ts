@@ -74,7 +74,7 @@ const login:RequestHandler = async (
     const userId = user._id;
 
     //get tokens
-    const accesToken = jwt.sign(
+    const accessToken = jwt.sign(
       { userId },
       process.env.ACCESS_TOKEN_SECRET as string,
       {
@@ -90,7 +90,7 @@ const login:RequestHandler = async (
       },
     );
 
-    res.json({ accesToken, refreshToken });
+    res.json({ accessToken, refreshToken });
   } catch (err) {
     console.error(err);
   }

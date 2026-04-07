@@ -24,14 +24,14 @@ app.use(urlencoded({extended:true,"limit":"40kb"}));
 
 
 //controllers
-import { setSocketConnection } from "./controllers/socketManger";
+// import { setSocketConnection } from "./controllers/socketManger";
 
 //routes
 import userRoutes from "./routes/auth.routes"
 
 //sockets setup
 const server=createServer(app);
-const io=setSocketConnection(server);
+// const io=setSocketConnection(server);
 
 //all routes
 
