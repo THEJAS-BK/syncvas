@@ -1,6 +1,6 @@
-import ChatInterface from "./ChatInterface";
-import MainContent from "./MainContent";
-import RoomNavbar from "./RoomNavbar";
+import ChatInterface from "../components/room/ChatInterface";
+import MainContent from "../components/room/MainContent";
+import RoomNavbar from "../components/room/RoomNavbar";
 
 export default function RoomPage() {
   return (

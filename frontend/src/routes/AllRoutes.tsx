@@ -1,8 +1,8 @@
 import {Route, Routes} from "react-router-dom";
 import  Register  from "../components/auth/Register";
 import Login from "../components/auth/Login";
-import Dashboard from "../components/home/Dashboard";
-import RoomPage from "../components/room/RoomPage";
+import Dashboard from "../pages/Dashboard";
+import RoomPage from "../pages/RoomPage";
 
 export default function AllRoutes(){
     return(
