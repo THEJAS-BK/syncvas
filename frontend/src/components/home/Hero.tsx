@@ -1,35 +1,74 @@
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+//type
+type CreateRoomResponse = {
+  success: boolean;
+  message?: string;
+};
+//hooks
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+//services
 import { socket } from "../../services/socket";
+
+//utils
+import { generateRoomId } from "../../utils/RoomId";
+
 export default function Hero() {
   const navigate = useNavigate();
-//   useEffect(() => {
-//   if (!socket.connected) {
-//     socket.connect();
-//   }
-// }, []);
 
   const [showConfirm, setShowConfirm] = useState(false);
 
+  //invalid room id
+  const [Toast,setToast]=useState(false);
+
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+  }, []);
+
   const handleCreateRoom = () => {
-    socket.emit("create_room",(roomId:string)=>{
-      console.log("This is room id",roomId)
-        navigate(`/room/${roomId}`)
-    });
-   
+    const tryCreate = () => {
+      const roomId = generateRoomId();
+
+      socket.emit("create-room", roomId, (res: CreateRoomResponse) => {
+        if (!res.success) {
+          tryCreate();
+        }
+        navigate(`/room/${roomId}`);
+      });
+    };
+    tryCreate();
   };
 
   const handleOpenJoinRoom = () => {
     setShowConfirm(true);
   };
-  const handleJoinRoom=()=>{
-    const roomCode = (document.querySelector('input[placeholder="Room code"]') as HTMLInputElement)?.value;
-    navigate(`/room/${roomCode}`)
-  }
+  const handleJoinRoom = () => {
+    const roomCode = (
+      document.querySelector(
+        'input[placeholder="Room code"]',
+      ) as HTMLInputElement
+    )?.value;
+   
+    socket.emit("join-room",roomCode,(res:CreateRoomResponse)=>{
+      if(!res.success){
+        setToast(true);
+      }else{
+         navigate(`/room/${roomCode}`);
+      }
+    })
+  };
+
   return (
     <>
+    {Toast&&(
+      <div className="z-999 m-auto">
+        Room dosent exist
+      </div>
+    )}
       {showConfirm && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm  z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg">
@@ -43,7 +82,11 @@ export default function Hero() {
               <Button variant="outlined" onClick={() => setShowConfirm(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleJoinRoom} variant="contained" color="success">
+              <Button
+                onClick={handleJoinRoom}
+                variant="contained"
+                color="success"
+              >
                 Join Room
               </Button>
             </Stack>
