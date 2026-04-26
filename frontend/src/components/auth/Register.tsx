@@ -1,57 +1,78 @@
 import React, { useState, type JSX } from "react";
-import type {Formdata} from "../../types/Auth"
+import type { Formdata } from "../../types/Auth";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Button from '@mui/material/Button';
-export default function Register():JSX.Element {
-    const [formData,setFormData]=useState<Formdata>(
-        {
-            name:"",
-            email:"",
-            password:"",
-        }
-    )
-    const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
-        let fieldName=e.target.name as keyof Formdata;
-        let fieldValue=e.target.value
+import { Link, useNavigate } from "react-router-dom";
+import Button from "@mui/material/Button";
+export default function Register(): JSX.Element {
+  const [formData, setFormData] = useState<Formdata>({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let fieldName = e.target.name as keyof Formdata;
+    let fieldValue = e.target.value;
 
-        setFormData((curData)=>{
-            return {...curData,[fieldName]:fieldValue}
-        })
-    }
+    setFormData((curData) => {
+      return { ...curData, [fieldName]: fieldValue };
+    });
+  };
 
-    const navigate=useNavigate();
+  const navigate = useNavigate();
 
-    //send inputs to backend
-    const handleSubmit=async (e:React.SubmitEvent<HTMLFormElement>)=>{
-      e.preventDefault();
-      const res = await axios.post("http://localhost:8080/auth/register",
-        formData,
-        {
-        headers:{
-          "Content-Type":"application/json"
-        },
-      })
+  //send inputs to backend
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const res = await axios.post(
+      "/auth/register",
+      formData,
+    );
 
-     if(res.status===200){
+    if (res.status === 200) {
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);
       navigate("/dashboard");
-     }
-      
     }
+  };
 
   return (
     <div className="h-screen flex justify-center items-center">
-      <form className="border-2 flex flex-col p-5 gap-12" onSubmit={handleSubmit}>
+      <form
+        className="border-2 flex flex-col p-5 gap-12"
+        onSubmit={handleSubmit}
+      >
         <h1 className="text-center text-2xl">Signup</h1>
         <div className="flex flex-col gap-3">
-          <input className="border rounded-l p-2 w-100" onChange={handleChange} placeholder="Name" type="text" name="name" id="" />
-          <input className="border rounded-l p-2 w-100" onChange={handleChange} placeholder="Email" type="text" name="email" id="" />
-          <input className="border rounded-l p-2 w-100" onChange={handleChange} placeholder="Password" type="password" name="password" id="" />
+          <input
+            className="border rounded-l p-2 w-100"
+            onChange={handleChange}
+            placeholder="Name"
+            type="text"
+            name="name"
+            id=""
+          />
+          <input
+            className="border rounded-l p-2 w-100"
+            onChange={handleChange}
+            placeholder="Email"
+            type="text"
+            name="email"
+            id=""
+          />
+          <input
+            className="border rounded-l p-2 w-100"
+            onChange={handleChange}
+            placeholder="Password"
+            type="password"
+            name="password"
+            id=""
+          />
         </div>
-        <Button  variant="contained" type="submit">Register</Button>
-    </form>
+        <Button variant="contained" type="submit">
+          Register
+        </Button>
+      <Link to="/login">Login page</Link>
+      </form>
     </div>
   );
 }

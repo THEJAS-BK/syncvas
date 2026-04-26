@@ -19,9 +19,10 @@ export default function Hero() {
   const navigate = useNavigate();
 
   const [showConfirm, setShowConfirm] = useState(false);
+  const [roomId,setRoomId]=useState("")
 
   //invalid room id
-  const [Toast,setToast]=useState(false);
+  const [Toast,setToast]=useState({open:false,message:""});
 
   useEffect(() => {
     if (!socket.connected) {
@@ -46,16 +47,19 @@ export default function Hero() {
   const handleOpenJoinRoom = () => {
     setShowConfirm(true);
   };
-  const handleJoinRoom = () => {
-    const roomCode = (
-      document.querySelector(
-        'input[placeholder="Room code"]',
-      ) as HTMLInputElement
-    )?.value;
-   
+  const handleJoinRoom = (e:React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
+   const roomCode=roomId;
+   if(!roomCode){
+    setToast({open:true,message:"Please enter a room code"});
+    setRoomId("")
+    return
+   }
+
     socket.emit("join-room",roomCode,(res:CreateRoomResponse)=>{
       if(!res.success){
-        setToast(true);
+        setToast({open:true,message:"Room not found"});    
+        setRoomId("") 
       }else{
          navigate(`/room/${roomCode}`);
       }
@@ -66,15 +70,17 @@ export default function Hero() {
     <>
     {Toast&&(
       <div className="z-999 m-auto">
-        Room dosent exist
+        {Toast.message}
       </div>
     )}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm  z-50 flex items-center justify-center">
+        <form onSubmit={handleJoinRoom} className="fixed inset-0 bg-black/30 backdrop-blur-sm  z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg">
             <p>Enter Room code:</p>
             <input
+            onChange={(e)=>setRoomId(e.target.value.toUpperCase())}
               type="text"
+              value={roomId}
               placeholder="Room code"
               className="border border-gray-300 p-2 rounded-lg mt-2"
             />
@@ -83,7 +89,7 @@ export default function Hero() {
                 Cancel
               </Button>
               <Button
-                onClick={handleJoinRoom}
+                type="submit"
                 variant="contained"
                 color="success"
               >
@@ -91,7 +97,7 @@ export default function Hero() {
               </Button>
             </Stack>
           </div>
-        </div>
+        </form>
       )}
       <div className="flex flex-col flex-1 items-center">
         <div className="flex flex-col mt-60 border-2 items-center p-4 rounded-lg">

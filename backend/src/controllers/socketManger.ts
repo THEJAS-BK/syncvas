@@ -1,4 +1,4 @@
-import { timeStamp } from "node:console";
+import jwt from "jsonwebtoken"
 import { Server } from "socket.io";
 
 let activeRooms=new Set <string>();
@@ -14,6 +14,20 @@ const setSocketConnection = (server: any) => {
     },
   });
 
+  io.use((socket,next)=>{
+    const token=socket.handshake.auth.token;
+    if(!token){
+      return next(new Error("NO token provided"))
+    }
+    try{
+      const decode=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET!)as any
+      socket.data.userId=decode.userId;
+      socket.data.name=decode.name;
+    } catch (error) {
+      return next(new Error("Invalid token"))
+    }
+  })
+
   io.on("connection",(socket)=>{
     console.log("user joined    ",socket.id);
 
@@ -24,7 +38,6 @@ const setSocketConnection = (server: any) => {
      }
      activeRooms.add(roomId)
      socket.join(roomId);
-
      callback?.({success:true})
     })
     
@@ -41,7 +54,6 @@ const setSocketConnection = (server: any) => {
         roomId,
         timeStamp:Date.now()
       })
-
       callback?.({success:true})
     })
   })
