@@ -25,7 +25,6 @@ export default function Login(): JSX.Element {
     e.preventDefault();
     const res = await api.post(`/auth/login`, formData);
     if (res.status === 200) {
-      console.log(res);
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);
       navigate("/dashboard");

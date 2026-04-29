@@ -1,8 +1,8 @@
 import React, { useState, type JSX } from "react";
 import type { Formdata } from "../../types/Auth";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
+import api from "../../utils/axios";
 export default function Register(): JSX.Element {
   const [formData, setFormData] = useState<Formdata>({
     name: "",
@@ -23,7 +23,7 @@ export default function Register(): JSX.Element {
   //send inputs to backend
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const res = await axios.post(
+    const res = await api.post(
       "/auth/register",
       formData,
     );

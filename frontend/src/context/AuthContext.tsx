@@ -1,22 +1,36 @@
 import { createContext, useContext, useState } from "react";
+import type {ReactNode} from "react"
 
-const AuthContext = createContext();
+interface AuthContextType{
+  accessToken:string|null,
+  login:(accessToken:string,refreshToken:string)=>void,
+  logout:()=>void
+}
 
-export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
+const AuthContext=createContext<AuthContextType|null>(null);
 
-  const login = (newToken) => {
-    setToken(newToken);
-  };
-  const logOut=()=>{
-    setToken(null);
+export const AuthProvider=({children}:{children:ReactNode})=>{
+  const [accessToken,setaccessToken]=useState<string|null>(
+    localStorage.getItem("accessToken")
+  )
+  const login = (accessToken:string,refreshToken:string)=>{
+    localStorage.setItem("accessToken",accessToken)
+    localStorage.setItem("refreshToken",refreshToken)
+  }
+  const logout=()=>{
+    localStorage.remove("accessToken","")
+    localStorage.remove("refreshToken","")
+    setaccessToken(null);
   }
   return (
-    <AuthContext.Provider value={{token,login,logOut}}>
-        {children}
+    <AuthContext.Provider value={{accessToken,login,logout}}>
+      {children}
     </AuthContext.Provider>
   )
 };
+
 export const useAuth=()=>{
-    return useContext(AuthContext)
+  const context=useContext(AuthContext);
+  if(!context) throw new Error("useAuth must be used inside AuthProvider")
+    return context;
 }
