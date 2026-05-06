@@ -16,15 +16,13 @@ const setSocketConnection = (server: any) => {
 
   io.use((socket,next)=>{
     const token=socket.handshake.auth.accesstoken;
-    console.log(token)
     if(!token){
       return next(new Error("NO token provided"))
     }
     try{
       const decode=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET!)as any
       socket.data.userId=decode.userId;
-      socket.data.name=decode.name;
-      console.log("User connected:", socket.data.userId, socket.data.name);
+      console.log("User connected:", socket.data.userId);
       next();
     } catch (error) {
       return next(new Error("Invalid token"))

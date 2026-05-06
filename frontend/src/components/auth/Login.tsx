@@ -24,6 +24,7 @@ export default function Login(): JSX.Element {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const res = await api.post(`/auth/login`, formData);
+    console.log(res);
     if (res.status === 200) {
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);

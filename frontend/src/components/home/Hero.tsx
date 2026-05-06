@@ -28,6 +28,9 @@ export default function Hero() {
     if (!socket.connected) {
       socket.connect();
     }
+    return ()=>{
+      socket.disconnect();
+    }
   }, []);
 
   const handleCreateRoom = () => {

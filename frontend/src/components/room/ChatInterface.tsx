@@ -25,6 +25,7 @@ export default function ChatInterface() {
      return () => {
     socket.off("receive_message");
     socket.off("connect");
+    socket.disconnect();
   };
   },[roomId]);
   const handleMesSend = ():void => {
