@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken"
 import { Server } from "socket.io";
+import User from "../models/user.model"
+import { timeStamp } from "node:console";
 
 let activeRooms=new Set <string>();
-let messages: Record<string, any> = {};
-let timeOnline: Record<string, any> = {};
+
 
 const setSocketConnection = (server: any) => {
   const io = new Server(server, {
@@ -22,7 +23,8 @@ const setSocketConnection = (server: any) => {
     try{
       const decode=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET!)as any
       socket.data.userId=decode.userId;
-      console.log("User connected:", socket.data.userId);
+      socket.data.name=decode.name;
+      console.log("User connected:", socket.data.name);
       next();
     } catch (error) {
       return next(new Error("Invalid token"))
@@ -31,11 +33,11 @@ const setSocketConnection = (server: any) => {
 
   io.on("connection",(socket)=>{
     console.log("user joined    ",socket.id);
-
     //creating the rooms
     socket.on("create-room",(roomId,callback)=>{
      if(activeRooms.has(roomId)){
       callback?.({success:false,message:"Room already exist"})
+      return;
      }
      activeRooms.add(roomId)
      socket.join(roomId);
@@ -43,7 +45,7 @@ const setSocketConnection = (server: any) => {
     })
     
     //join rooms logic
-    socket.on("join-room",(roomId:string,callback)=>{
+    socket.on("join-room",async  (roomId:string,callback)=>{
       if(!activeRooms.has(roomId)){
         callback?.({success:false,message:"Room dosent exist"})
         return;
@@ -51,15 +53,25 @@ const setSocketConnection = (server: any) => {
       socket.join(roomId);
 
       socket.to(roomId).emit("joined-user",{
-        userId:socket.id,
+        userId:socket.data.userId,
+        name:socket.data.name,
         roomId,
         timeStamp:Date.now()
       })
       callback?.({success:true})
     })
-  })
- 
 
+    //send message
+    socket.on("send-message",async (roomId:string,data:string)=>{
+
+      io.to(roomId).emit("new-message",{
+        userId:socket.data.userId,
+        name:socket.data.name,
+        data,
+        sentAt:Date.now()
+      })
+    })
+  })
   return io;
 };
 

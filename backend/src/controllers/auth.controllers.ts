@@ -31,7 +31,7 @@ const register: RequestHandler = async (
 
     //get tokens
     const accesToken = jwt.sign(
-      { userId },
+      { userId,name },
       process.env.ACCESS_TOKEN_SECRET as string,
       {
         expiresIn: "15m",
@@ -39,7 +39,7 @@ const register: RequestHandler = async (
     );
 
      const refreshToken = jwt.sign(
-      { userId },
+      { userId,name },
       process.env.REFRESH_TOKEN_SECRET as string,
       {
         expiresIn: "7d",
@@ -72,10 +72,11 @@ const login:RequestHandler = async (
     }
 
     const userId = user._id;
+    const name = user.name;
 
     //get tokens
     const accessToken = jwt.sign(
-      { userId },
+      { userId,name },
       process.env.ACCESS_TOKEN_SECRET as string,
       {
         expiresIn: "15m",
@@ -83,7 +84,7 @@ const login:RequestHandler = async (
     );
 
      const refreshToken = jwt.sign(
-      { userId },
+      { userId,name },
       process.env.REFRESH_TOKEN_SECRET as string,
       {
         expiresIn: "7d",

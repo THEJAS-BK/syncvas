@@ -52,13 +52,13 @@ export default function Hero() {
   };
   const handleJoinRoom = (e:React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
+
    const roomCode=roomId;
    if(!roomCode){
     setToast({open:true,message:"Please enter a room code"});
     setRoomId("")
-    return
+    return;
    }
-
     socket.emit("join-room",roomCode,(res:CreateRoomResponse)=>{
       if(!res.success){
         setToast({open:true,message:"Room not found"});    
