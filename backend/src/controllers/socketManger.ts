@@ -45,7 +45,7 @@ const setSocketConnection = (server: any) => {
     })
     
     //join rooms logic
-    socket.on("join-room",async  (roomId:string,callback)=>{
+    socket.on("join-room",  (roomId:string,callback)=>{
       if(!activeRooms.has(roomId)){
         callback?.({success:false,message:"Room dosent exist"})
         return;
@@ -62,10 +62,10 @@ const setSocketConnection = (server: any) => {
     })
 
     //send message
-    socket.on("send-message",async (roomId:string,data:string)=>{
-
-      io.to(roomId).emit("new-message",{
-        userId:socket.data.userId,
+    socket.on("send-message", (roomId:string,data:string)=>{
+      io.to(roomId).emit("receive-message",{
+        roomId:roomId,
+        userId:socket.id,
         name:socket.data.name,
         data,
         sentAt:Date.now()
