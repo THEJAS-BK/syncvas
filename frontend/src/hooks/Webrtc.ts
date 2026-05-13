@@ -6,7 +6,10 @@ const ICE_CONFIG = {
 };
 
 export const useWebRTC = (roomId: string) => {
-  const [remoteStreams, setRemoteStreams] = useState<{ [socketId: string]: MediaStream }>({});
+  const pendingCandidates = useRef<Record<string, RTCIceCandidateInit[]>>({});
+  const [remoteStreams, setRemoteStreams] = useState<{
+    [socketId: string]: MediaStream;
+  }>({});
   const [isReady, setIsReady] = useState(false);
   const localStream = useRef<MediaStream | null>(null);
   const peerConnections = useRef<{ [socketId: string]: RTCPeerConnection }>({});
@@ -14,16 +17,16 @@ export const useWebRTC = (roomId: string) => {
   const createPC = (remoteId: string) => {
     const pc = new RTCPeerConnection(ICE_CONFIG);
 
-    localStream.current?.getTracks().forEach(track =>
-      pc.addTrack(track, localStream.current!)
-    );
+    localStream.current
+      ?.getTracks()
+      .forEach((track) => pc.addTrack(track, localStream.current!));
 
     pc.onicecandidate = ({ candidate }) => {
       if (candidate) socket.emit("ice-candidates", { to: remoteId, candidate });
     };
 
     pc.ontrack = ({ streams }) => {
-      setRemoteStreams(prev => ({ ...prev, [remoteId]: streams[0] }));
+      setRemoteStreams((prev) => ({ ...prev, [remoteId]: streams[0] }));
     };
 
     peerConnections.current[remoteId] = pc;
@@ -34,12 +37,16 @@ export const useWebRTC = (roomId: string) => {
     const init = async () => {
       if (localStream.current) return; // guard against StrictMode double invoke
 
-      localStream.current = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      localStream.current = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
       setIsReady(true); // trigger re-render so local video shows up
 
-      const join = () => socket.emit("join-room", roomId, (res: any) => {
-        if (!res.success) console.error(res.message);
-      });
+      const join = () =>
+        socket.emit("join-room", roomId, (res: any) => {
+          if (!res.success) console.error(res.message);
+        });
 
       if (socket.connected) {
         join();
@@ -60,13 +67,22 @@ export const useWebRTC = (roomId: string) => {
       }
     });
 
-    socket.on("joined-user", ({ socketId }: { socketId: string }) => createPC(socketId));
+    socket.on("joined-user", ({ socketId }: { socketId: string }) =>
+      createPC(socketId),
+    );
 
-    socket.on("receive-offer", async ({ from, offer }: any) => {
-      const pc = peerConnections.current[from];
-      await pc.setRemoteDescription(offer);
+    socket.on("receive-offer", async ({ from, offer }) => {
+      let pc = peerConnections.current[from];
+
+      if (!pc) {
+        pc = createPC(from);
+      }
+
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
+
       socket.emit("answer", { to: from, answer });
     });
 
@@ -74,14 +90,25 @@ export const useWebRTC = (roomId: string) => {
       await peerConnections.current[from].setRemoteDescription(answer);
     });
 
-    socket.on("receive-ice-candidates", async ({ from, candidate }: any) => {
-      await peerConnections.current[from].addIceCandidate(candidate);
+    socket.on("receive-ice-candidates", async ({ from, candidate }) => {
+      const pc = peerConnections.current[from];
+
+      if (!pc.remoteDescription) {
+        if (!pendingCandidates.current[from]) {
+          pendingCandidates.current[from] = [];
+        }
+
+        pendingCandidates.current[from].push(candidate);
+        return;
+      }
+
+      await pc.addIceCandidate(new RTCIceCandidate(candidate));
     });
 
     socket.on("user-left", (socketId: string) => {
       peerConnections.current[socketId]?.close();
       delete peerConnections.current[socketId];
-      setRemoteStreams(prev => {
+      setRemoteStreams((prev) => {
         const updated = { ...prev };
         delete updated[socketId];
         return updated;
@@ -89,10 +116,10 @@ export const useWebRTC = (roomId: string) => {
     });
 
     return () => {
-      localStream.current?.getTracks().forEach(t => t.stop());
+      localStream.current?.getTracks().forEach((t) => t.stop());
       localStream.current = null; // reset so re-mount reinitializes
       setIsReady(false);
-      Object.values(peerConnections.current).forEach(pc => pc.close());
+      Object.values(peerConnections.current).forEach((pc) => pc.close());
       peerConnections.current = {};
       socket.off("existing-peers");
       socket.off("joined-user");

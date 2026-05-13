@@ -83,9 +83,12 @@ const setSocketConnection = (server: any) => {
       io.to(to).emit("receive-answer", { from: socket.id, answer });
     });
 
-    socket.on("ice-candidates", ({ to, candidates }) => {
-      io.to(to).emit("receive-ice-candidates", { from: socket.id, candidates });
-    });
+  socket.on("ice-candidates", ({ to, candidate }) => {
+  io.to(to).emit("receive-ice-candidates", {
+    from: socket.id,
+    candidate,
+  });
+});
 
     socket.on("disconnect", () => {
       const roomId = socket.data.roomId;

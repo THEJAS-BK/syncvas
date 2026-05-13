@@ -11,7 +11,7 @@ export default function ChatInterface() {
   const { roomId } = useParams();
 useEffect(() => {
   const handleMessage = (data: RecieveMessage) => {
-    console.log("received", data);
+    console.log("received messages", data ,"====>>",socket.id);
     setMessages((prev) => [...prev, data]);
   };
 
@@ -25,12 +25,6 @@ useEffect(() => {
   };
 }, []);
 
-    const printMess=()=>{
-      messages.map((data,idx)=>{
-        console.log(data.roomId,idx)
-      })
-      
-    }
 
   useEffect(()=>{
     socket.emit("join-room",roomId)
@@ -47,11 +41,12 @@ useEffect(() => {
     <div className="border flex-1 pb-4 min-h-screen flex flex-col justify-between">
       <div className="bg-blue-200 flex-1 px-2 py-6 flex flex-col">
        {messages.map((data,idx)=>{
+        console.log(data,"this isi dalsdg;kfjsdljf")
          return(
           <ChatBox
           key={idx}
           message={data.data}
-          isOwn={data.userId ===socket.id}
+          isOwn={data.socketId ===socket.id}
       />   )
        })}
       </div>
@@ -66,8 +61,6 @@ useEffect(() => {
           Send
         </Button>
       </div>
-
-      <button onClick={printMess}>Print Messages</button>
     </div>
   );
 }
