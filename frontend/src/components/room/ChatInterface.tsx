@@ -40,7 +40,6 @@ useEffect(() => {
   },[roomId])
 
   const handleMesSend = ():void => {
-    console.log("sent")
     socket.emit("send-message", roomId,inputText);
     setInputText("")
   };

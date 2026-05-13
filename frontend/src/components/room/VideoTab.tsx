@@ -5,10 +5,7 @@ export default function VedioTab() {
         <div className="border-2 w-full h-[80%] flex justify-evenly flex-wrap pt-5">
             <VideoCard/>
             <VideoCard/>
-            <VideoCard/>
-            <VideoCard/>
-            <VideoCard/>
-            <VideoCard/>
+           
         </div>
     )
 };
