@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Server } from "socket.io";
 
-let activeRooms: any = {};
+let activeRooms: Record<string, Set<string>> = {};
 
 const setSocketConnection = (server: any) => {
   const io = new Server(server, {
@@ -37,19 +37,22 @@ const setSocketConnection = (server: any) => {
         return;
       }
       socket.data.roomId = roomId;
-      activeRooms.push(roomId);
+      activeRooms[roomId] = new Set();
+      activeRooms[roomId].add(socket.id);
       socket.join(roomId);
       callback?.({ success: true });
     });
 
     //join rooms logic
     socket.on("join-room", (roomId: string, callback) => {
-      if (!activeRooms.has(roomId)) {
+      if (!activeRooms[roomId]) {
         callback?.({ success: false, message: "Room dosent exist" });
         return;
       }
       socket.join(roomId);
-
+      socket.emit("existing-peers",[...activeRooms[roomId]]);
+      socket.data.roomId = roomId;
+      activeRooms[roomId].add(socket.id);
       socket.to(roomId).emit("joined-user", {
         userId: socket.data.userId,
         name: socket.data.name,
@@ -69,7 +72,7 @@ const setSocketConnection = (server: any) => {
         sentAt: Date.now(),
       });
     });
-    //!zoom features
+    //!webrtc features
     socket.on("offer", ({ to, offer }) => {
       io.to(to).emit("receive-offer", { from: socket.id, offer });
     });
@@ -88,11 +91,11 @@ const setSocketConnection = (server: any) => {
         console.log("roomId not found in sockets");
         return;
       }
-      activeRooms[roomId] = activeRooms[roomId].filter(
-        (id: any) => id !== socket.id,
-      );
+     activeRooms[roomId].delete(socket.id);
       socket.to(roomId).emit("user-left", socket.id);
-      if (activeRooms[roomId].length === 0) delete activeRooms[roomId];
+      if (activeRooms[roomId].size === 0) {
+        delete activeRooms[roomId];
+      }
     });
   });
 
