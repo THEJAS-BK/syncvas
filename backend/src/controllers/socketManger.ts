@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Server } from "socket.io";
 
-let activeRooms:any = {};
+let activeRooms: any = {};
 
 const setSocketConnection = (server: any) => {
   const io = new Server(server, {
@@ -36,7 +36,7 @@ const setSocketConnection = (server: any) => {
         callback?.({ success: false, message: "Room already exist" });
         return;
       }
-      socket.data.roomId=roomId;
+      socket.data.roomId = roomId;
       activeRooms.push(roomId);
       socket.join(roomId);
       callback?.({ success: true });
@@ -70,30 +70,30 @@ const setSocketConnection = (server: any) => {
       });
     });
     //!zoom features
-    socket.on("offer", ({to, offer}) => {
-      io.to(to).emit("receive-offer",{from: socket.id, offer})
+    socket.on("offer", ({ to, offer }) => {
+      io.to(to).emit("receive-offer", { from: socket.id, offer });
     });
 
-    socket.on("answer",({to,answer})=>{
-      io.to(to).emit("receive-answer",{from:socket.id,answer})
-    })
+    socket.on("answer", ({ to, answer }) => {
+      io.to(to).emit("receive-answer", { from: socket.id, answer });
+    });
 
-    socket.on("ice-candidates",({to,candidates})=>{
-      io.to(to).emit("receive-ice-candidates",{from:socket.id,candidates})
-    })
+    socket.on("ice-candidates", ({ to, candidates }) => {
+      io.to(to).emit("receive-ice-candidates", { from: socket.id, candidates });
+    });
 
-    socket.on("disconnect",()=>{
-      const roomId=socket.data.roomId;
-      if(!roomId||!activeRooms[roomId]){
-        console.log("roomId not found in sockets")
+    socket.on("disconnect", () => {
+      const roomId = socket.data.roomId;
+      if (!roomId || !activeRooms[roomId]) {
+        console.log("roomId not found in sockets");
         return;
       }
-      activeRooms[roomId]=activeRooms[roomId].filter((id:any)=>id!==socket.id)
-       socket.to(roomId).emit("user-left", socket.id);
-    if (activeRooms[roomId].length === 0) delete activeRooms[roomId];
-    })
-
-
+      activeRooms[roomId] = activeRooms[roomId].filter(
+        (id: any) => id !== socket.id,
+      );
+      socket.to(roomId).emit("user-left", socket.id);
+      if (activeRooms[roomId].length === 0) delete activeRooms[roomId];
+    });
   });
 
   return io;
