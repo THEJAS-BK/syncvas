@@ -50,7 +50,7 @@ const setSocketConnection = (server: any) => {
         return;
       }
       socket.join(roomId);
-      socket.emit("existing-peers",[...activeRooms[roomId]]);
+      socket.emit("existing-peers",[...activeRooms[roomId]].filter(id=>id!==socket.id));
       socket.data.roomId = roomId;
       activeRooms[roomId].add(socket.id);
       socket.to(roomId).emit("joined-user", {
