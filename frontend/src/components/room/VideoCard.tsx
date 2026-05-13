@@ -1,7 +1,11 @@
-export default function VideoCard() {
-    return(
-        <video className="border-3 rounded-lg w-[30%] h-[40%]">
-            <source src="video.mp4" type="video/mp4" />
-        </video>
-    )
+import { useEffect, useRef } from "react"
+
+export default function VideoCard({stream,muted=false}:{stream:MediaStream,muted?:boolean}) {
+    const ref=useRef<HTMLVideoElement>(null)
+    useEffect(()=>{
+        if(ref.current){
+            ref.current.srcObject=stream;
+        }
+    },[stream])
+    return <video ref={ref} autoPlay playsInline muted={muted} className="border-3 rounded-lg w-[30%] h-[40%]" />;
 };

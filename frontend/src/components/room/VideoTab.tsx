@@ -1,11 +1,13 @@
 import VideoCard from "./VideoCard";
-
-export default function VedioTab() {
+import { useWebRTC } from "../../hooks/Webrtc";
+export default function VideoTab({roomId}:{roomId:string}) {
+    const { localStream, remoteStreams } = useWebRTC(roomId);
     return(
         <div className="border-2 w-full h-[80%] flex justify-evenly flex-wrap pt-5">
-            <VideoCard/>
-            <VideoCard/>
-           
+            {localStream.current&&<VideoCard stream={localStream.current} muted />}
+            {Object.entries(remoteStreams).map(([id,stream])=>{
+               return <VideoCard key={id} stream={stream}/>
+            })}
         </div>
     )
 };

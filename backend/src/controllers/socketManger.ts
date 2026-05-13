@@ -58,6 +58,7 @@ const setSocketConnection = (server: any) => {
         name: socket.data.name,
         roomId,
         timeStamp: Date.now(),
+        socketId:socket.id
       });
       callback?.({ success: true });
     });
@@ -66,10 +67,11 @@ const setSocketConnection = (server: any) => {
     socket.on("send-message", (roomId: string, data: string) => {
       io.to(roomId).emit("receive-message", {
         roomId: roomId,
-        userId: socket.id,
+        userId: socket.data.userId,
         name: socket.data.name,
         data,
         sentAt: Date.now(),
+        socketId:socket.id
       });
     });
     //!webrtc features

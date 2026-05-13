@@ -23,15 +23,11 @@ export default function Hero() {
 
   //invalid room id
   const [Toast,setToast]=useState({open:false,message:""});
-
   useEffect(() => {
-    if (!socket.connected) {
-      socket.connect();
-    }
-    return ()=>{
-      socket.disconnect();
-    }
-  }, []);
+  if (!socket.connected) {
+    socket.connect();
+  }
+}, []);
 
   const handleCreateRoom = () => {
     const tryCreate = () => {
@@ -60,6 +56,7 @@ export default function Hero() {
     return;
    }
     socket.emit("join-room",roomCode,(res:CreateRoomResponse)=>{
+      console.log(res)
       if(!res.success){
         setToast({open:true,message:"Room not found"});    
         setRoomId("") 
@@ -67,6 +64,7 @@ export default function Hero() {
          navigate(`/room/${roomCode}`);
       }
     })
+
   };
 
   return (

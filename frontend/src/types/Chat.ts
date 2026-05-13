@@ -1,7 +1,4 @@
-export type Message={
-    text:string,
-    sender:string,
-}
+
 
 export type RecieveMessage={
     roomId:string,
