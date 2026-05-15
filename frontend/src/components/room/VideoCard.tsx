@@ -11,7 +11,6 @@ export default function VideoCard({
 
   useEffect(() => {
     if (!ref.current || !stream) return;
-
     ref.current.srcObject = stream;
 
     // play video
@@ -37,7 +36,7 @@ export default function VideoCard({
       autoPlay
       playsInline
       muted={muted}
-      className="w-[200px] h-[200px] border rounded-lg object-cover"
+      className="w-50 h-50  border rounded-lg object-cover"
     />
   );
 }
