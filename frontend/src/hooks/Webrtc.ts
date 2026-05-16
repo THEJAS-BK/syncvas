@@ -14,6 +14,25 @@ export const useWebRTC = (roomId: string) => {
   const localStream = useRef<MediaStream | null>(null);
   const peerConnections = useRef<{ [socketId: string]: RTCPeerConnection }>({});
 
+  const [isAudioMuted,setIsAudioMuted]=useState(false);
+  const [isVideoMuted,setIsVideoMuted]=useState(false);
+
+  const audioToggle=()=>{
+    const track = localStream.current?.getAudioTracks()[0];
+    if (track) {
+      track.enabled = !track.enabled;
+      setIsAudioMuted(!track.enabled);
+    }
+  }
+
+  const videoToggle=()=>{
+    const track = localStream.current?.getVideoTracks()[0];
+    if(track){
+      track.enabled=!track.enabled;
+      setIsVideoMuted(!track.enabled)
+    }
+  }
+
   const createPC = (remoteId: string) => {
     const pc = new RTCPeerConnection(ICE_CONFIG);
 
@@ -41,6 +60,9 @@ export const useWebRTC = (roomId: string) => {
         video: true,
         audio: true,
       });
+
+      console.log('audio enabled:', localStream.current.getAudioTracks()[0]?.enabled);
+console.log('video enabled:', localStream.current.getVideoTracks()[0]?.enabled);
       setIsReady(true); // trigger re-render so local video shows up
 
       const join = () =>
@@ -130,5 +152,5 @@ export const useWebRTC = (roomId: string) => {
     };
   }, [roomId]);
 
-  return { localStream, remoteStreams, isReady };
+  return { localStream, remoteStreams, isReady,audioToggle,videoToggle,isAudioMuted,isVideoMuted };
 };

@@ -88,75 +88,7 @@ export default function Hero() {
 
   return (
     <>
-    {Toast.open && (
-        <div
-          className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg z-99 cursor-pointer"
-          onClick={() => setToast({ open: false, message: "" })}
-        >
-          {Toast.message}
-        </div>
-      )}
-      <div className="h-screen overflow-y-auto">
-        <div className="h-screen flex justify-center gap-5 mt-[-50px]">
-          <div className="flex flex-col justify-center overflow-hidden w-[45%] mb-30">
-            <p className="text-7xl">Collaborate visually,in real time</p>
-            <p className="text-lg mt-4 w-[80%]">
-              The easiest way for remote teams to brainstorm, design and plan
-              togather on a shared digital canvas. Simple, fast and beautiful.
-            </p>
-            <div className="mt-7 flex ">
-              <Button>Create Room</Button>
-              <Button variant="outlined" onClick={handleOpenJoinRoom}>
-                Join Room
-              </Button>
-            </div>
-          </div>
-          <div className="flex flex-col justify-center">
-            <img
-              src={dasboard_hero}
-              alt="Dashboard Hero"
-              className="max-w-2xl"
-            />
-          </div>
-        </div>
-
-        {/* section 2 */}
-        <div className="h-screen px-8 flex flex-col align-center bg-[#f6f2f7]">
-          <h2 className="text-center text-3xl mt-30">Everything you need to move faster</h2>
-          <div className="flex mt-30 justify-center">
-            <div className="h-100 w-[25%] text-center">
-              <h1>%^&%*</h1>
-              <p>Prepare your canvas</p>
-              <p>
-                Set up templates, drag in assets, and organize your ideas before
-                the meeting starts
-              </p>
-            </div>
-
-             <div className="h-100 w-[25%] text-center">
-              <h1>%^&%*</h1>
-              <p>Share room code</p>
-              <p>
-                Set up templates, drag in assets, and organize your ideas before
-                the meeting starts
-              </p>
-            </div>
-
-
-             <div className="h-100 w-[25%] text-center">
-              <h1>%^&%*</h1>
-              <p>Visual collaboration</p>
-              <p>
-                Set up templates, drag in assets, and organize your ideas before
-                the meeting starts
-              </p>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {/* 
+     
       {showConfirm && (
         <form
           onSubmit={handleJoinRoom}
@@ -181,39 +113,51 @@ export default function Hero() {
             </Stack>
           </div>
         </form>
-      )} */}
+      )}
 
-      {/* loading overlay */}
-      {/* {loading && (
+
+    {loading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex flex-col items-center justify-center gap-4">
           <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin" />
           <p className="text-white text-lg font-medium">{loading}</p>
         </div>
-      )}
-
-      <div className="flex flex-col flex-1 items-center">
-        <div className="flex flex-col mt-60 border-2 items-center p-4 rounded-lg">
-          <div className="mx-auto text-center pb-7">
-            <h2 className="text-4xl font-bold mb-5">
-              Welcome to the Hero Section
-            </h2>
-            <Button variant="contained">Get whiteboard</Button>
-          </div>
-          <Stack spacing={2} direction="row" className="mx-auto">
-            <Button variant="outlined" onClick={handleOpenJoinRoom}>
-              join Room
-            </Button>
-            <p>Or</p>
-            <Button
-              onClick={handleCreateRoom}
-              variant="contained"
-              color="success"
-            >
-              create Room
-            </Button>
-          </Stack>
+      )}     
+    {Toast.open && (
+        <div
+          className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg z-99 cursor-pointer"
+          onClick={() => setToast({ open: false, message: "" })}
+        >
+          {Toast.message}
         </div>
-      </div> */}
+      )}
+      <div className="h-screen overflow-y-auto">
+        <div className="h-screen flex justify-center gap-5 mt-[-50px]">
+          <div className="flex flex-col justify-center overflow-hidden w-[45%] mb-30">
+            <p className="text-7xl">Collaborate visually,in real time</p>
+            <p className="text-lg mt-4 w-[80%]">
+              The easiest way for remote teams to brainstorm, design and plan
+              togather on a shared digital canvas. Simple, fast and beautiful.
+            </p>
+            <div className="mt-7 flex ">
+              <Button onClick={handleCreateRoom}>Create Room</Button>
+              <Button variant="outlined" onClick={handleOpenJoinRoom}>
+                Join Room
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-col justify-center">
+            {/* <img
+              src={dasboard_hero}
+              alt="Dashboard Hero"
+              className="max-w-2xl"
+            /> */}
+          </div>
+        </div>
+
+       
+      </div>
+
+     
     </>
   );
 }

@@ -35,7 +35,6 @@ export default function VideoCard({
       ref={ref}
       autoPlay
       playsInline
-      muted={muted}
       className="w-50 h-50  border rounded-lg object-cover"
     />
   );
