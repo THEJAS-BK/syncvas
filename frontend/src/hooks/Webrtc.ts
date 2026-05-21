@@ -60,9 +60,6 @@ export const useWebRTC = (roomId: string) => {
         video: true,
         audio: true,
       });
-
-      console.log('audio enabled:', localStream.current.getAudioTracks()[0]?.enabled);
-console.log('video enabled:', localStream.current.getVideoTracks()[0]?.enabled);
       setIsReady(true); // trigger re-render so local video shows up
 
       const join = () =>

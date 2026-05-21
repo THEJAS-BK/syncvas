@@ -8,7 +8,6 @@ export default function NavBar() {
                 <a href="">Rooms</a>
             </div>
             <div className="right">
-                <button>Thejas</button>
             </div>
         </div>
     )

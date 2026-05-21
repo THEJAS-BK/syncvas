@@ -3,9 +3,11 @@ import { useEffect, useRef } from "react";
 export default function VideoCard({
   stream,
   muted = false,
+  isVideoMuted
 }: {
   stream: MediaStream;
   muted?: boolean;
+  isVideoMuted?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
 

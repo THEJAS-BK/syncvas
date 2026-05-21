@@ -19,7 +19,7 @@ import dasboard_hero from "../../utils/images/dashboard_hero.png";
 function connectSocket(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (socket.connected) return resolve();
-    socket.connect();
+     socket.connect();
     socket.once("connect", resolve);
     socket.once("connect_error", reject);
   });
@@ -36,10 +36,9 @@ export default function Hero() {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleCreateRoom = async () => {
-    setLoading("connecting");
     try {
-      await connectSocket();
-      setLoading("creating room");
+    await connectSocket(); 
+    setLoading("creating room");
       const tryCreate = () => {
         const roomId = generateRoomId();
         socket.emit("create-room", roomId, (res: CreateRoomResponse) => {
