@@ -1,6 +1,6 @@
 import VideoTab from "./VideoTab";
 import VideoOptions from "./VideoOptions";
-import { useWebRTC } from "../../hooks/Webrtc";
+import { useWebRtcContext } from "../../context/WebRtcContext";
 
 export default function MainContent({ roomId }: { roomId: string }) {
   const {
@@ -11,7 +11,7 @@ export default function MainContent({ roomId }: { roomId: string }) {
     videoToggle,
     isAudioMuted,
     isVideoMuted,
-  } = useWebRTC(roomId);
+  } =useWebRtcContext();
   return (
     <>
       <div className=" w-[70%] flex flex-col">

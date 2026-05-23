@@ -3,27 +3,19 @@ import Button from "@mui/material/Button";
 import { socket } from "../../services/socket";
 import { useEffect, useState } from "react";
 import type { RecieveMessage } from "../../types/Chat";
-import { useParams } from "react-router-dom";
 import VideoTab from "../room/VideoTab"
+import { useWebRtcContext } from "../../context/WebRtcContext";
 
-interface chatInterfaceProp{
-  cursorDash:boolean,
-  roomId:string,
-   localStream: React.MutableRefObject<MediaStream | null>;
-  remoteStreams: { [socketId: string]: MediaStream };
-  isReady: boolean;
-  isVideoMuted:boolean
-}
-
-export default function ChatInterface({roomId,cursorDash,localStream,remoteStreams,isReady,isVideoMuted}:chatInterfaceProp) {
+export default function ChatInterface({roomId,cursorDash}:{cursorDash:boolean,roomId:string}) {
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<RecieveMessage[]>([]);
+
+  const {localStream,remoteStreams,isReady,isVideoMuted}=useWebRtcContext();
+
   useEffect(() => {
     const handleMessage = (data: RecieveMessage) => {
-      console.log("received messages", data, "====>>", socket.id);
       setMessages((prev) => [...prev, data]);
     };
-
     socket.on("connect", () => console.log("Connected:", socket.id));
     socket.on("receive-message", handleMessage);
     socket.connect();
