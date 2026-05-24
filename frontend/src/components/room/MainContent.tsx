@@ -22,12 +22,6 @@ export default function MainContent({ roomId }: { roomId: string }) {
           isReady={isReady}
           isVideoMuted={isVideoMuted}
         />
-        <VideoOptions
-          audioToggle={audioToggle}
-          videoToggle={videoToggle}
-          isAudioMuted={isAudioMuted}
-          isVideoMuted={isVideoMuted}
-        />
       </div>
     </>
   );

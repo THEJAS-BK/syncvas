@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import type { RecieveMessage } from "../../types/Chat";
 import VideoTab from "../room/VideoTab"
 import { useWebRtcContext } from "../../context/WebRtcContext";
+import VideoOptions from "./VideoOptions";
 
 export default function ChatInterface({roomId,cursorDash}:{cursorDash:boolean,roomId:string}) {
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<RecieveMessage[]>([]);
 
-  const {localStream,remoteStreams,isReady,isVideoMuted}=useWebRtcContext();
+  const {localStream,remoteStreams,isReady,isVideoMuted,isAudioMuted,audioToggle,videoToggle}=useWebRtcContext();
 
   useEffect(() => {
     const handleMessage = (data: RecieveMessage) => {

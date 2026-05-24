@@ -15,14 +15,11 @@ export default function RoomPage() {
    <WebRtcProvider roomId={roomId}>
      <div className="h-screen flex flex-col">
       <RoomNavbar setCursorDash={setOpenCursor} cursorDash={openCursor}  />
-       <p>{openCursor ? "CURSOR OPEN" : "CURSOR CLOSED"}</p> 
       <main className="flex-1 flex ">
         {/* cursor interface not open*/}
        {!openCursor&&(
          <MainContent roomId={roomId} />
        )}
-
-
         {openCursor&&(
           <MultiCursor/>
         )}

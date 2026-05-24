@@ -1,6 +1,6 @@
 export default function MultiCursor() {
   return (
-    <div>
+    <div className="w-[70%] flex flex-col">
       Hello
     </div>
   )
