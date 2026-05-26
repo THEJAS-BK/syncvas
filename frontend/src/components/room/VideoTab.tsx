@@ -12,7 +12,7 @@ export default function VideoTab({roomId,localStream,remoteStreams,isReady,isVid
     const {audioToggle,videoToggle,isAudioMuted}=useWebRtcContext();
     return(
        <>
-        <div className="border-2 w-full h-[80%] flex justify-evenly flex-wrap pt-5">
+        <div className="grid grid-cols-[repeat(auto-fit),minmax(250px,1fr)] h-[80%] gap-4">
             {isReady &&localStream.current&&<VideoCard stream={localStream.current} isVideoMuted={isVideoMuted} />}
             {Object.entries(remoteStreams).map(([id,stream])=>{
                return <VideoCard key={id} stream={stream} isVideoMuted={isVideoMuted} />

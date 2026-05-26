@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function MultiCursor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -28,7 +28,7 @@ export default function MultiCursor() {
       const y = (e.clientY - rect.top) * scaleY;
       ctx.moveTo(x, y);
     };
-
+    
     const draw = (e: MouseEvent) => {
       if (!isDrawing.current) return;
       const rect = canvas.getBoundingClientRect();

@@ -50,7 +50,10 @@ const setSocketConnection = (server: any) => {
         return;
       }
       socket.join(roomId);
-      socket.emit("existing-peers",[...activeRooms[roomId]].filter(id=>id!==socket.id));
+      socket.emit(
+        "existing-peers",
+        [...activeRooms[roomId]].filter((id) => id !== socket.id),
+      );
       socket.data.roomId = roomId;
       activeRooms[roomId].add(socket.id);
       socket.to(roomId).emit("joined-user", {
@@ -58,7 +61,7 @@ const setSocketConnection = (server: any) => {
         name: socket.data.name,
         roomId,
         timeStamp: Date.now(),
-        socketId:socket.id
+        socketId: socket.id,
       });
       callback?.({ success: true });
     });
@@ -71,7 +74,7 @@ const setSocketConnection = (server: any) => {
         name: socket.data.name,
         data,
         sentAt: Date.now(),
-        socketId:socket.id
+        socketId: socket.id,
       });
     });
     //!webrtc features
@@ -83,12 +86,12 @@ const setSocketConnection = (server: any) => {
       io.to(to).emit("receive-answer", { from: socket.id, answer });
     });
 
-  socket.on("ice-candidates", ({ to, candidate }) => {
-  io.to(to).emit("receive-ice-candidates", {
-    from: socket.id,
-    candidate,
-  });
-});
+    socket.on("ice-candidates", ({ to, candidate }) => {
+      io.to(to).emit("receive-ice-candidates", {
+        from: socket.id,
+        candidate,
+      });
+    });
 
     socket.on("disconnect", () => {
       const roomId = socket.data.roomId;
@@ -96,12 +99,16 @@ const setSocketConnection = (server: any) => {
         console.log("roomId not found in sockets");
         return;
       }
-     activeRooms[roomId].delete(socket.id);
+      activeRooms[roomId].delete(socket.id);
       socket.to(roomId).emit("user-left", socket.id);
       if (activeRooms[roomId].size === 0) {
         delete activeRooms[roomId];
       }
     });
+
+    //canvas code
+    
+
   });
 
   return io;
