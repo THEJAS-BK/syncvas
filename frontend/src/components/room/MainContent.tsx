@@ -17,6 +17,7 @@ export default function MainContent({ roomId }: { roomId: string }) {
           remoteStreams={remoteStreams}
           isReady={isReady}
           isVideoMuted={isVideoMuted}
+          isCursorOpen={false}
         />
       </div>
     </>

@@ -3,11 +3,13 @@ import { useEffect, useRef } from "react";
 export default function VideoCard({
   stream,
   muted = false,
-  isVideoMuted
+  isVideoMuted,
+  isCursorOpen
 }: {
   stream: MediaStream;
   muted?: boolean;
   isVideoMuted?: boolean;
+  isCursorOpen?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
 
@@ -37,7 +39,7 @@ export default function VideoCard({
       ref={ref}
       autoPlay
       playsInline
-      className="w-50 h-50  border rounded-lg object-cover"
+      className={` ${isCursorOpen ? "w-[47%] h-38" : "w-50 h-50"} border rounded-lg object-cover`}
     />
   );
 }

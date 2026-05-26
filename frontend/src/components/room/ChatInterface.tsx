@@ -74,7 +74,10 @@ export default function ChatInterface({roomId,cursorDash}:{cursorDash:boolean,ro
           localStream={localStream}
           remoteStreams={remoteStreams}
           isReady={isReady}
-          isVideoMuted={isVideoMuted}/>
+          isVideoMuted={isVideoMuted}
+          isCursorOpen={true}
+          />
+          
         </>
       )}
     </div>
