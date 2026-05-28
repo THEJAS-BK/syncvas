@@ -56,7 +56,7 @@ export default function ChatInterface({
   };
   return (
     <div
-      className={`border flex-1 pb-4  flex flex-col justify-between ${floatChatInterface ? "absolute right-0 w-[30%] h-[50%] " : "min-h-screen"}`}
+      className={`border flex-1 pb-4  flex flex-col justify-between ${floatChatInterface ? "absolute right-0 w-[30%] h-[50%] " : "min-h-screen w-39%"}`}
     >
       {!cursorDash && (
         <>
