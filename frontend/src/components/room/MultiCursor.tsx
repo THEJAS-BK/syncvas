@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { socket } from "../../services/socket";
 
 type Point = {
   x: number;
@@ -6,6 +7,7 @@ type Point = {
 };
 
 type Stroke = {
+  userId: string;
   points: Point[];
 };
 
@@ -22,6 +24,10 @@ export default function MultiCursor({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const strokes = useRef<Stroke[]>([]);
   const currentStroke = useRef<Point[]>([]);
+
+  //username userId
+  const [userName,setUserName]=useState("");
+  const [userId,setUserId]=useState("")
 
   const isDrawing = useRef(false);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
@@ -40,6 +46,12 @@ export default function MultiCursor({
   };
 
   useEffect(() => {
+    //get current username and userID
+    socket.emit("my-info",(callback:{userId:string,name:string})=>{
+      setUserName(callback.name);
+      setUserId(callback.userId);
+    });
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -83,6 +95,7 @@ export default function MultiCursor({
       if (currentStroke.current.length > 0) {
         strokes.current.push({
           points: [...currentStroke.current],
+          userId: userName,
         });
       }
       currentStroke.current = [];
@@ -94,33 +107,31 @@ export default function MultiCursor({
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
 
-    if(e.ctrlKey){
+      if (e.ctrlKey) {
         const zoomAmount = e.deltaY * -0.001;
-      const oldScale = camera.current.scale;
-      const newScale = Math.min(Math.max(0.2, oldScale + zoomAmount), 5);
+        const oldScale = camera.current.scale;
+        const newScale = Math.min(Math.max(0.2, oldScale + zoomAmount), 5);
 
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      // world position before zoom
-      const worldX = (mouseX - camera.current.x) / oldScale;
-      const worldY = (mouseY - camera.current.y) / oldScale;
-      camera.current.scale = newScale;
-      // adjust camera so mouse stays fixed
-      camera.current.x = mouseX - worldX * newScale;
-      camera.current.y = mouseY - worldY * newScale;
-    }
-    else if(e.shiftKey){
-     camera.current.x-=e.deltaY;
-    }
-    else{
-      camera.current.y-=e.deltaY;
-    }
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        // world position before zoom
+        const worldX = (mouseX - camera.current.x) / oldScale;
+        const worldY = (mouseY - camera.current.y) / oldScale;
+        camera.current.scale = newScale;
+        // adjust camera so mouse stays fixed
+        camera.current.x = mouseX - worldX * newScale;
+        camera.current.y = mouseY - worldY * newScale;
+      } else if (e.shiftKey) {
+        camera.current.x -= e.deltaY;
+      } else {
+        camera.current.y -= e.deltaY;
+      }
 
       redraw();
     };
 
-     const redraw = () => {
+    const redraw = () => {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.setTransform(
@@ -134,7 +145,7 @@ export default function MultiCursor({
 
       const allStrokes = [
         ...strokes.current,
-        { points: currentStroke.current },
+        { points: currentStroke.current, userId: userId },
       ];
 
       for (const stroke of allStrokes) {
@@ -159,8 +170,6 @@ export default function MultiCursor({
       passive: false,
     });
 
-   
-
     return () => {
       canvas.removeEventListener("mousedown", startDrawing);
       canvas.removeEventListener("mousemove", draw);
@@ -168,8 +177,6 @@ export default function MultiCursor({
       canvas.removeEventListener("wheel", handleWheel);
     };
   }, []);
-
-  //redraw
 
   return (
     <div className="relative bg-black">

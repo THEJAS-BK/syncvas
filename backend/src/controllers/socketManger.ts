@@ -105,10 +105,13 @@ const setSocketConnection = (server: any) => {
         delete activeRooms[roomId];
       }
     });
-
     //canvas code
     
-
+      //get username and userId
+      socket.on("my-info",(callback)=>callback( {
+        userId: socket.data.userId,
+        name: socket.data.name,
+      }));
   });
 
   return io;
