@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export default function MultiCursor() {
+export default function MultiCursor({floatChatInterface}:{floatChatInterface:boolean}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const isDrawing = useRef(false);

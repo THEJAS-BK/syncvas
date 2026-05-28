@@ -1,7 +1,7 @@
 import VideoTab from "./VideoTab";
 import { useWebRtcContext } from "../../context/WebRtcContext";
 
-export default function MainContent({ roomId }: { roomId: string }) {
+export default function MainContent({ roomId,floatChatInterface }: { roomId: string,floatChatInterface:boolean }) {
   const {
     localStream,
     remoteStreams,
@@ -10,7 +10,7 @@ export default function MainContent({ roomId }: { roomId: string }) {
   } =useWebRtcContext();
   return (
     <>
-      <div className=" w-[70%] flex flex-col">
+      <div className={`flex flex-col ${floatChatInterface ? 'w-full' : 'w-[70%]'}`}>
         <VideoTab
           roomId={roomId}
           localStream={localStream}

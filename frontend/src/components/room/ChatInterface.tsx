@@ -3,15 +3,31 @@ import Button from "@mui/material/Button";
 import { socket } from "../../services/socket";
 import { useEffect, useState } from "react";
 import type { RecieveMessage } from "../../types/Chat";
-import VideoTab from "../room/VideoTab"
+import VideoTab from "../room/VideoTab";
 import { useWebRtcContext } from "../../context/WebRtcContext";
 import VideoOptions from "./VideoOptions";
 
-export default function ChatInterface({roomId,cursorDash}:{cursorDash:boolean,roomId:string}) {
+export default function ChatInterface({
+  roomId,
+  cursorDash,
+  floatChatInterface,
+}: {
+  cursorDash: boolean;
+  roomId: string;
+  floatChatInterface: boolean;
+}) {
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<RecieveMessage[]>([]);
 
-  const {localStream,remoteStreams,isReady,isVideoMuted,isAudioMuted,audioToggle,videoToggle}=useWebRtcContext();
+  const {
+    localStream,
+    remoteStreams,
+    isReady,
+    isVideoMuted,
+    isAudioMuted,
+    audioToggle,
+    videoToggle,
+  } = useWebRtcContext();
 
   useEffect(() => {
     const handleMessage = (data: RecieveMessage) => {
@@ -39,7 +55,9 @@ export default function ChatInterface({roomId,cursorDash}:{cursorDash:boolean,ro
     setInputText("");
   };
   return (
-    <div className="border flex-1 pb-4 min-h-screen flex flex-col justify-between">
+    <div
+      className={`border flex-1 pb-4  flex flex-col justify-between ${floatChatInterface ? "absolute right-0 w-[30%] h-[50%] " : "min-h-screen"}`}
+    >
       {!cursorDash && (
         <>
           <div className="bg-blue-200 flex-1 px-2 py-6 flex flex-col">
@@ -68,16 +86,16 @@ export default function ChatInterface({roomId,cursorDash}:{cursorDash:boolean,ro
       )}
 
       {/* Open cursor */}
-      {cursorDash&&(
+      {cursorDash && (
         <>
-        <VideoTab roomId={roomId}
-          localStream={localStream}
-          remoteStreams={remoteStreams}
-          isReady={isReady}
-          isVideoMuted={isVideoMuted}
-          isCursorOpen={true}
+          <VideoTab
+            roomId={roomId}
+            localStream={localStream}
+            remoteStreams={remoteStreams}
+            isReady={isReady}
+            isVideoMuted={isVideoMuted}
+            isCursorOpen={true}
           />
-          
         </>
       )}
     </div>
