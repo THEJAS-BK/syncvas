@@ -2,13 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { socket } from "../../services/socket";
 import { useNavigate, useParams } from "react-router-dom";
 
-const COLORS = [
-  "#ff6b6b",
-  "#4ecdc4",
-  "#f9ca24",
-  "#6c5ce7",
-  "#55efc4",
-];
+const COLORS = ["#ff6b6b", "#4ecdc4", "#f9ca24", "#6c5ce7", "#55efc4"];
 
 type Point = {
   x: number;
@@ -17,7 +11,7 @@ type Point = {
 
 type Stroke = {
   userId: string;
-  color:string;
+  color: string;
   points: Point[];
 };
 
@@ -50,13 +44,12 @@ export default function MultiCursor({
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
 
   //getRoomId
-  const {roomId}=useParams();
-  const navigate=useNavigate();
+  const { roomId } = useParams();
+  const navigate = useNavigate();
 
   //colors work
-   const color= COLORS[Math.floor(Math.random() * 5)];
-  const [colorNum,setColorNum]=useState(color);
-
+  const color = COLORS[Math.floor(Math.random() * 5)];
+  const [colorNum, setColorNum] = useState(color);
 
   const getCanvasPoint = (e: MouseEvent, canvas: HTMLCanvasElement) => {
     const rect = canvas.getBoundingClientRect();
@@ -72,8 +65,7 @@ export default function MultiCursor({
   };
 
   useEffect(() => {
-
-    if(!roomId) navigate("/dashboard");
+    if (!roomId) navigate("/dashboard");
     //get current username and userID
     socket.emit("my-info", (callback: { userId: string; name: string }) => {
       setUserName(callback.name);
@@ -104,7 +96,7 @@ export default function MultiCursor({
       const { x, y } = getCanvasPoint(e, canvas);
       currentStroke.current = [{ x, y }];
 
-      socket.emit("stroke-start", { userId,roomId,color });
+      socket.emit("stroke-start", { userId, roomId, color });
 
       redraw();
     };
@@ -118,7 +110,7 @@ export default function MultiCursor({
       const { x, y } = getCanvasPoint(e, canvas);
       currentStroke.current.push({ x, y });
 
-      socket.emit("stroke-points", { userId,roomId, point: { x, y } });
+      socket.emit("stroke-points", { userId, roomId, point: { x, y } });
 
       redraw();
     };
@@ -129,13 +121,13 @@ export default function MultiCursor({
         strokes.current.push({
           points: [...currentStroke.current],
           userId: userId,
-          color
+          color,
         });
       }
       currentStroke.current = [];
       isDrawing.current = false;
 
-      socket.emit("stroke-end", { userId,roomId });
+      socket.emit("stroke-end", { userId, roomId });
 
       redraw();
     };
@@ -181,9 +173,9 @@ export default function MultiCursor({
 
       const allActive = Object.entries(activeStrokes.current).map(
         ([userId, activeStroke]) => ({
-            userId,
-    color: activeStroke.color,
-    points: activeStroke.points,
+          userId,
+          color: activeStroke.color,
+          points: activeStroke.points,
         }),
       );
 
@@ -192,17 +184,16 @@ export default function MultiCursor({
         {
           userId,
           points: currentStroke.current,
-          color
+          color,
         },
         ...allActive,
       ];
 
       for (const stroke of allStrokes) {
         if (stroke.points.length === 0) continue;
-  
 
         ctx.beginPath();
-        ctx.strokeStyle=stroke.color;
+        ctx.strokeStyle = stroke.color;
         stroke.points.forEach((p, i) => {
           if (i === 0) {
             ctx.moveTo(p.x, p.y);
@@ -217,18 +208,18 @@ export default function MultiCursor({
 
     //! drawing points
     //received data from the backend
-    socket.on("stroke-start", ({ userId,color }) => {
+    socket.on("stroke-start", ({ userId, color }) => {
       activeStrokes.current[userId] = {
         color,
-        points:[]
+        points: [],
       };
     });
 
-    socket.on("stroke-points", ({ userId, point,color }) => {
+    socket.on("stroke-points", ({ userId, point, color }) => {
       if (!activeStrokes.current[userId]) {
         activeStrokes.current[userId] = {
           color,
-          points:[]
+          points: [],
         };
       }
       activeStrokes.current[userId].points.push(point);
@@ -243,8 +234,8 @@ export default function MultiCursor({
 
       strokes.current.push({
         userId: userId,
-        color:activeStroke.color,
-        points:activeStroke.points
+        color: activeStroke.color,
+        points: activeStroke.points,
       });
 
       delete activeStrokes.current[userId];
