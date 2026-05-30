@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { socket } from "../../services/socket";
+import { useNavigate, useParams } from "react-router-dom";
 
 type Point = {
   x: number;
@@ -22,15 +23,22 @@ export default function MultiCursor({
     scale: 1,
   });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   const strokes = useRef<Stroke[]>([]);
   const currentStroke = useRef<Point[]>([]);
+  const activeStrokes = useRef<Record<string, Point[]>>({});
 
   //username userId
-  const [userName,setUserName]=useState("");
-  const [userId,setUserId]=useState("")
+  const [userName, setUserName] = useState("");
+  const [userId, setUserId] = useState("");
 
   const isDrawing = useRef(false);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+
+  //getRoomId
+  const {roomId}=useParams();
+  const navigate=useNavigate();
+
 
   const getCanvasPoint = (e: MouseEvent, canvas: HTMLCanvasElement) => {
     const rect = canvas.getBoundingClientRect();
@@ -46,8 +54,10 @@ export default function MultiCursor({
   };
 
   useEffect(() => {
+
+    if(!roomId) navigate("/dashboard");
     //get current username and userID
-    socket.emit("my-info",(callback:{userId:string,name:string})=>{
+    socket.emit("my-info", (callback: { userId: string; name: string }) => {
       setUserName(callback.name);
       setUserId(callback.userId);
     });
@@ -76,6 +86,9 @@ export default function MultiCursor({
       isDrawing.current = true;
       const { x, y } = getCanvasPoint(e, canvas);
       currentStroke.current = [{ x, y }];
+
+      socket.emit("stroke-start", { userId,roomId });
+
       redraw();
     };
 
@@ -87,6 +100,9 @@ export default function MultiCursor({
       if (!isDrawing.current) return;
       const { x, y } = getCanvasPoint(e, canvas);
       currentStroke.current.push({ x, y });
+
+      socket.emit("stroke-points", { userId,roomId, point: { x, y } });
+
       redraw();
     };
 
@@ -95,11 +111,14 @@ export default function MultiCursor({
       if (currentStroke.current.length > 0) {
         strokes.current.push({
           points: [...currentStroke.current],
-          userId: userName,
+          userId: userId,
         });
       }
       currentStroke.current = [];
       isDrawing.current = false;
+
+      socket.emit("stroke-end", { userId,roomId });
+
       redraw();
     };
 
@@ -127,7 +146,6 @@ export default function MultiCursor({
       } else {
         camera.current.y -= e.deltaY;
       }
-
       redraw();
     };
 
@@ -143,10 +161,37 @@ export default function MultiCursor({
         camera.current.y,
       );
 
+      const allActive = Object.entries(activeStrokes.current).map(
+        ([userId, points]) => ({
+          userId,
+          points,
+        }),
+      );
+
       const allStrokes = [
         ...strokes.current,
-        { points: currentStroke.current, userId: userId },
+        {
+          userId,
+          points: currentStroke.current,
+        },
+        ...allActive,
       ];
+
+      for (const stroke of allStrokes) {
+        if (stroke.points.length === 0) continue;
+
+        ctx.beginPath();
+
+        stroke.points.forEach((p, i) => {
+          if (i === 0) {
+            ctx.moveTo(p.x, p.y);
+          } else {
+            ctx.lineTo(p.x, p.y);
+          }
+        });
+
+        ctx.stroke();
+      }
 
       for (const stroke of allStrokes) {
         if (stroke.points.length === 0) continue;
@@ -163,6 +208,36 @@ export default function MultiCursor({
       }
     };
 
+    //! drawing points
+    //received data from the backend
+    socket.on("stroke-start", ({ userId }) => {
+      activeStrokes.current[userId] = [];
+    });
+
+    socket.on("stroke-points", ({ userId, point }) => {
+      if (!activeStrokes.current[userId]) {
+        activeStrokes.current[userId] = [];
+      }
+      activeStrokes.current[userId].push(point);
+
+      redraw();
+    });
+
+    socket.on("stroke-end", ({ userId }) => {
+      let points = activeStrokes.current[userId];
+
+      if (!points) return;
+
+      strokes.current.push({
+        userId: userId,
+        points,
+      });
+
+      delete activeStrokes.current[userId];
+
+      redraw();
+    });
+
     canvas.addEventListener("mousedown", startDrawing);
     canvas.addEventListener("mousemove", draw);
     window.addEventListener("mouseup", stopDrawing);
@@ -175,6 +250,9 @@ export default function MultiCursor({
       canvas.removeEventListener("mousemove", draw);
       window.removeEventListener("mouseup", stopDrawing);
       canvas.removeEventListener("wheel", handleWheel);
+      socket.off("stroke-start");
+      socket.off("stroke-points");
+      socket.off("stroke-end");
     };
   }, []);
 
