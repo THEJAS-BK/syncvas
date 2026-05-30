@@ -107,15 +107,15 @@ const setSocketConnection = (server: any) => {
     });
     //canvas code
     //get username and userId
-    socket.on("my-info", (callback) =>
+    socket.on("my-info", (callback) =>{
       callback({
         userId: socket.data.userId, 
         name: socket.data.name,
-      }),
-    );
+      })
+  });
 
     socket.on("stroke-start",(data)=>{
-      socket.to(data.roomId).emit("start-strokes",data)
+      socket.to(data.roomId).emit("stroke-start",data)
     })
 
     socket.on("stroke-points",(data)=>{
