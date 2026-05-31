@@ -1,27 +1,83 @@
+import { useParams } from "react-router-dom";
+import { socket } from "../../services/socket";
+
+type BoardImage = {
+  image: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 interface RoomNavProp {
   setCursorDash: (value: boolean) => void;
   cursorDash: boolean;
-  floatChatInterface:boolean;
+  floatChatInterface: boolean;
   setFloatChatInterface: (value: boolean) => void;
+  images: React.RefObject<BoardImage[]>;
+    setRedrawVersion: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export default function RoomNavbar({ setCursorDash, cursorDash,floatChatInterface,setFloatChatInterface }: RoomNavProp) {
+export default function RoomNavbar({
+  setCursorDash,
+  cursorDash,
+  images,
+  floatChatInterface,
+  setFloatChatInterface,
+  setRedrawVersion,
+}: RoomNavProp) {
+  const { roomId } = useParams();
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      //push current user image
+      images.current?.push({
+        image: base64,
+        x: 100,
+        y: 100,
+        width: 400,
+        height: 300,
+      });
+      setRedrawVersion((v: number) => v + 1);
+      //send to other users
+      socket.emit("image-upload", {
+        roomId,
+        image: base64,
+        x: 100,
+        y: 100,
+        width: 400,
+        height: 300,
+      });
+    };
+
+    reader.readAsDataURL(file);
+  };
   return (
     <>
       <div className="bg-blue-200 h-16 flex justify-between align-middle">
-       <div>
-         <h1>Room Navbar</h1>
-        <span>Code : 453433</span>
-       </div>
+        <div>
+          <h1>Room Navbar</h1>
+          <span>Code : 453433</span>
+        </div>
 
-        <button onClick={() => setCursorDash(!cursorDash)}>
-          open multiBoard
-        </button>
-         <div>
-        <button onClick={()=>setFloatChatInterface(!floatChatInterface)}>Float</button>
+        <div>
+          <button onClick={() => setCursorDash(!cursorDash)}>
+            open multiBoard
+          </button>
+
+          <input type="file" accept="image/*" onChange={handleImageUpload} />
+        </div>
+        <div>
+          <button onClick={() => setFloatChatInterface(!floatChatInterface)}>
+            Float
+          </button>
+        </div>
       </div>
-      </div>
-     
     </>
   );
 }

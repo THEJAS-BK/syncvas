@@ -19,11 +19,22 @@ type ActiveStroke = {
   color: string;
   points: Point[];
 };
+type BoardImage = {
+  image: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export default function MultiCursor({
+  images,
   floatChatInterface,
+  imageUpdate,
 }: {
+  images: React.RefObject<BoardImage[]>;
   floatChatInterface: boolean;
+  imageUpdate: number;
 }) {
   const camera = useRef({
     x: 0,
@@ -64,6 +75,88 @@ export default function MultiCursor({
     };
   };
 
+  const redraw = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(
+      camera.current.scale,
+      0,
+      0,
+      camera.current.scale,
+      camera.current.x,
+      camera.current.y,
+    );
+
+    const allActive = Object.entries(activeStrokes.current).map(
+      ([userId, activeStroke]) => ({
+        userId,
+        color: activeStroke.color,
+        points: activeStroke.points,
+      }),
+    );
+
+    const allStrokes = [
+      ...strokes.current,
+      {
+        userId,
+        points: currentStroke.current,
+        color,
+      },
+      ...allActive,
+    ];
+
+    for (const stroke of allStrokes) {
+      if (stroke.points.length === 0) continue;
+
+      ctx.beginPath();
+      ctx.strokeStyle = stroke.color;
+      stroke.points.forEach((p, i) => {
+        if (i === 0) {
+          ctx.moveTo(p.x, p.y);
+        } else {
+          ctx.lineTo(p.x, p.y);
+        }
+      });
+
+      ctx.stroke();
+    }
+  };
+  const imageRender = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(
+      camera.current.scale,
+      0,
+      0,
+      camera.current.scale,
+      camera.current.x,
+      camera.current.y,
+    );
+    for (const imageData of images.current) {
+      const img = new Image();
+
+      img.onload = () => {
+        ctx.drawImage(
+          img,
+          imageData.x,
+          imageData.y,
+          imageData.width,
+          imageData.height,
+        );
+      };
+
+      img.src = imageData.image;
+    }
+  };
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    imageRender(canvas, ctx);
+  }, [imageUpdate]);
+
   useEffect(() => {
     if (!roomId) navigate("/dashboard");
     //get current username and userID
@@ -95,8 +188,17 @@ export default function MultiCursor({
     socket.emit("board-state", roomId);
     socket.on("board-state", (savedStrokes: Stroke[]) => {
       strokes.current = savedStrokes;
-      console.log("current strokes", savedStrokes);
-      redraw();
+      redraw(canvas, ctx);
+    });
+    socket.on("image-state", (savedImages: BoardImage[]) => {
+      images.current = savedImages;
+      imageRender(canvas, ctx);
+    });
+
+    //image upload
+    socket.on("image-upload", (imageData) => {
+      images.current.push(imageData);
+      imageRender(canvas, ctx);
     });
 
     //handle drawing
@@ -107,7 +209,7 @@ export default function MultiCursor({
 
       socket.emit("stroke-start", { userId: userIdRef.current, roomId, color });
 
-      redraw();
+      redraw(canvas, ctx);
     };
 
     const draw = (e: MouseEvent) => {
@@ -125,7 +227,7 @@ export default function MultiCursor({
         point: { x, y },
       });
 
-      redraw();
+      redraw(canvas, ctx);
     };
 
     //stop drawing
@@ -147,7 +249,7 @@ export default function MultiCursor({
       currentStroke.current = [];
       isDrawing.current = false;
 
-      redraw();
+      redraw(canvas, ctx);
     };
 
     //zoom out and in
@@ -174,56 +276,9 @@ export default function MultiCursor({
       } else {
         camera.current.y -= e.deltaY;
       }
-      redraw();
+      imageRender(canvas, ctx);
+      redraw(canvas, ctx);
     };
-
-    const redraw = () => {
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.setTransform(
-        camera.current.scale,
-        0,
-        0,
-        camera.current.scale,
-        camera.current.x,
-        camera.current.y,
-      );
-
-      const allActive = Object.entries(activeStrokes.current).map(
-        ([userId, activeStroke]) => ({
-          userId,
-          color: activeStroke.color,
-          points: activeStroke.points,
-        }),
-      );
-
-      const allStrokes = [
-        ...strokes.current,
-        {
-          userId,
-          points: currentStroke.current,
-          color,
-        },
-        ...allActive,
-      ];
-
-      for (const stroke of allStrokes) {
-        if (stroke.points.length === 0) continue;
-
-        ctx.beginPath();
-        ctx.strokeStyle = stroke.color;
-        stroke.points.forEach((p, i) => {
-          if (i === 0) {
-            ctx.moveTo(p.x, p.y);
-          } else {
-            ctx.lineTo(p.x, p.y);
-          }
-        });
-
-        ctx.stroke();
-      }
-    };
-
     //! drawing points
     //received data from the backend
     socket.on("stroke-start", ({ userId, color }) => {
@@ -242,7 +297,7 @@ export default function MultiCursor({
       }
       activeStrokes.current[userId].points.push(point);
 
-      redraw();
+      redraw(canvas, ctx);
     });
 
     socket.on("stroke-end", ({ userId }) => {
@@ -258,7 +313,7 @@ export default function MultiCursor({
 
       delete activeStrokes.current[userId];
 
-      redraw();
+      redraw(canvas, ctx);
     });
 
     canvas.addEventListener("mousedown", startDrawing);

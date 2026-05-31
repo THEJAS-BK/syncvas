@@ -9,8 +9,18 @@ type Stroke = {
   points: { x: number; y: number }[];
 };
 
+type ImageElement = {
+  image: string;
+  userId: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 //store room state
-const roomBoards:Record<string,Stroke[]>={}
+const roomBoards: Record<string, Stroke[]> = {};
+const roomImages: Record<string, ImageElement[]> = {};
 
 const setSocketConnection = (server: any) => {
   const io = new Server(server, {
@@ -73,7 +83,6 @@ const setSocketConnection = (server: any) => {
         socketId: socket.id,
       });
       callback?.({ success: true });
-
     });
 
     //send message
@@ -115,39 +124,49 @@ const setSocketConnection = (server: any) => {
         delete activeRooms[roomId];
       }
     });
-    //canvas code
+    //!canvas code
 
     //intial state of the board
-    socket.on("board-state",(roomId)=>{
-      socket.emit("board-state",roomBoards[roomId]??[])
-    })
+    socket.on("board-state", (roomId) => {
+      socket.emit("board-state", roomBoards[roomId] ?? []);
+      socket.emit("image-state", roomImages[roomId] ?? []);
+    });
 
+    //image upload Handler
+    socket.on("image-upload", (data) => {
+      roomImages[data.roomId] ??= [];
+      roomImages[data.roomId]!.push({
+        image: data.image,
+        userId: data.userId,
+        x: data.x,
+        y: data.y,
+        width: data.width,
+        height: data.height,
+      });
+
+      socket.emit("image-uploaded", data);
+    });
     //get username and userId
-    socket.on("my-info", (callback) =>{
+    socket.on("my-info", (callback) => {
       callback({
-        userId: socket.data.userId, 
+        userId: socket.data.userId,
         name: socket.data.name,
-      })
-  });
+      });
+    });
 
-    socket.on("stroke-start",(data)=>{
-      socket.to(data.roomId).emit("stroke-start",data)
-    })
+    socket.on("stroke-start", (data) => {
+      socket.to(data.roomId).emit("stroke-start", data);
+    });
 
-    socket.on("stroke-points",(data)=>{
-      socket.to(data.roomId).emit("stroke-points",data);
-    })
+    socket.on("stroke-points", (data) => {
+      socket.to(data.roomId).emit("stroke-points", data);
+    });
 
-    socket.on("stroke-end",(data)=>{
-     roomBoards[data.roomId]??=[]
-    
-      roomBoards[data.roomId]!.push(data.strokes)
-      socket.to(data.roomId).emit("stroke-end",data)
-    })
-
-
-
-
+    socket.on("stroke-end", (data) => {
+      roomBoards[data.roomId] ??= [];
+      roomBoards[data.roomId]!.push(data.strokes);
+      socket.to(data.roomId).emit("stroke-end", data);
+    });
   });
 
   return io;
