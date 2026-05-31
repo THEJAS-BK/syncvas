@@ -20,6 +20,7 @@ type ActiveStroke = {
   points: Point[];
 };
 type BoardImage = {
+  id: string; // add this
   image: string;
   x: number;
   y: number;
@@ -59,6 +60,10 @@ export default function MultiCursor({
   const { roomId } = useParams();
   const navigate = useNavigate();
 
+  //image
+  // Add this ref at the top
+  const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
+
   //colors work
   const color = COLORS[Math.floor(Math.random() * 5)];
 
@@ -87,6 +92,27 @@ export default function MultiCursor({
       camera.current.y,
     );
 
+    for (const imageData of images.current) {
+      const cached = imageCache.current.get(imageData.id);
+      if (cached) {
+        ctx.drawImage(
+          cached,
+          imageData.x,
+          imageData.y,
+          imageData.width,
+          imageData.height,
+        );
+      } else {
+        const img = new Image();
+        img.onload = () => {
+          imageCache.current.set(imageData.id, img);
+          redraw(canvas, ctx);
+        };
+        img.src = imageData.image;
+      }
+    }
+
+    // strokes on top
     const allActive = Object.entries(activeStrokes.current).map(
       ([userId, activeStroke]) => ({
         userId,
@@ -97,64 +123,28 @@ export default function MultiCursor({
 
     const allStrokes = [
       ...strokes.current,
-      {
-        userId,
-        points: currentStroke.current,
-        color,
-      },
+      { userId, points: currentStroke.current, color },
       ...allActive,
     ];
 
     for (const stroke of allStrokes) {
       if (stroke.points.length === 0) continue;
-
       ctx.beginPath();
       ctx.strokeStyle = stroke.color;
       stroke.points.forEach((p, i) => {
-        if (i === 0) {
-          ctx.moveTo(p.x, p.y);
-        } else {
-          ctx.lineTo(p.x, p.y);
-        }
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
       });
-
       ctx.stroke();
     }
   };
-  const imageRender = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.setTransform(
-      camera.current.scale,
-      0,
-      0,
-      camera.current.scale,
-      camera.current.x,
-      camera.current.y,
-    );
-    for (const imageData of images.current) {
-      const img = new Image();
 
-      img.onload = () => {
-        ctx.drawImage(
-          img,
-          imageData.x,
-          imageData.y,
-          imageData.width,
-          imageData.height,
-        );
-      };
-
-      img.src = imageData.image;
-    }
-  };
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    imageRender(canvas, ctx);
+    redraw(canvas, ctx);
   }, [imageUpdate]);
 
   useEffect(() => {
@@ -192,13 +182,13 @@ export default function MultiCursor({
     });
     socket.on("image-state", (savedImages: BoardImage[]) => {
       images.current = savedImages;
-      imageRender(canvas, ctx);
+      redraw(canvas,ctx)
     });
 
     //image upload
     socket.on("image-upload", (imageData) => {
       images.current.push(imageData);
-      imageRender(canvas, ctx);
+      redraw(canvas, ctx);
     });
 
     //handle drawing
@@ -276,7 +266,6 @@ export default function MultiCursor({
       } else {
         camera.current.y -= e.deltaY;
       }
-      imageRender(canvas, ctx);
       redraw(canvas, ctx);
     };
     //! drawing points

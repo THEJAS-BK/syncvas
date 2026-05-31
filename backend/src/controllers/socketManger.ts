@@ -10,6 +10,7 @@ type Stroke = {
 };
 
 type ImageElement = {
+  id: string;      
   image: string;
   userId: string;
   x: number;
@@ -17,7 +18,6 @@ type ImageElement = {
   width: number;
   height: number;
 };
-
 //store room state
 const roomBoards: Record<string, Stroke[]> = {};
 const roomImages: Record<string, ImageElement[]> = {};
@@ -133,19 +133,24 @@ const setSocketConnection = (server: any) => {
     });
 
     //image upload Handler
-    socket.on("image-upload", (data) => {
-      roomImages[data.roomId] ??= [];
-      roomImages[data.roomId]!.push({
-        image: data.image,
-        userId: data.userId,
-        x: data.x,
-        y: data.y,
-        width: data.width,
-        height: data.height,
-      });
+socket.on("image-upload", (data) => {
+  roomImages[data.roomId] ??= [];
+  
+  const imageData: ImageElement = {
+    id: data.id,           // pass through
+    image: data.image,
+    userId: socket.data.userId,  // take from token, not client
+    x: data.x,
+    y: data.y,
+    width: data.width,
+    height: data.height,
+  };
 
-      socket.emit("image-uploaded", data);
-    });
+  roomImages[data.roomId]!.push(imageData);
+
+  // broadcast to everyone else in the room
+  socket.to(data.roomId).emit("image-upload", imageData);
+});
     //get username and userId
     socket.on("my-info", (callback) => {
       callback({

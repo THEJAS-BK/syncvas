@@ -27,36 +27,33 @@ export default function RoomNavbar({
   setRedrawVersion,
 }: RoomNavProp) {
   const { roomId } = useParams();
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      //push current user image
-      images.current?.push({
-        image: base64,
-        x: 100,
-        y: 100,
-        width: 400,
-        height: 300,
-      });
-      setRedrawVersion((v: number) => v + 1);
-      //send to other users
-      socket.emit("image-upload", {
-        roomId,
-        image: base64,
-        x: 100,
-        y: 100,
-        width: 400,
-        height: 300,
-      });
+  reader.onload = () => {
+    const base64 = reader.result as string;
+    const id = crypto.randomUUID(); // generate once here
+
+    const imageData = {
+      id,           // <-- add this
+      image: base64,
+      x: 100,
+      y: 100,
+      width: 400,
+      height: 300,
     };
 
-    reader.readAsDataURL(file);
+    images.current?.push(imageData);
+    setRedrawVersion((v) => v + 1);
+
+    socket.emit("image-upload", { roomId, ...imageData }); // id travels with it
   };
+
+  reader.readAsDataURL(file);
+};
   return (
     <>
       <div className="bg-blue-200 h-16 flex justify-between align-middle">
