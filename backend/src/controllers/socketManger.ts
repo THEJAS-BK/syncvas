@@ -3,6 +3,15 @@ import { Server } from "socket.io";
 
 let activeRooms: Record<string, Set<string>> = {};
 
+type Stroke = {
+  userId: string;
+  color: string;
+  points: { x: number; y: number }[];
+};
+
+//store room state
+const roomBoards:Record<string,Stroke[]>={}
+
 const setSocketConnection = (server: any) => {
   const io = new Server(server, {
     cors: {
@@ -64,6 +73,7 @@ const setSocketConnection = (server: any) => {
         socketId: socket.id,
       });
       callback?.({ success: true });
+
     });
 
     //send message
@@ -106,6 +116,12 @@ const setSocketConnection = (server: any) => {
       }
     });
     //canvas code
+
+    //intial state of the board
+    socket.on("board-state",(roomId)=>{
+      socket.emit("board-state",roomBoards[roomId]??[])
+    })
+
     //get username and userId
     socket.on("my-info", (callback) =>{
       callback({
@@ -123,6 +139,9 @@ const setSocketConnection = (server: any) => {
     })
 
     socket.on("stroke-end",(data)=>{
+     roomBoards[data.roomId]??=[]
+    
+      roomBoards[data.roomId]!.push(data.strokes)
       socket.to(data.roomId).emit("stroke-end",data)
     })
 

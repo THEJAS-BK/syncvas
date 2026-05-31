@@ -39,6 +39,7 @@ export default function MultiCursor({
   //username userId
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
+  const userIdRef = useRef("");
 
   const isDrawing = useRef(false);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
@@ -49,7 +50,6 @@ export default function MultiCursor({
 
   //colors work
   const color = COLORS[Math.floor(Math.random() * 5)];
-  const [colorNum, setColorNum] = useState(color);
 
   const getCanvasPoint = (e: MouseEvent, canvas: HTMLCanvasElement) => {
     const rect = canvas.getBoundingClientRect();
@@ -70,6 +70,7 @@ export default function MultiCursor({
     socket.emit("my-info", (callback: { userId: string; name: string }) => {
       setUserName(callback.name);
       setUserId(callback.userId);
+      userIdRef.current = callback.userId;
     });
 
     const canvas = canvasRef.current;
@@ -90,13 +91,21 @@ export default function MultiCursor({
       camera.current.y,
     );
 
+    //setup board start
+    socket.emit("board-state", roomId);
+    socket.on("board-state", (savedStrokes: Stroke[]) => {
+      strokes.current = savedStrokes;
+      console.log("current strokes", savedStrokes);
+      redraw();
+    });
+
     //handle drawing
     const startDrawing = (e: MouseEvent) => {
       isDrawing.current = true;
       const { x, y } = getCanvasPoint(e, canvas);
       currentStroke.current = [{ x, y }];
 
-      socket.emit("stroke-start", { userId, roomId, color });
+      socket.emit("stroke-start", { userId: userIdRef.current, roomId, color });
 
       redraw();
     };
@@ -110,7 +119,11 @@ export default function MultiCursor({
       const { x, y } = getCanvasPoint(e, canvas);
       currentStroke.current.push({ x, y });
 
-      socket.emit("stroke-points", { userId, roomId, point: { x, y } });
+      socket.emit("stroke-points", {
+        userId: userIdRef.current,
+        roomId,
+        point: { x, y },
+      });
 
       redraw();
     };
@@ -118,16 +131,21 @@ export default function MultiCursor({
     //stop drawing
     const stopDrawing = () => {
       if (currentStroke.current.length > 0) {
-        strokes.current.push({
+        const completedStrokes: Stroke = {
           points: [...currentStroke.current],
-          userId: userId,
+          userId: userIdRef.current,
           color,
+        };
+
+        strokes.current.push(completedStrokes);
+        socket.emit("stroke-end", {
+          userId: userIdRef.current,
+          roomId,
+          strokes: completedStrokes,
         });
       }
       currentStroke.current = [];
       isDrawing.current = false;
-
-      socket.emit("stroke-end", { userId, roomId });
 
       redraw();
     };
