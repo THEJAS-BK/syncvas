@@ -135,11 +135,10 @@ const setSocketConnection = (server: any) => {
     //image upload Handler
 socket.on("image-upload", (data) => {
   roomImages[data.roomId] ??= [];
-  
   const imageData: ImageElement = {
-    id: data.id,           // pass through
+    id: data.id,          
     image: data.image,
-    userId: socket.data.userId,  // take from token, not client
+    userId: socket.data.userId,  
     x: data.x,
     y: data.y,
     width: data.width,
@@ -147,8 +146,6 @@ socket.on("image-upload", (data) => {
   };
 
   roomImages[data.roomId]!.push(imageData);
-
-  // broadcast to everyone else in the room
   socket.to(data.roomId).emit("image-upload", imageData);
 });
     //get username and userId

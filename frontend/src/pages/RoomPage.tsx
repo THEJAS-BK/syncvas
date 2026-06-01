@@ -4,9 +4,10 @@ import MainContent from "../components/room/MainContent";
 import RoomNavbar from "../components/room/RoomNavbar";
 import { useRef, useState } from "react";
 import { WebRtcProvider } from "../context/WebRtcContext";
-import MultiCursor from "../components/room/MultiCursor";
+import MultiCursor from "../components/room/Multicursor/MultiCursor";
 
 type BoardImage = {
+  id: string;   // add this
   image: string;
   x: number;
   y: number;

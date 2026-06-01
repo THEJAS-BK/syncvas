@@ -35,10 +35,10 @@ export default function RoomNavbar({
 
   reader.onload = () => {
     const base64 = reader.result as string;
-    const id = crypto.randomUUID(); // generate once here
+    const id = crypto.randomUUID(); 
 
     const imageData = {
-      id,           // <-- add this
+      id,          
       image: base64,
       x: 100,
       y: 100,
@@ -49,7 +49,7 @@ export default function RoomNavbar({
     images.current?.push(imageData);
     setRedrawVersion((v) => v + 1);
 
-    socket.emit("image-upload", { roomId, ...imageData }); // id travels with it
+    socket.emit("image-upload", { roomId, ...imageData }); 
   };
 
   reader.readAsDataURL(file);
