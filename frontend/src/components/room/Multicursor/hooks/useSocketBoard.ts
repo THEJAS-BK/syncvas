@@ -6,7 +6,7 @@ import { redraw } from "../canvas";
 
 export function useSocketBoard(
   roomId: string,
-  canvasRef: React.RefObject<HTMLCanvasElement|null>,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
   camera: React.RefObject<any>,
   images: React.RefObject<BoardImage[]>,
   imageCache: React.RefObject<Map<string, HTMLImageElement>>,
@@ -17,7 +17,7 @@ export function useSocketBoard(
   color: string,
 ) {
   useEffect(() => {
-      const canvas = canvasRef.current;  
+    const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -71,10 +71,10 @@ export function useSocketBoard(
         color,
       );
     });
-    return ()=>{
-        socket.off("board-state");
-        socket.off("image-state");
-        socket.off("image-upload");
-    }
-  },[]);
+    return () => {
+      socket.off("board-state");
+      socket.off("image-state");
+      socket.off("image-upload");
+    };
+  }, []);
 }

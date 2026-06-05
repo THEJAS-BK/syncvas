@@ -9,6 +9,7 @@ import type { BoardImage, Stroke, Point, ActiveStroke } from "./types";
 import { useSocketBoard } from "./hooks/useSocketBoard";
 import { useSocketDraw } from "./hooks/useSocketDraw";
 import { useCanvasZoom } from "./hooks/useCanvasZoom";
+import { useImageTransform } from "./hooks/useImageTransform";
 
 export default function MultiCursor({
   images,
@@ -28,6 +29,7 @@ export default function MultiCursor({
   const userIdRef = useRef("");
   const isDrawing = useRef(false);
   const color = useRef(COLORS[Math.floor(Math.random() * 5)]).current;
+  const isImageSelected=useRef<number>(-1)
 
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [userName, setUserName] = useState("");
@@ -64,6 +66,7 @@ export default function MultiCursor({
     color,
     isDrawing,
     setCursorPos,
+    isImageSelected
   );
   useCanvasZoom(
     canvasRef,
@@ -75,6 +78,19 @@ export default function MultiCursor({
     strokes,
     userIdRef,
     color,
+  );
+
+  //image transformations
+  useImageTransform(canvasRef,
+    camera,
+    images,
+    imageCache,
+    activeStrokes,
+    currentStroke,
+    strokes,
+    userIdRef,
+    color,
+    isImageSelected
   );
 
   useEffect(() => {
@@ -109,7 +125,7 @@ export default function MultiCursor({
       canvas,
       ctx,
       camera,
-      images,
+      images, 
       imageCache,
       activeStrokes,
       currentStroke,

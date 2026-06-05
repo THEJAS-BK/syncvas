@@ -18,7 +18,8 @@ export function useSocketDraw(
   userIdRef: React.RefObject<string>,
   color: string,
   isDrawing:React.RefObject<boolean>,
-  setCursorPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>
+  setCursorPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>,
+  selectedImgIdx:React.RefObject<number>
 ) {
   useEffect(() => {
     //handle drawing
@@ -29,6 +30,7 @@ export function useSocketDraw(
 
     
     const startDrawing = (e: MouseEvent) => {
+        if(selectedImgIdx.current!==-1) return ;
       isDrawing.current = true;
       const { x, y } = getCanvasPoint(e, canvas, camera);
       currentStroke.current = [{ x, y }];
@@ -80,6 +82,7 @@ export function useSocketDraw(
 
     //stop drawing
     const stopDrawing = () => {
+    
       if (currentStroke.current.length > 0) {
         const completedStrokes: Stroke = {
           points: [...currentStroke.current],
