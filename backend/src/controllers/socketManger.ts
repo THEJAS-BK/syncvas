@@ -169,7 +169,18 @@ socket.on("image-upload", (data) => {
       roomBoards[data.roomId]!.push(data.strokes);
       socket.to(data.roomId).emit("stroke-end", data);
     });
+
+    //image handlers
+    socket.on("move-image",(data)=>{
+      const image=roomImages[data.roomId]?.find((img)=>img.id==data.id)
+      if(image){
+        image.x=data.x;
+        image.y=data.y;
+      }
+      socket.to(data.roomId).emit("move-image",image)
+    })
   });
+
 
   return io;
 };
