@@ -1,3 +1,4 @@
+import type React from "react";
 import type { BoardImage, ActiveStroke, Point, Stroke } from "./types";
 
 const getCanvasPoint = (
@@ -101,5 +102,31 @@ const redraw = (
   }
 };
 
+const getSelectionLine = (
+  ctx: CanvasRenderingContext2D,
+  images: React.RefObject<BoardImage[]>,
+  selectedImageIdx: number,
+) => {
+  if (selectedImageIdx != null) {
+    const image = images.current[selectedImageIdx];
 
-export {getCanvasPoint,redraw}
+    if (image) {
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 2;
+
+      ctx.strokeRect(image.x, image.y, image.width, image.height);
+    }
+
+    const handleX = image.x + image.width / 2;
+    const handleY = image.y - 20;
+
+    ctx.beginPath();
+    ctx.arc(handleX, handleY, 8, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.strokeStyle = "blue";
+    ctx.stroke();
+  }
+};
+
+export { getCanvasPoint, redraw, getSelectionLine };

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { BoardImage, Stroke, Point, ActiveStroke } from "../types";
-import { getCanvasPoint, redraw } from "../canvas";
+import { getCanvasPoint, getSelectionLine, redraw } from "../canvas";
 import { getClickedImage } from "../tools/getClickedImage";
 import { socket } from "../../../../services/socket";
 
@@ -30,11 +30,9 @@ export function useImageTransform(
     socket.on("move-image",(data)=>{
      const image=images.current.find((img)=>img.id==data.id);
      if(image){
-
        image.x=data.x;
        image.y=data.y;
 
-       
          redraw(
         canvas,
         ctx,
@@ -57,6 +55,9 @@ export function useImageTransform(
       const point = getCanvasPoint(e, canvas, camera);
       const isImageClicked = getClickedImage(images.current, point);
       selectedImgIdx.current = isImageClicked;
+
+      //get outline
+      getSelectionLine(ctx,images,selectedImgIdx.current)
     };
 
     const startImageMove = (e: MouseEvent) => {
@@ -91,6 +92,8 @@ export function useImageTransform(
         userIdRef.current,
         color,
       );
+          //get outline
+      getSelectionLine(ctx,images,selectedImgIdx.current)
     };
     const stopMoveImage = () => {
       selectedImgIdx.current=-1;
