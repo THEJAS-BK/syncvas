@@ -9,6 +9,7 @@ import {
 } from "../canvas";
 import { getClickedImage } from "../tools/getClickedImage";
 import { socket } from "../../../../services/socket";
+import { height } from "@mui/system";
 
 export function useImageTransform(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -79,6 +80,26 @@ export function useImageTransform(
         );
       }
     });
+    //resize image
+    socket.on("resize-image",(data)=>{
+      const image=images.current.find((img)=>img.id===data.id);
+      if(image){
+        image.width=data.width;
+        image.height=data.height;
+      }
+      redraw(
+          canvas,
+          ctx,
+          camera,
+          images,
+          imageCache,
+          activeStrokes,
+          currentStroke,
+          strokes,
+          userIdRef.current,
+          color,
+        );
+    })
 
     const onDblClick = (e: MouseEvent) => {
       const point = getCanvasPoint(e, canvas, camera);
@@ -130,55 +151,59 @@ export function useImageTransform(
           id: img.id,
           roomId,
         });
-      }else if (isResizing.current) {
-  const minSize = 20;
+      } else if (isResizing.current) {
+        const minSize = 20;
 
-  // convert currentPoint into the image's LOCAL (unrotated) frame
-  const centerX = img.x + img.width / 2;
-  const centerY = img.y + img.height / 2;
-  const rotation = img.rotation || 0;
+        // convert currentPoint into the image's LOCAL (unrotated) frame
+        const centerX = img.x + img.width / 2;
+        const centerY = img.y + img.height / 2;
+        const rotation = img.rotation || 0;
 
-  const dx = currentPoint.x - centerX;
-  const dy = currentPoint.y - centerY;
+        const dx = currentPoint.x - centerX;
+        const dy = currentPoint.y - centerY;
 
-  const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
-  const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+        const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+        const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
 
-  // localX, localY are now relative to the image's CENTER, in local space
-  // convert to "local point" relative to the image's local top-left (img.x, img.y)
-  const localPointX = localX + img.width / 2; // == centerX-relative -> origin-relative
-  const localPointY = localY + img.height / 2;
+        const localPointX = localX + img.width / 2; // == centerX-relative -> origin-relative
+        const localPointY = localY + img.height / 2;
 
-  switch (resizeHandler.current) {
-    case "bottom-right":
-      img.width = Math.max(minSize, localPointX);
-      img.height = Math.max(minSize, localPointY);
-      break;
-    case "bottom-left": {
-      const newWidth = Math.max(minSize, img.width - localPointX);
-      img.x = img.x + (img.width - newWidth);
-      img.width = newWidth;
-      img.height = Math.max(minSize, localPointY);
-      break;
-    }
-    case "top-right": {
-      const newHeight = Math.max(minSize, img.height - localPointY);
-      img.y = img.y + (img.height - newHeight);
-      img.height = newHeight;
-      img.width = Math.max(minSize, localPointX);
-      break;
-    }
-    case "top-left": {
-      const newWidth = Math.max(minSize, img.width - localPointX);
-      const newHeight = Math.max(minSize, img.height - localPointY);
-      img.x = img.x + (img.width - newWidth);
-      img.y = img.y + (img.height - newHeight);
-      img.width = newWidth;
-      img.height = newHeight;
-      break;
-    }
-  }
-} else {
+        switch (resizeHandler.current) {
+          case "bottom-right":
+            img.width = Math.max(minSize, localPointX);
+            img.height = Math.max(minSize, localPointY);
+            break;
+          case "bottom-left": {
+            const newWidth = Math.max(minSize, img.width - localPointX);
+            img.x = img.x + (img.width - newWidth);
+            img.width = newWidth;
+            img.height = Math.max(minSize, localPointY);
+            break;
+          }
+          case "top-right": {
+            const newHeight = Math.max(minSize, img.height - localPointY);
+            img.y = img.y + (img.height - newHeight);
+            img.height = newHeight;
+            img.width = Math.max(minSize, localPointX);
+            break;
+          }
+          case "top-left": {
+            const newWidth = Math.max(minSize, img.width - localPointX);
+            const newHeight = Math.max(minSize, img.height - localPointY);
+            img.x = img.x + (img.width - newWidth);
+            img.y = img.y + (img.height - newHeight);
+            img.width = newWidth;
+            img.height = newHeight;
+            break;
+          }
+        }
+        socket.emit("resize-image", {
+          width: img.width,
+          height: img.height,
+          id: img.id,
+          roomId,
+        });
+      } else {
         img.x = currentPoint.x - dragOffset.current.x;
         img.y = currentPoint.y - dragOffset.current.y;
 

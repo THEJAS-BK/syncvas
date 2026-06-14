@@ -183,11 +183,20 @@ socket.on("image-upload", (data) => {
       socket.to(data.roomId).emit("move-image",image)
     })
     socket.on("rotate-image",(data)=>{
-      const image=roomImages[data.roomId]?.find((img)=>img.id==data.id)
+      const image=roomImages[data.roomId]?.find((img)=>img.id===data.id)
       if(image){
         image.rotation=data.rotation || 0;
       }
       socket.to(data.roomId).emit("rotate-image",image)
+    })
+    socket.on("resize-image",(data)=>{
+      const image=roomImages[data.roomId]?.find((img)=>img.id===data.id)
+      
+      if(image){
+        image.width=data.width;
+        image.height=data.height;
+      }
+      socket.to(data.roomId).emit("resize-image",image);
     })
   });
 
