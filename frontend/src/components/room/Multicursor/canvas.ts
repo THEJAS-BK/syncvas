@@ -45,13 +45,25 @@ const redraw = (
   for (const imageData of images.current) {
     const cached = imageCache.current.get(imageData.id);
     if (cached) {
+          const centerX = imageData.x + imageData.width / 2;
+      const centerY = imageData.y + imageData.height / 2;
+      const rotation = imageData.rotation || 0;
+
+      ctx.save();
+      ctx.translate(centerX,centerY)
+      ctx.rotate(rotation)
+
+
+
       ctx.drawImage(
         cached,
-        imageData.x,
-        imageData.y,
+        -imageData.width / 2,
+        -imageData.height / 2,
         imageData.width,
         imageData.height,
       );
+
+      ctx.restore();
     } else {
       const img = new Image();
       img.onload = () => {
@@ -111,22 +123,56 @@ const getSelectionLine = (
     const image = images.current[selectedImageIdx];
 
     if (image) {
+      const centerX = image.x + image.width / 2;
+      const centerY = image.y + image.height / 2;
+      const rotation = image.rotation || 0;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotation);
+
       ctx.strokeStyle = "blue";
       ctx.lineWidth = 2;
+      ctx.strokeRect(
+        -image.width / 2,
+        -image.height / 2,
+        image.width,
+        image.height,
+      );
 
-      ctx.strokeRect(image.x, image.y, image.width, image.height);
+      const handleX = 0;
+      const handleY = -image.height / 2 - 20;
+
+      ctx.beginPath();
+      ctx.arc(handleX, handleY, 8, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.strokeStyle = "blue";
+      ctx.stroke();
+
+      ctx.restore();
     }
-
-    const handleX = image.x + image.width / 2;
-    const handleY = image.y - 20;
-
-    ctx.beginPath();
-    ctx.arc(handleX, handleY, 8, 0, Math.PI * 2);
-    ctx.fillStyle = "white";
-    ctx.fill();
-    ctx.strokeStyle = "blue";
-    ctx.stroke();
   }
 };
 
-export { getCanvasPoint, redraw, getSelectionLine };
+const isRotationHandlerClicked = (image: BoardImage, point: Point): boolean => {
+  const centerX = image.x + image.width / 2;
+  const centerY = image.y + image.height / 2;
+  const rotation = image.rotation || 0;
+
+  const dx = point.x - centerX;
+  const dy = point.y - centerY;
+
+  const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+  const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+
+  const handleLocalX = 0;
+  const handleLocalY = -image.height / 2 - 20;
+
+  const ddx = localX - handleLocalX;
+  const ddy = localY - handleLocalY;
+
+  return ddx * ddx + ddy * ddy <= 10 * 10;
+};
+
+export { getCanvasPoint, redraw, getSelectionLine, isRotationHandlerClicked };

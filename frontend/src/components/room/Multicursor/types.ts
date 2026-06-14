@@ -20,6 +20,7 @@ type BoardImage = {
   y: number;
   width: number;
   height: number;
+  rotation:number|0;
 };
 
 export type { Point, Stroke, ActiveStroke, BoardImage };
