@@ -5,6 +5,7 @@ import {
   getSelectionLine,
   redraw,
   isRotationHandlerClicked,
+  getClickedResizeHandle,
 } from "../canvas";
 import { getClickedImage } from "../tools/getClickedImage";
 import { socket } from "../../../../services/socket";
@@ -25,6 +26,12 @@ export function useImageTransform(
   const dragOffset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
   const isRotating = useRef(false);
+  const isResizing = useRef(false);
+  const resizeHandler = useRef<
+    "top-left" | "top-right" | "bottom-left" | "bottom-right" | null
+  >(null);
+
+  const resizeAnchor = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -84,22 +91,30 @@ export function useImageTransform(
 
     const startImageMove = (e: MouseEvent) => {
       if (selectedImgIdx.current === -1) return;
-
       const currentPoint = getCanvasPoint(e, canvas, camera);
       let img = images.current[selectedImgIdx.current];
-
+      //rotation handler
       if (isRotationHandlerClicked(img, currentPoint)) {
         isRotating.current = true;
         return;
       }
-      isDragging.current = true;
+      //resize handler
+      const handle = getClickedResizeHandle(img, currentPoint);
+      if (handle) {
+        isResizing.current = true;
+        resizeHandler.current = handle;
 
+        return;
+      }
+
+      isDragging.current = true;
       dragOffset.current.x = currentPoint.x - img.x;
       dragOffset.current.y = currentPoint.y - img.y;
     };
     const moveImage = (e: MouseEvent) => {
       if (selectedImgIdx.current === -1) return;
-      if (!isDragging.current && !isRotating.current) return;
+      if (!isDragging.current && !isRotating.current && !isResizing.current)
+        return;
       const currentPoint = getCanvasPoint(e, canvas, camera);
       let img = images.current[selectedImgIdx.current];
 
@@ -115,7 +130,55 @@ export function useImageTransform(
           id: img.id,
           roomId,
         });
-      } else {
+      }else if (isResizing.current) {
+  const minSize = 20;
+
+  // convert currentPoint into the image's LOCAL (unrotated) frame
+  const centerX = img.x + img.width / 2;
+  const centerY = img.y + img.height / 2;
+  const rotation = img.rotation || 0;
+
+  const dx = currentPoint.x - centerX;
+  const dy = currentPoint.y - centerY;
+
+  const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+  const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+
+  // localX, localY are now relative to the image's CENTER, in local space
+  // convert to "local point" relative to the image's local top-left (img.x, img.y)
+  const localPointX = localX + img.width / 2; // == centerX-relative -> origin-relative
+  const localPointY = localY + img.height / 2;
+
+  switch (resizeHandler.current) {
+    case "bottom-right":
+      img.width = Math.max(minSize, localPointX);
+      img.height = Math.max(minSize, localPointY);
+      break;
+    case "bottom-left": {
+      const newWidth = Math.max(minSize, img.width - localPointX);
+      img.x = img.x + (img.width - newWidth);
+      img.width = newWidth;
+      img.height = Math.max(minSize, localPointY);
+      break;
+    }
+    case "top-right": {
+      const newHeight = Math.max(minSize, img.height - localPointY);
+      img.y = img.y + (img.height - newHeight);
+      img.height = newHeight;
+      img.width = Math.max(minSize, localPointX);
+      break;
+    }
+    case "top-left": {
+      const newWidth = Math.max(minSize, img.width - localPointX);
+      const newHeight = Math.max(minSize, img.height - localPointY);
+      img.x = img.x + (img.width - newWidth);
+      img.y = img.y + (img.height - newHeight);
+      img.width = newWidth;
+      img.height = newHeight;
+      break;
+    }
+  }
+} else {
         img.x = currentPoint.x - dragOffset.current.x;
         img.y = currentPoint.y - dragOffset.current.y;
 
@@ -142,6 +205,8 @@ export function useImageTransform(
       selectedImgIdx.current = -1;
       isDragging.current = false;
       isRotating.current = false;
+      isResizing.current = false;
+      resizeHandler.current = null;
     };
 
     canvas.addEventListener("dblclick", onDblClick);
