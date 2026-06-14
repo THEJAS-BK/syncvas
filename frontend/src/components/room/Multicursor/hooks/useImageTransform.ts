@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import type { BoardImage, Stroke, Point, ActiveStroke } from "../types";
 import {
   getCanvasPoint,
@@ -9,7 +9,6 @@ import {
 } from "../canvas";
 import { getClickedImage } from "../tools/getClickedImage";
 import { socket } from "../../../../services/socket";
-import { height } from "@mui/system";
 
 export function useImageTransform(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -100,6 +99,23 @@ export function useImageTransform(
           color,
         );
     })
+    //delete image
+    socket.on("delete-image", (imageId) => {
+      images.current = images.current.filter((img) => img.id !== imageId);
+      selectedImgIdx.current = -1;
+      redraw(
+        canvas,
+        ctx,
+        camera,
+        images,
+        imageCache,
+        activeStrokes,
+        currentStroke,
+        strokes,
+        userIdRef.current,
+        color
+      );
+    });
 
     const onDblClick = (e: MouseEvent) => {
       const point = getCanvasPoint(e, canvas, camera);
@@ -234,15 +250,36 @@ export function useImageTransform(
       resizeHandler.current = null;
     };
 
+    //delete image
+    const onKeyDown = (e: KeyboardEvent) => {
+  if (e.key === "Delete" || e.key === "Backspace") {
+    if (selectedImgIdx.current === -1) return;
+
+    const img = images.current[selectedImgIdx.current];
+    if (!img) return;
+
+    // remove from local array
+    images.current = images.current.filter((i) => i.id !== img.id);
+    selectedImgIdx.current = -1;
+
+    // sync to others
+    socket.emit("delete-image", { id: img.id, roomId });
+
+    redraw(canvas, ctx, camera, images, imageCache, activeStrokes, currentStroke, strokes, userIdRef.current, color);
+  }
+};
+
     canvas.addEventListener("dblclick", onDblClick);
     canvas.addEventListener("mousedown", startImageMove);
     canvas.addEventListener("mousemove", moveImage);
     canvas.addEventListener("mouseup", stopMoveImage);
+    window.addEventListener("keydown", onKeyDown);
     return () => {
       canvas.removeEventListener("dblclick", onDblClick);
       canvas.removeEventListener("mousedown", startImageMove);
       canvas.removeEventListener("mousemove", moveImage);
       canvas.removeEventListener("mouseup", stopMoveImage);
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, []);
 }
