@@ -258,11 +258,9 @@ export function useImageTransform(
     const img = images.current[selectedImgIdx.current];
     if (!img) return;
 
-    // remove from local array
     images.current = images.current.filter((i) => i.id !== img.id);
     selectedImgIdx.current = -1;
 
-    // sync to others
     socket.emit("delete-image", { id: img.id, roomId });
 
     redraw(canvas, ctx, camera, images, imageCache, activeStrokes, currentStroke, strokes, userIdRef.current, color);
