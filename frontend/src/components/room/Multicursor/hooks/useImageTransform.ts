@@ -31,8 +31,6 @@ export function useImageTransform(
     "top-left" | "top-right" | "bottom-left" | "bottom-right" | null
   >(null);
 
-  const resizeAnchor = useRef({ x: 0, y: 0 });
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -101,7 +99,12 @@ export function useImageTransform(
     })
     //delete image
     socket.on("delete-image", (imageId) => {
+      console.log("id ==",imageId)
+      console.log("images",images.current);
       images.current = images.current.filter((img) => img.id !== imageId);
+      console.log("after ",images.current);
+      
+      imageCache.current.delete(imageId);
       selectedImgIdx.current = -1;
       redraw(
         canvas,

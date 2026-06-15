@@ -2,17 +2,18 @@ import { useParams } from "react-router-dom";
 import ChatInterface from "../components/room/ChatInterface";
 import MainContent from "../components/room/MainContent";
 import RoomNavbar from "../components/room/RoomNavbar";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WebRtcProvider } from "../context/WebRtcContext";
 import MultiCursor from "../components/room/Multicursor/MultiCursor";
 
 type BoardImage = {
-  id: string;   // add this
+  id: string; // add this
   image: string;
   x: number;
   y: number;
   width: number;
   height: number;
+  rotation: number | 0;
 };
 
 export default function RoomPage() {
@@ -20,10 +21,14 @@ export default function RoomPage() {
   const [openCursor, setOpenCursor] = useState(false);
   const [floatChatInterface, setFloatChatInterface] = useState(false);
   const images = useRef<BoardImage[]>([]);
-  //redraw 
+  const [eraserMode, setEraserMode] = useState(false);
+  const eraserRef=useRef(false);
+  //redraw
   const [redrawVersion, setRedrawVersion] = useState(0);
 
   if (!roomId) return <div>Not found</div>;
+
+
 
   return (
     <WebRtcProvider roomId={roomId}>
@@ -35,6 +40,9 @@ export default function RoomPage() {
           cursorDash={openCursor}
           images={images}
           setRedrawVersion={setRedrawVersion}
+          eraserMode={eraserMode}
+          setEraserMode={setEraserMode}
+          eraserRef={eraserRef}
         />
         <main className="flex-1 flex ">
           {/* cursor interface not open*/}
@@ -45,7 +53,12 @@ export default function RoomPage() {
             />
           )}
           {openCursor && (
-            <MultiCursor imageUpdate={redrawVersion} images={images} floatChatInterface={floatChatInterface} />
+            <MultiCursor
+              imageUpdate={redrawVersion}
+              eraserRef={eraserRef}
+              images={images}
+              floatChatInterface={floatChatInterface}
+            />
           )}
           <ChatInterface
             floatChatInterface={floatChatInterface}

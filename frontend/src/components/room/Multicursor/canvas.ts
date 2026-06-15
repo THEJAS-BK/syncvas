@@ -224,4 +224,15 @@ const getClickedResizeHandle=(
   return null;
 }
 
-export { getCanvasPoint, redraw, getSelectionLine, isRotationHandlerClicked,getClickedResizeHandle };
+const isPointNearStroke=(point: Point, stroke: Stroke, threshold = 10): boolean=> {
+  for (const p of stroke.points) {
+    const dx = p.x - point.x;
+    const dy = p.y - point.y;
+    if (dx * dx + dy * dy <= threshold * threshold) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export { getCanvasPoint, redraw, getSelectionLine, isRotationHandlerClicked,getClickedResizeHandle, isPointNearStroke };

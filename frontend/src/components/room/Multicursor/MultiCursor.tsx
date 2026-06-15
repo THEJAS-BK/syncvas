@@ -15,10 +15,12 @@ export default function MultiCursor({
   images,
   floatChatInterface,
   imageUpdate,
+  eraserRef
 }: {
   images: React.RefObject<BoardImage[]>;
   floatChatInterface: boolean;
   imageUpdate: number;
+  eraserRef: React.MutableRefObject<boolean>;
 }) {
   const camera = useRef({ x: 0, y: 0, scale: 1 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -66,7 +68,8 @@ export default function MultiCursor({
     color,
     isDrawing,
     setCursorPos,
-    selectedImgIdx
+    selectedImgIdx,
+    eraserRef
   );
   useCanvasZoom(
     canvasRef,

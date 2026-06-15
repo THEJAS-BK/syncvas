@@ -199,8 +199,10 @@ const setSocketConnection = (server: any) => {
       socket.to(data.roomId).emit("resize-image", image);
     });
     socket.on("delete-image", (data) => {
-      roomImages[data.roomId]?.filter((img) => img.id !== data.id);
-      socket.emit("delete-image", data.id);
+  
+        roomImages[data.roomId] = (roomImages[data.roomId]??[]).filter((img) => img.id !== data.id);
+      
+      socket.to(data.roomId).emit("delete-image", data.id);
     });
   });
 

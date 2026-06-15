@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { socket } from "../../../../services/socket";
 import type { ActiveStroke, BoardImage, Point, Stroke } from "../types";
 
-
-import { getCanvasPoint,redraw } from "../canvas";
+import { getCanvasPoint, redraw, isPointNearStroke } from "../canvas";
 
 export function useSocketDraw(
   roomId: string,
-   canvasRef: React.RefObject<HTMLCanvasElement|null>,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
   camera: React.RefObject<any>,
   images: React.RefObject<BoardImage[]>,
   imageCache: React.RefObject<Map<string, HTMLImageElement>>,
@@ -17,20 +16,25 @@ export function useSocketDraw(
   strokes: React.RefObject<Stroke[]>,
   userIdRef: React.RefObject<string>,
   color: string,
-  isDrawing:React.RefObject<boolean>,
+  isDrawing: React.RefObject<boolean>,
   setCursorPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>,
-  selectedImgIdx:React.RefObject<number>
+  selectedImgIdx: React.RefObject<number>,
+  eraserRef: React.MutableRefObject<boolean>,
 ) {
+
+  const isEraserSelected=useRef(false);
   useEffect(() => {
     //handle drawing
-      const canvas = canvasRef.current; 
+    const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    
     const startDrawing = (e: MouseEvent) => {
-        if(selectedImgIdx.current!==-1) return ;
+      if( eraserRef.current === true){
+        isEraserSelected.current=true;
+        return;
+      }
+      if (selectedImgIdx.current !== -1 ) return;
       isDrawing.current = true;
       const { x, y } = getCanvasPoint(e, canvas, camera);
       currentStroke.current = [{ x, y }];
@@ -56,6 +60,11 @@ export function useSocketDraw(
         x: e.clientX,
         y: e.clientY,
       });
+      if (eraserRef.current === true && isEraserSelected.current) {
+        const point = getCanvasPoint(e, canvas, camera);
+        eraseAtPoint(point);
+        return;
+      }
       if (!isDrawing.current) return;
       const { x, y } = getCanvasPoint(e, canvas, camera);
       currentStroke.current.push({ x, y });
@@ -82,7 +91,7 @@ export function useSocketDraw(
 
     //stop drawing
     const stopDrawing = () => {
-    
+      isEraserSelected.current=false;
       if (currentStroke.current.length > 0) {
         const completedStrokes: Stroke = {
           points: [...currentStroke.current],
@@ -122,7 +131,7 @@ export function useSocketDraw(
       };
     });
 
-    socket.on("stroke-points", ({ userId, point, color:incomingColor }) => {
+    socket.on("stroke-points", ({ userId, point, color: incomingColor }) => {
       if (!activeStrokes.current[userId]) {
         activeStrokes.current[userId] = {
           color: incomingColor,
@@ -172,6 +181,28 @@ export function useSocketDraw(
       );
     });
 
+    const eraseAtPoint = (point: Point) => {
+      const before = strokes.current.length;
+      strokes.current = strokes.current.filter(
+        (stroke) => !isPointNearStroke(point, stroke),
+      );
+
+      if (strokes.current.length !== before) {
+        redraw(
+          canvas,
+          ctx,
+          camera,
+          images,
+          imageCache,
+          activeStrokes,
+          currentStroke,
+          strokes,
+          userIdRef.current,
+          color,
+        );
+      }
+    };
+
     canvas.addEventListener("mousedown", startDrawing);
     canvas.addEventListener("mousemove", draw);
     window.addEventListener("mouseup", stopDrawing);
@@ -183,5 +214,5 @@ export function useSocketDraw(
       canvas.removeEventListener("mousemove", draw);
       window.removeEventListener("mouseup", stopDrawing);
     };
-  },[]);
+  }, []);
 }
