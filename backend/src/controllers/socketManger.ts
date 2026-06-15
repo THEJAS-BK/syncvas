@@ -172,18 +172,20 @@ const setSocketConnection = (server: any) => {
       socket.to(data.roomId).emit("stroke-end", data);
     });
 
-    socket.on("stroke-delete",(data)=>{  
-      const threshold=10;
-      roomBoards[data.roomId]=(roomBoards[data.roomId]??[]).filter((stroke)=>{
-        const isNear=stroke.points.some((p)=>{
-          const dx=p.x-data.point.x;
-          const dy=p.y-data.point.y;
-          return dx * dx + dy * dy<=threshold*threshold;
-        })
-        return !isNear;
-      })
+    socket.on("stroke-delete", (data) => {
+      const threshold = 10;
+      roomBoards[data.roomId] = (roomBoards[data.roomId] ?? []).filter(
+        (stroke) => {
+          const isNear = stroke.points.some((p) => {
+            const dx = p.x - data.point.x;
+            const dy = p.y - data.point.y;
+            return dx * dx + dy * dy <= threshold * threshold;
+          });
+          return !isNear;
+        },
+      );
       socket.to(data.roomId).emit("stroke-delete", data.point);
-    })
+    });
 
     //image handlers
 
@@ -197,7 +199,6 @@ const setSocketConnection = (server: any) => {
       socket.to(data.roomId).emit("move-image", image);
     });
 
-
     socket.on("rotate-image", (data) => {
       const image = roomImages[data.roomId]?.find((img) => img.id === data.id);
       if (image) {
@@ -205,7 +206,6 @@ const setSocketConnection = (server: any) => {
       }
       socket.to(data.roomId).emit("rotate-image", image);
     });
-
 
     socket.on("resize-image", (data) => {
       const image = roomImages[data.roomId]?.find((img) => img.id === data.id);
