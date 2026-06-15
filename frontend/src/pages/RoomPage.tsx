@@ -6,10 +6,12 @@ import { useEffect, useRef, useState } from "react";
 import { WebRtcProvider } from "../context/WebRtcContext";
 import MultiCursor from "../components/room/Multicursor/MultiCursor";
 
+//image upload function
+import {handleImageUpload} from "../components/room/Multicursor/tools/imageUpload.ts"
+
 //lucide react components
 import { Pencil, TableOfContents, TypeOutline } from "lucide-react";
 import { Image, Eraser, MousePointer, Hand } from "lucide-react";
-import { socket } from "../services/socket";
 
 type BoardImage = {
   id: string; // add this
@@ -36,34 +38,7 @@ export default function RoomPage() {
   //hambergerMenu
   const [isHambergerMenuOpen, setIsHambergerMenuOpen] = useState(false);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      const id = crypto.randomUUID();
-
-      const imageData = {
-        id,
-        image: base64,
-        x: 100,
-        y: 100,
-        width: 400,
-        height: 300,
-        rotation: 0,
-      };
-
-      images.current?.push(imageData);
-      setRedrawVersion((v) => v + 1);
-
-      socket.emit("image-upload", { roomId, ...imageData });
-    };
-
-    reader.readAsDataURL(file);
-  };
+ 
   return (
     <>
       {/*image upload*/}
@@ -72,7 +47,9 @@ export default function RoomPage() {
         id="image-upload"
         className="hidden"
         accept="image/*"
-        onChange={handleImageUpload}
+        onChange={()=>{
+          handleImageUpload(e,images,setRedrawVersion,roomId)
+        }}
       />
 
       <WebRtcProvider roomId={roomId}>
@@ -82,7 +59,7 @@ export default function RoomPage() {
             {openCursor && (
               <button
                 onClick={() => setIsHambergerMenuOpen(!isHambergerMenuOpen)}
-                className="absolute text-white z-20"
+                className="absolute text-white z-20 left-5 top-5 border border-white rounded"
               >
                 <TableOfContents />
               </button>
@@ -98,25 +75,28 @@ export default function RoomPage() {
               </div>
             )}
             {/*center tools menu*/}
-            <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg z-20">
+            <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
               <div className="flex gap-4 shadow-lg">
-                <span>
+                <span className="hover:bg-gray-500">
                   <MousePointer />
                 </span>
-                <span>
+                <span className="hover:bg-gray-500">  
                   <Pencil />
                 </span>
-                <span>
+                <span className="hover:bg-gray-500">
                   <TypeOutline />
                 </span>
-                <span>
+                <span className="hover:bg-gray-500">
                   <Hand />
                 </span>
-                <span>
+                <button onClick={()=>{
+                  setEraserMode(!eraserMode)
+                  eraserRef.current=!eraserRef.current
+                }} className="hover:bg-gray-500">
                   <Eraser />
-                </span>
-                <span>
-                  <label htmlFor="image-upload">
+                </button>
+                <span className="hover:bg-gray-500">
+                  <label htmlFor="image-upload" className="hover:bg-gray-200">
                     <Image />
                   </label>
                 </span>
