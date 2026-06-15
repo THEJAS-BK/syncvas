@@ -2,16 +2,16 @@ import { useParams } from "react-router-dom";
 import ChatInterface from "../components/room/ChatInterface";
 import MainContent from "../components/room/MainContent";
 import RoomNavbar from "../components/room/RoomNavbar";
-import { useEffect, useRef, useState } from "react";
+import {  useRef, useState } from "react";
 import { WebRtcProvider } from "../context/WebRtcContext";
 import MultiCursor from "../components/room/Multicursor/MultiCursor";
-
+import "./RoomPage.css";
 //image upload function
-import {handleImageUpload} from "../components/room/Multicursor/tools/imageUpload.ts"
+import { handleImageUpload } from "../components/room/Multicursor/tools/imageUpload.ts";
 
-//lucide react components
-import { Pencil, TableOfContents, TypeOutline } from "lucide-react";
-import { Image, Eraser, MousePointer, Hand } from "lucide-react";
+import {TableOfContents} from "lucide-react"
+
+import Tools from "../components/room/Tools.tsx";
 
 type BoardImage = {
   id: string; // add this
@@ -38,7 +38,7 @@ export default function RoomPage() {
   //hambergerMenu
   const [isHambergerMenuOpen, setIsHambergerMenuOpen] = useState(false);
 
- 
+
   return (
     <>
       {/*image upload*/}
@@ -47,8 +47,8 @@ export default function RoomPage() {
         id="image-upload"
         className="hidden"
         accept="image/*"
-        onChange={()=>{
-          handleImageUpload(e,images,setRedrawVersion,roomId)
+        onChange={(e) => {
+          handleImageUpload(e, images, setRedrawVersion, roomId);
         }}
       />
 
@@ -57,12 +57,17 @@ export default function RoomPage() {
           {!openCursor && <RoomNavbar />}
           <main className="flex-1 flex static">
             {openCursor && (
+              <>
               <button
                 onClick={() => setIsHambergerMenuOpen(!isHambergerMenuOpen)}
                 className="absolute text-white z-20 left-5 top-5 border border-white rounded"
               >
                 <TableOfContents />
               </button>
+             
+           
+             
+             </>
             )}
 
             {isHambergerMenuOpen && (
@@ -76,39 +81,15 @@ export default function RoomPage() {
             )}
             {/*center tools menu*/}
             <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
-              <div className="flex gap-4 shadow-lg">
-                <span className="hover:bg-gray-500">
-                  <MousePointer />
-                </span>
-                <span className="hover:bg-gray-500">  
-                  <Pencil />
-                </span>
-                <span className="hover:bg-gray-500">
-                  <TypeOutline />
-                </span>
-                <span className="hover:bg-gray-500">
-                  <Hand />
-                </span>
-                <button onClick={()=>{
-                  setEraserMode(!eraserMode)
-                  eraserRef.current=!eraserRef.current
-                }} className="hover:bg-gray-500">
-                  <Eraser />
-                </button>
-                <span className="hover:bg-gray-500">
-                  <label htmlFor="image-upload" className="hover:bg-gray-200">
-                    <Image />
-                  </label>
-                </span>
-                <button onClick={() => setOpenCursor(!openCursor)}>
-                  VideoConf
-                </button>
-                <button
-                  onClick={() => setFloatChatInterface(!floatChatInterface)}
-                >
-                  Float
-                </button>
-              </div>
+              <Tools
+                eraserMode={eraserMode}
+                setEraserMode={setEraserMode}
+                eraserRef={eraserRef}
+                openCursor={openCursor}
+                setOpenCursor={setOpenCursor}
+                floatChatInterface={floatChatInterface}
+                setFloatChatInterface={setFloatChatInterface}
+              />
             </div>
             {/* cursor interface not open*/}
             {!openCursor && (
