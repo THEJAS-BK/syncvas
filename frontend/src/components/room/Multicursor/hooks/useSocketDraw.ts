@@ -21,8 +21,7 @@ export function useSocketDraw(
   selectedImgIdx: React.RefObject<number>,
   eraserRef: React.MutableRefObject<boolean>,
 ) {
-
-  const isEraserSelected=useRef(false);
+  const isEraserSelected = useRef(false);
   useEffect(() => {
     //handle drawing
     const canvas = canvasRef.current;
@@ -30,17 +29,16 @@ export function useSocketDraw(
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const startDrawing = (e: MouseEvent) => {
-      if( eraserRef.current === true){
-        isEraserSelected.current=true;
+      if (eraserRef.current === true) {
+        isEraserSelected.current = true;
         return;
       }
-      if (selectedImgIdx.current !== -1 ) return;
+      if (selectedImgIdx.current !== -1) return;
       isDrawing.current = true;
       const { x, y } = getCanvasPoint(e, canvas, camera);
       currentStroke.current = [{ x, y }];
 
       socket.emit("stroke-start", { userId: userIdRef.current, roomId, color });
-
       redraw(
         canvas,
         ctx,
@@ -91,7 +89,7 @@ export function useSocketDraw(
 
     //stop drawing
     const stopDrawing = () => {
-      isEraserSelected.current=false;
+      isEraserSelected.current = false;
       if (currentStroke.current.length > 0) {
         const completedStrokes: Stroke = {
           points: [...currentStroke.current],
@@ -180,14 +178,32 @@ export function useSocketDraw(
         color,
       );
     });
+    socket.on("stroke-delete", (point: Point) => {
+      strokes.current = strokes.current.filter(
+        (stroke) => !isPointNearStroke(point, stroke),
+      );
+      redraw(
+          canvas,
+          ctx,
+          camera,
+          images,
+          imageCache,
+          activeStrokes,
+          currentStroke,
+          strokes,
+          userIdRef.current,
+          color,
+        );
+    })
+
 
     const eraseAtPoint = (point: Point) => {
       const before = strokes.current.length;
       strokes.current = strokes.current.filter(
         (stroke) => !isPointNearStroke(point, stroke),
       );
-
       if (strokes.current.length !== before) {
+         socket.emit("stroke-delete", { point: point, roomId });
         redraw(
           canvas,
           ctx,
@@ -210,6 +226,7 @@ export function useSocketDraw(
       socket.off("stroke-start");
       socket.off("stroke-points");
       socket.off("stroke-end");
+      socket.off("stroke-delete")
       canvas.removeEventListener("mousedown", startDrawing);
       canvas.removeEventListener("mousemove", draw);
       window.removeEventListener("mouseup", stopDrawing);
