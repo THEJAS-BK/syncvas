@@ -12,6 +12,7 @@ import { handleImageUpload } from "../components/room/Multicursor/tools/imageUpl
 import {TableOfContents} from "lucide-react"
 
 import Tools from "../components/room/Tools.tsx";
+import ToolBarContainer from "../components/room/LeftToolBar/ToolBarContainer.tsx";
 
 type BoardImage = {
   id: string; // add this
@@ -25,7 +26,7 @@ type BoardImage = {
 
 export default function RoomPage() {
   const { roomId } = useParams();
-  const [openCursor, setOpenCursor] = useState(false);
+  const [openCursor, setOpenCursor] = useState(true);
   const [floatChatInterface, setFloatChatInterface] = useState(false);
   const images = useRef<BoardImage[]>([]);
   const [eraserMode, setEraserMode] = useState(false);
@@ -37,7 +38,8 @@ export default function RoomPage() {
 
   //hambergerMenu
   const [isHambergerMenuOpen, setIsHambergerMenuOpen] = useState(false);
-
+  //tools
+  const [activeTool, setActiveTool] = useState<string | null>("pen")
 
   return (
     <>
@@ -65,8 +67,7 @@ export default function RoomPage() {
                 <TableOfContents />
               </button>
              
-           
-             
+             <ToolBarContainer activeTool={activeTool}/>
              </>
             )}
 
@@ -89,6 +90,8 @@ export default function RoomPage() {
                 setOpenCursor={setOpenCursor}
                 floatChatInterface={floatChatInterface}
                 setFloatChatInterface={setFloatChatInterface}
+                activeTool={activeTool}
+                setActiveTool={setActiveTool}
               />
             </div>
             {/* cursor interface not open*/}

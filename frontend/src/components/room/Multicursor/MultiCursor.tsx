@@ -140,8 +140,8 @@ export default function MultiCursor({
   }, [imageUpdate]);
 
   return (
-    <div className="relative bg-black">
-      <canvas ref={canvasRef} width={1000} height={600} />
+    <div className="relative">
+      <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight} className="bg-gray-700" />
       <div
         style={{
           position: "fixed",

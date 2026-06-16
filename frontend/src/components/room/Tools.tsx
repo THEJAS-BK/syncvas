@@ -11,6 +11,8 @@ interface ToolsProps {
   setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>;
   floatChatInterface: boolean;
   setFloatChatInterface: React.Dispatch<React.SetStateAction<boolean>>;
+  activeTool: string | null;
+  setActiveTool:React.Dispatch<SetStateAction<string|null>>
 }
 
 export default function Tools({
@@ -21,32 +23,34 @@ export default function Tools({
   setOpenCursor,
   floatChatInterface,
   setFloatChatInterface,
+  activeTool,
+  setActiveTool
 }: ToolsProps) {
-  const [activeTools, setActiveTools] = useState<string | null>("pen");
+  ;
   return (
     <>
       <div className="flex gap-4 shadow-lg">
         <button
-          onClick={() => setActiveTools("mouse")}
-          className={activeTools === "mouse" ? "tool-btn-active" : "tool-btn"}
+          onClick={() => setActiveTool("mouse")}
+          className={activeTool === "mouse" ? "tool-btn-active" : "tool-btn"}
         >
           <MousePointer />
         </button>
         <button 
-          onClick={() => setActiveTools("pen")}
-          className={activeTools === "pen" ? "tool-btn-active" : "tool-btn "}
+          onClick={() => setActiveTool("pen")}
+          className={activeTool === "pen" ? "tool-btn-active" : "tool-btn "}
         >
           <Pencil />
         </button>
         <button
-          onClick={() => setActiveTools("text")}
-          className={activeTools === "text" ? "tool-btn-active" : "tool-btn"}
+          onClick={() => setActiveTool("text")}
+          className={activeTool === "text" ? "tool-btn-active" : "tool-btn"}
         >
           <TypeOutline />
         </button>
         <button
-          onClick={() => setActiveTools("hand")}
-          className={activeTools === "hand" ? "tool-btn-active" : "tool-btn"}
+          onClick={() => setActiveTool("hand")}
+          className={activeTool === "hand" ? "tool-btn-active" : "tool-btn"}
         >
           <Hand />
         </button>
@@ -54,34 +58,34 @@ export default function Tools({
           onClick={() => {
             setEraserMode(!eraserMode);
             eraserRef.current = !eraserRef.current;
-            setActiveTools("eraser");
+            setActiveTool("eraser");
           }}
-          className={activeTools === "eraser" ? "tool-btn-active" : "tool-btn"}
+          className={activeTool === "eraser" ? "tool-btn-active" : "tool-btn"}
         >
           <Eraser />
         </button>
 
         <button>
             <MoveRight
-             onClick={() => setActiveTools("arrow")}
-          className={activeTools === "arrow" ? "tool-btn-active" : "tool-btn"}
+             onClick={() => setActiveTool("arrow")}
+          className={activeTool === "arrow" ? "tool-btn-active" : "tool-btn"}
         />
         </button>
         <button>
-          <Minus  onClick={() => setActiveTools("line")}
-          className={activeTools === "line" ? "tool-btn-active" : "tool-btn"}/> 
+          <Minus  onClick={() => setActiveTool("line")}
+          className={activeTool === "line" ? "tool-btn-active" : "tool-btn"}/> 
         </button>
         <button>
-            <Square  onClick={() => setActiveTools("square")}
-          className={activeTools === "square" ? "tool-btn-active" : "tool-btn"}/>
+            <Square  onClick={() => setActiveTool("square")}
+          className={activeTool === "square" ? "tool-btn-active" : "tool-btn"}/>
         </button>
         <button>
-            <Diamond  onClick={() => setActiveTools("diamond")}
-          className={activeTools === "diamond" ? "tool-btn-active" : "tool-btn"}/>
+            <Diamond  onClick={() => setActiveTool("diamond")}
+          className={activeTool === "diamond" ? "tool-btn-active" : "tool-btn"}/>
         </button>
         <button>
-            <Circle  onClick={() => setActiveTools("circle")}
-          className={activeTools === "circle" ? "tool-btn-active" : "tool-btn"}/>
+            <Circle  onClick={() => setActiveTool("circle")}
+          className={activeTool === "circle" ? "tool-btn-active" : "tool-btn"}/>
         </button>
 
 
