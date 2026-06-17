@@ -7,8 +7,10 @@ export default function ColorSwatches({
 }: {
   activeTool: string | null;
 }) {
- const [colorGrid,setColorGrid]=useState<string>("strokes")
-
+ const [colorGrid,setColorGrid]=useState<string | null>(null)
+ const toggle=(panel:string)=>{
+  setColorGrid(prev=>prev===panel?null:panel)
+ }
   return (
     <div className=" flex flex-col z-20">
       <p>Strokes</p>
@@ -19,7 +21,7 @@ export default function ColorSwatches({
         <div className="w-8 h-8 bg-yellow-500"></div>
         <div
           className="w-8 h-8 bg-purple-500 static"
-          onClick={() => setColorGrid(colorGrid === "strokes" ? "background" : "strokes")}
+          onClick={() => toggle("strokes")}
         >
           {colorGrid === "strokes" && <ColorGrid isMostUsedColorsNeeded={true} />}
         </div>
@@ -32,7 +34,7 @@ export default function ColorSwatches({
             <div className="w-8 h-8 bg-blue-500"></div>
             <div className="w-8 h-8 bg-green-500"></div>
             <div className="w-8 h-8 bg-yellow-500"></div>
-            <div className="w-8 h-8 bg-purple-500 static" onClick={() => setColorGrid(colorGrid === "strokes" ? "background" : "strokes")}>
+            <div className="w-8 h-8 bg-purple-500 static" onClick={() => toggle("background")}>
               {colorGrid === "background" && <ColorGrid isMostUsedColorsNeeded={false} />}
             </div>
           </div>

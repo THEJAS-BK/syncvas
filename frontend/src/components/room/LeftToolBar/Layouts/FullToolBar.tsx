@@ -9,7 +9,6 @@ import StrokeStyle from "../controls/StrokeStyle";
 import ArrowSetting from "../controls/ArrowSetting";
 import EdgeSetting from "../controls/EdgeSetting";
 import { LineSquiggle } from "lucide-react";
-import ColorGrid from "../controls/ColorGrid";
 export default function FullToolBar({
   activeTool,
 }: {

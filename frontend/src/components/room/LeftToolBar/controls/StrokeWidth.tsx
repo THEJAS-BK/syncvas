@@ -1,7 +1,7 @@
 import { Minus } from 'lucide-react'
 import React from 'react'
 
-export default function StrokeWidth({activeTool}:{activeTool:string}) {
+export default function StrokeWidth() {
   return (
     <div>
       <p>Stroke Width</p>
