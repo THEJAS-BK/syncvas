@@ -9,9 +9,7 @@ import StrokeStyle from "../controls/StrokeStyle";
 import ArrowSetting from "../controls/ArrowSetting";
 import EdgeSetting from "../controls/EdgeSetting";
 import { LineSquiggle } from "lucide-react";
-
-
-
+import ColorGrid from "../controls/ColorGrid";
 export default function FullToolBar({
   activeTool,
 }: {
@@ -19,6 +17,7 @@ export default function FullToolBar({
 }) {
   return (
     <div className="absolute left-3 top-1/4 flex flex-col bg-blue-200 z-20">
+      
      {activeTool === "pen" && (
   <>
     <ColorSwatches activeTool={"pen"} />
@@ -120,6 +119,7 @@ export default function FullToolBar({
     <LayerControls />
   </>
 )}
+
     </div>
   );
 }
