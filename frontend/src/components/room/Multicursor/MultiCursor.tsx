@@ -10,17 +10,20 @@ import { useSocketBoard } from "./hooks/useSocketBoard";
 import { useSocketDraw } from "./hooks/useSocketDraw";
 import { useCanvasZoom } from "./hooks/useCanvasZoom";
 import { useImageTransform } from "./hooks/useImageTransform";
+import { getCursorStyle } from "./tools/CustomCursor";
 
 export default function MultiCursor({
   images,
   floatChatInterface,
   imageUpdate,
-  eraserRef
+  eraserRef,
+  activeTool,
 }: {
   images: React.RefObject<BoardImage[]>;
   floatChatInterface: boolean;
   imageUpdate: number;
   eraserRef: React.MutableRefObject<boolean>;
+  activeTool: string | null;
 }) {
   const camera = useRef({ x: 0, y: 0, scale: 1 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -31,7 +34,7 @@ export default function MultiCursor({
   const userIdRef = useRef("");
   const isDrawing = useRef(false);
   const color = useRef(COLORS[Math.floor(Math.random() * 5)]).current;
-  const selectedImgIdx=useRef<number>(-1)
+  const selectedImgIdx = useRef<number>(-1);
 
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [userName, setUserName] = useState("");
@@ -69,7 +72,7 @@ export default function MultiCursor({
     isDrawing,
     setCursorPos,
     selectedImgIdx,
-    eraserRef
+    eraserRef,
   );
   useCanvasZoom(
     canvasRef,
@@ -84,7 +87,8 @@ export default function MultiCursor({
   );
 
   //image transformations
-  useImageTransform(canvasRef,
+  useImageTransform(
+    canvasRef,
     camera,
     images,
     imageCache,
@@ -94,7 +98,7 @@ export default function MultiCursor({
     userIdRef,
     color,
     selectedImgIdx,
-    roomId??""
+    roomId ?? "",
   );
 
   useEffect(() => {
@@ -129,7 +133,7 @@ export default function MultiCursor({
       canvas,
       ctx,
       camera,
-      images, 
+      images,
       imageCache,
       activeStrokes,
       currentStroke,
@@ -141,8 +145,14 @@ export default function MultiCursor({
 
   return (
     <div className="relative">
-      <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight} className="bg-gray-700" />
-      <div
+      <canvas
+        ref={canvasRef}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        className={`bg-gray-700 `}
+        style={{ cursor: getCursorStyle(activeTool) }}
+      />
+      {/* <div
         style={{
           position: "fixed",
           left: cursorPos.x - 5,
@@ -153,7 +163,7 @@ export default function MultiCursor({
           background: "white",
           pointerEvents: "none",
         }}
-      />
+      /> */}
     </div>
   );
 }

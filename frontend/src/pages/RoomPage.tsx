@@ -107,6 +107,7 @@ export default function RoomPage() {
                 eraserRef={eraserRef}
                 images={images}
                 floatChatInterface={floatChatInterface}
+                activeTool={activeTool}
               />
             )}
             <ChatInterface

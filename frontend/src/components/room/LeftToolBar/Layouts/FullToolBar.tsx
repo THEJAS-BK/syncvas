@@ -7,6 +7,10 @@ import LayerControls from "../controls/LayerControls";
 import FontSetting from "../controls/FontSetting";
 import StrokeStyle from "../controls/StrokeStyle";
 import ArrowSetting from "../controls/ArrowSetting";
+import EdgeSetting from "../controls/EdgeSetting";
+import { LineSquiggle } from "lucide-react";
+
+
 
 export default function FullToolBar({
   activeTool,
@@ -49,7 +53,10 @@ export default function FullToolBar({
 {activeTool === "line" && (
   <>
     <ColorSwatches activeTool={"line"} />
+     <FillToggle />
     <StrokeWidth />
+    <ArrowSetting/>
+     <EdgeSetting/>
     <OpacitySlider />
     <LayerControls />
   </>
@@ -60,6 +67,16 @@ export default function FullToolBar({
     <ColorSwatches activeTool={"square"} />
     <FillToggle />
     <StrokeWidth />
+    <StrokeStyle/>
+      <div>
+        <span>Sloppiness</span>
+        <div className="flex space-x-2">
+            <div><LineSquiggle strokeWidth={0.5} /></div>
+            <div><LineSquiggle strokeWidth={1.75} /></div>
+            <div><LineSquiggle strokeWidth={3} /></div>
+        </div>
+      </div>
+    <EdgeSetting/>
     <OpacitySlider />
     <LayerControls />
   </>
@@ -70,6 +87,16 @@ export default function FullToolBar({
     <ColorSwatches activeTool={"diamond"} />
     <FillToggle />
     <StrokeWidth />
+    <StrokeStyle/>
+      <div>
+        <span>Sloppiness</span>
+        <div className="flex space-x-2">
+            <div><LineSquiggle strokeWidth={0.5} /></div>
+            <div><LineSquiggle strokeWidth={1.75} /></div>
+            <div><LineSquiggle strokeWidth={3} /></div>
+        </div>
+      </div>
+    <EdgeSetting/>
     <OpacitySlider />
     <LayerControls />
   </>
@@ -80,6 +107,15 @@ export default function FullToolBar({
     <ColorSwatches activeTool={"circle"} />
     <FillToggle />
     <StrokeWidth />
+    <StrokeStyle/>
+    <div>
+        <span>Sloppiness</span>
+        <div className="flex space-x-2">
+            <div><LineSquiggle strokeWidth={0.5} /></div>
+            <div><LineSquiggle strokeWidth={1.75} /></div>
+            <div><LineSquiggle strokeWidth={3} /></div>
+        </div>
+      </div>
     <OpacitySlider />
     <LayerControls />
   </>
