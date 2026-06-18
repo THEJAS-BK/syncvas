@@ -15,110 +15,81 @@ export default function FullToolBar({
   activeTool: string | null;
 }) {
   return (
-    <div className="absolute left-3 top-1/4 flex flex-col bg-blue-200 z-20">
-      
-     {activeTool === "pen" && (
-  <>
-    <ColorSwatches activeTool={"pen"} />
-    <FillToggle />
-    <StrokeWidth />
-    <StrokeStyle/>
-    <OpacitySlider />
-    <LayerControls />
-  </>
-)}
+    <div className="toolbar-scroll absolute text-white left-3 top-1/4 flex flex-col rounded-2xl bg-[#1f1f2b] shadow-xl p-3 h-3/4 z-20">
 
-{activeTool === "text" && (
-  <>
-    <ColorSwatches activeTool={"text"} />
-    <FontSetting/>
-    <OpacitySlider/>
-    <LayerControls/>
-  </>
-)}
-
-{activeTool === "arrow" && (
-  <>
-    <ColorSwatches activeTool={"arrow"} />
-    <StrokeWidth />
-    <StrokeStyle/>
-    <ArrowSetting/>
-    <OpacitySlider />
-    <LayerControls />
-  </>
-)}
-
-{activeTool === "line" && (
-  <>
-    <ColorSwatches activeTool={"line"} />
-     <FillToggle />
-    <StrokeWidth />
-    <ArrowSetting/>
-     <EdgeSetting/>
-    <OpacitySlider />
-    <LayerControls />
-  </>
-)}
-
-{activeTool === "square" && (
-  <>
-    <ColorSwatches activeTool={"square"} />
-    <FillToggle />
-    <StrokeWidth />
-    <StrokeStyle/>
-      <div>
-        <span>Sloppiness</span>
-        <div className="flex space-x-2">
-            <div><LineSquiggle strokeWidth={0.5} /></div>
-            <div><LineSquiggle strokeWidth={1.75} /></div>
-            <div><LineSquiggle strokeWidth={3} /></div>
-        </div>
-      </div>
-    <EdgeSetting/>
-    <OpacitySlider />
-    <LayerControls />
-  </>
-)}
-
-{activeTool === "diamond" && (
-  <>
-    <ColorSwatches activeTool={"diamond"} />
-    <FillToggle />
-    <StrokeWidth />
-    <StrokeStyle/>
-      <div>
-        <span>Sloppiness</span>
-        <div className="flex space-x-2">
-            <div><LineSquiggle strokeWidth={0.5} /></div>
-            <div><LineSquiggle strokeWidth={1.75} /></div>
-            <div><LineSquiggle strokeWidth={3} /></div>
-        </div>
-      </div>
-    <EdgeSetting/>
-    <OpacitySlider />
-    <LayerControls />
-  </>
-)}
-
-{activeTool === "circle" && (
-  <>
-    <ColorSwatches activeTool={"circle"} />
-    <FillToggle />
-    <StrokeWidth />
-    <StrokeStyle/>
-    <div>
-        <span>Sloppiness</span>
-        <div className="flex space-x-2">
-            <div><LineSquiggle strokeWidth={0.5} /></div>
-            <div><LineSquiggle strokeWidth={1.75} /></div>
-            <div><LineSquiggle strokeWidth={3} /></div>
-        </div>
-      </div>
-    <OpacitySlider />
-    <LayerControls />
-  </>
-)}
-
+      {activeTool === "pen" && (
+        <>
+          <ColorSwatches activeTool={"pen"} />
+          <FillToggle />
+          <StrokeWidth />
+          <OpacitySlider />
+          <LayerControls />
+        </>
+      )}
+      {activeTool === "text" && (
+        <>
+          <ColorSwatches activeTool={"text"} />
+          <FontSetting />
+          <OpacitySlider />
+          <LayerControls />
+        </>
+      )}
+      {activeTool === "arrow" && (
+        <>
+          <ColorSwatches activeTool={"arrow"} />
+          <StrokeWidth />
+          <StrokeStyle />
+          <ArrowSetting activeTool={"arrow"} />
+          <OpacitySlider />
+          <LayerControls />
+        </>
+      )}
+      {activeTool === "line" && (
+        <>
+          <ColorSwatches activeTool={"line"} />
+          <FillToggle />
+          <StrokeWidth />
+          <ArrowSetting activeTool={"line"} />
+          <EdgeSetting />
+          <OpacitySlider />
+          <LayerControls />
+        </>
+      )}
+      {activeTool === "square" && (
+        <>
+          <ColorSwatches activeTool={"square"} />
+          <FillToggle />
+          <StrokeWidth />
+          <StrokeStyle />
+         <ArrowSetting activeTool={"square"} />
+          <EdgeSetting />
+          <OpacitySlider />
+          <LayerControls />
+        </>
+      )}
+      {activeTool === "diamond" && (
+        <>
+          <ColorSwatches activeTool={"diamond"} />
+          <FillToggle />
+          <StrokeWidth />
+          <StrokeStyle />
+          <ArrowSetting activeTool={"diamond"} />
+          <EdgeSetting />
+          <OpacitySlider />
+          <LayerControls />
+        </>
+      )}
+      {activeTool === "circle" && (
+        <>
+          <ColorSwatches activeTool={"circle"} />
+          <FillToggle />
+          <StrokeWidth />
+          <StrokeStyle />
+          <ArrowSetting activeTool={"circle"}/>
+          <OpacitySlider />
+          <LayerControls />
+        </>
+      )}
     </div>
   );
 }

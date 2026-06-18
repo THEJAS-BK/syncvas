@@ -1,0 +1,50 @@
+.icon-background {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.icon-background:hover{
+    background-color: rgb(107, 107, 162);
+}
+
+.color-border:hover{
+    transform: scale(1.1);
+}
+
+.toolbar-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #8a8a8a transparent;
+}
+
+/* Chrome, Edge, Safari */
+.toolbar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.toolbar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.toolbar-scroll::-webkit-scrollbar-thumb {
+  background: #8a8a8a;
+  border-radius: 999px;
+}
+
+.toolbar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #b0b0b0;
+}
