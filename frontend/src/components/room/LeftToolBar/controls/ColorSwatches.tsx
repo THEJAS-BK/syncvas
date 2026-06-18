@@ -35,8 +35,8 @@ export default function ColorSwatches({
 
   return (
     <div className=" flex flex-col z-20">
-      <span className="mb-2 text-sm font-medium text-gray-300 ">Strokes</span>
-      <div className="grid grid-cols-6 place-items-center">
+      <span className="mb-2 text-sm  text-gray-300 ">Strokes</span>
+     <div className="flex items-center gap-1">
         {strokeColors.map((color) => (
           <div
             key={color}
@@ -48,7 +48,9 @@ export default function ColorSwatches({
             onClick={() => setSelectedColor(color)}
           />
         ))}
-        <div
+       <div className="flex gap-1">
+         <div className="w-px h-7 bg-gray-600 align-center"></div>
+         <div
           className="w-7 h-7 ml-px  bg-purple-500 static rounded hover:scale-115"
           onClick={() => toggle("strokes")}
         >
@@ -56,13 +58,14 @@ export default function ColorSwatches({
             <ColorGrid isMostUsedColorsNeeded={true} />
           )}
         </div>
+       </div>
       </div>
       {activeTool !== "text" && activeTool !== "arrow" && (
         <>
-          <p className="mb-2 mt-2 text-sm font-medium text-gray-300 ">
+          <p className="mb-2 mt-2 text-sm  text-gray-300 ">
             Background
           </p>
-          <div className="grid grid-cols-6 place-items-center">
+          <div className="flex items-center gap-1 ">
             {backgroundColors.map((color) => (
               <div
                 key={color}
@@ -74,7 +77,9 @@ export default function ColorSwatches({
                 onClick={() => setSelectedBackgroundColor(color)}
               />
             ))}
-            <div
+           <div className="flex gap-1">
+            <div className="w-px h-7 bg-gray-600 align-center"></div>
+             <div
               className="w-7 h-7 ml-px rounded bg-purple-500 static hover:scale-115"
               onClick={() => toggle("background")}
             >
@@ -82,6 +87,7 @@ export default function ColorSwatches({
                 <ColorGrid isMostUsedColorsNeeded={false} />
               )}
             </div>
+           </div>
           </div>
         </>
       )}

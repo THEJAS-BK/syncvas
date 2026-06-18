@@ -14,9 +14,11 @@ export default function FullToolBar({
 }: {
   activeTool: string | null;
 }) {
+  const tools = ["pen", "text", "arrow", "line", "square", "diamond", "circle"];
   return (
-    <div className="toolbar-scroll absolute text-white left-3 top-1/4 flex flex-col rounded-2xl bg-[#1f1f2b] shadow-xl p-3 h-3/4 z-20">
-
+    <div
+      className={`toolbar-scroll absolute text-white left-3 top-15 flex flex-col rounded-2xl bg-[#1f1f2b] shadow-xl ${tools.includes(activeTool ?? "") ? "p-3" : "hidden"} z-20`}
+    >
       {activeTool === "pen" && (
         <>
           <ColorSwatches activeTool={"pen"} />
@@ -61,7 +63,7 @@ export default function FullToolBar({
           <FillToggle />
           <StrokeWidth />
           <StrokeStyle />
-         <ArrowSetting activeTool={"square"} />
+          <ArrowSetting activeTool={"square"} />
           <EdgeSetting />
           <OpacitySlider />
           <LayerControls />
@@ -85,7 +87,7 @@ export default function FullToolBar({
           <FillToggle />
           <StrokeWidth />
           <StrokeStyle />
-          <ArrowSetting activeTool={"circle"}/>
+          <ArrowSetting activeTool={"circle"} />
           <OpacitySlider />
           <LayerControls />
         </>
