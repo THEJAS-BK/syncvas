@@ -13,18 +13,20 @@ type ActiveStroke = {
   color: string;
   points: Point[];
 };
+
 type BoardImage = {
-  id: string; // add this
+  id: string;
   image: string;
   x: number;
   y: number;
   width: number;
   height: number;
-  rotation:number|0;
+  rotation: number | 0;
 };
+
 interface TextBox {
   id: string;
-  type: 'textbox';
+  type: "textbox";
   x: number;
   y: number;
   text: string;
@@ -33,9 +35,10 @@ interface TextBox {
   userId: string;
 }
 
-interface Shape{
-    id: string;
-  type: "rect" | "circle";
+interface Shape {
+  id: string;
+  type: "shape";
+  shapeType: "rect" | "circle" | "diamond";
   x: number;
   y: number;
   width: number;
@@ -44,4 +47,15 @@ interface Shape{
   filled: boolean;
   userId: string;
 }
-export type { Point, Stroke, ActiveStroke, BoardImage,TextBox,Shape };
+
+type CanvasElement = TextBox | Shape;
+
+export type {
+  Point,
+  Stroke,
+  ActiveStroke,
+  BoardImage,
+  TextBox,
+  Shape,
+  CanvasElement,
+};

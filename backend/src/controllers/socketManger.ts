@@ -19,6 +19,32 @@ type ImageElement = {
   height: number;
   rotation: number | 0;
 };
+
+type CanvasElement =
+  | {
+      id: string;
+      type: "textbox";
+      x: number;
+      y: number;
+      text: string;
+      fontSize: number;
+      color: string;
+      userId: string;
+    }
+  | {
+      id: string;
+      type: "shape";
+      shapeType: "rect" | "circle" | "diamond";
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      color: string;
+      filled: boolean;
+      userId: string;
+    };
+
+const roomElements: Record<string, CanvasElement[]> = {};
 //store room state
 const roomBoards: Record<string, Stroke[]> = {};
 const roomImages: Record<string, ImageElement[]> = {};
@@ -131,6 +157,7 @@ const setSocketConnection = (server: any) => {
     socket.on("board-state", (roomId) => {
       socket.emit("board-state", roomBoards[roomId] ?? []);
       socket.emit("image-state", roomImages[roomId] ?? []);
+      socket.emit("element-state", roomElements[roomId] ?? []);
     });
 
     //image upload Handler
@@ -222,9 +249,34 @@ const setSocketConnection = (server: any) => {
       socket.to(data.roomId).emit("delete-image", data.id);
     });
 
-    //text box
-    socket.on("textbox:add", ({ roomId, box }) => {
-      socket.to(roomId).emit("textbox:add", box);
+    //textbox
+
+    // add (covers both textbox and shape)
+    socket.on("element-add", (data) => {
+      roomElements[data.roomId] ??= [];
+      const element: CanvasElement = {
+        ...data.element,
+        userId: socket.data.userId,
+      };
+      roomElements[data.roomId]!.push(element);
+      socket.to(data.roomId).emit("element-add", element);
+    });
+
+    // update (covers textbox edit/font-size-change, shape move)
+    socket.on("element-update", (data) => {
+      const el = roomElements[data.roomId]?.find((e) => e.id === data.id);
+      if (el) Object.assign(el, data.changes);
+      socket
+        .to(data.roomId)
+        .emit("element-update", { id: data.id, changes: data.changes });
+    });
+
+    // delete (covers both)
+    socket.on("element-delete", (data) => {
+      roomElements[data.roomId] = (roomElements[data.roomId] ?? []).filter(
+        (e) => e.id !== data.id,
+      );
+      socket.to(data.roomId).emit("element-delete", data.id);
     });
   });
 

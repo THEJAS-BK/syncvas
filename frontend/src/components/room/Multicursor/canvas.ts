@@ -1,5 +1,5 @@
 import type React from "react";
-import type { BoardImage, ActiveStroke, Point, Stroke } from "./types";
+import type { BoardImage, ActiveStroke, Point, Stroke, Shape } from "./types";
 
 const getCanvasPoint = (
   e: MouseEvent,
@@ -234,5 +234,14 @@ const isPointNearStroke=(point: Point, stroke: Stroke, threshold = 10): boolean=
   }
   return false;
 }
+function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
+  ctx.strokeStyle = shape.color;
+  ctx.fillStyle = shape.color;
+  ctx.lineWidth = 2;
 
-export { getCanvasPoint, redraw, getSelectionLine, isRotationHandlerClicked,getClickedResizeHandle, isPointNearStroke };
+  if (shape.shapeType === "rect") {
+    if (shape.filled) ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
+    else ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+  }
+}
+export { getCanvasPoint, redraw, getSelectionLine, isRotationHandlerClicked,getClickedResizeHandle, isPointNearStroke, drawShape };

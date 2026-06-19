@@ -50,13 +50,17 @@ export default function MultiCursor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [panTick, setPanTick] = useState(0);
 
+  const [filled,setFilled]=useState(false)
+
   const {
-    textBoxes,
+     textBoxes,
     activeTextBox,
     placeTextBox,
     finalizeTextBox,
     cancelTextBox,
-    onRemoteTextBox,
+    updateTextBox,
+    changeFontSize,
+    deleteTextBox,
   } = useTextBox(roomId ?? "", camera, userIdRef, color);
 
   const hasTextElements = activeTextBox !== null || textBoxes.length > 0;
@@ -69,13 +73,6 @@ export default function MultiCursor({
   useEffect(() => {
     if (!roomId) navigate("/dashboard");
   }, [roomId]);
-
-  useEffect(() => {
-    socket.on("textbox:add", onRemoteTextBox);
-    return () => {
-      socket.off("textbox:add", onRemoteTextBox);
-    };
-  }, []);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (activeTool === "text") {

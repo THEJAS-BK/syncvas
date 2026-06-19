@@ -71,6 +71,7 @@ export function useSocketBoard(
         color,
       );
     });
+    
     return () => {
       socket.off("board-state");
       socket.off("image-state");
