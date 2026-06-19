@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
 import { socket } from "../../../../services/socket";
-import type { ActiveStroke, BoardImage, Point, Stroke } from "../types";
+import type { ActiveStroke, BoardImage, Point, Shape, Stroke } from "../types";
 
 import { getCanvasPoint, redraw, isPointNearStroke } from "../canvas";
 
@@ -20,6 +20,8 @@ export function useSocketDraw(
   setCursorPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>,
   selectedImgIdx: React.RefObject<number>,
   eraserRef: React.MutableRefObject<boolean>,
+  shapesRef?: React.RefObject<Shape[]>,
+  activeShape?: React.RefObject<Shape | null>,
 ) {
   const isEraserSelected = useRef(false);
   useEffect(() => {
@@ -84,6 +86,8 @@ export function useSocketDraw(
         strokes,
         userIdRef.current,
         color,
+        shapesRef,
+        activeShape,
       );
     };
 
@@ -118,6 +122,8 @@ export function useSocketDraw(
         strokes,
         userIdRef.current,
         color,
+        shapesRef,
+        activeShape,
       );
     };
 
@@ -149,6 +155,8 @@ export function useSocketDraw(
         strokes,
         userIdRef.current,
         incomingColor,
+        shapesRef,
+        activeShape,
       );
     });
 
@@ -176,6 +184,8 @@ export function useSocketDraw(
         strokes,
         userIdRef.current,
         color,
+        shapesRef,
+        activeShape,
       );
     });
     socket.on("stroke-delete", (point: Point) => {
@@ -183,19 +193,20 @@ export function useSocketDraw(
         (stroke) => !isPointNearStroke(point, stroke),
       );
       redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-        );
-    })
-
+        canvas,
+        ctx,
+        camera,
+        images,
+        imageCache,
+        activeStrokes,
+        currentStroke,
+        strokes,
+        userIdRef.current,
+        color,
+        shapesRef,
+        activeShape,
+      );
+    });
 
     const eraseAtPoint = (point: Point) => {
       const before = strokes.current.length;
@@ -203,7 +214,7 @@ export function useSocketDraw(
         (stroke) => !isPointNearStroke(point, stroke),
       );
       if (strokes.current.length !== before) {
-         socket.emit("stroke-delete", { point: point, roomId });
+        socket.emit("stroke-delete", { point: point, roomId });
         redraw(
           canvas,
           ctx,
@@ -215,6 +226,8 @@ export function useSocketDraw(
           strokes,
           userIdRef.current,
           color,
+          shapesRef,
+          activeShape,
         );
       }
     };
@@ -226,7 +239,7 @@ export function useSocketDraw(
       socket.off("stroke-start");
       socket.off("stroke-points");
       socket.off("stroke-end");
-      socket.off("stroke-delete")
+      socket.off("stroke-delete");
       canvas.removeEventListener("mousedown", startDrawing);
       canvas.removeEventListener("mousemove", draw);
       window.removeEventListener("mouseup", stopDrawing);

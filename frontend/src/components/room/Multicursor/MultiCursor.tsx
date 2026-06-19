@@ -5,7 +5,7 @@ const COLORS = ["#ff6b6b", "#4ecdc4", "#f9ca24", "#6c5ce7", "#55efc4"];
 //helper function
 import { redraw } from "./canvas";
 //types
-import type { BoardImage, Stroke, Point, ActiveStroke } from "./types";
+import type { BoardImage, Stroke, Point, ActiveStroke, Shape } from "./types";
 import { useSocketBoard } from "./hooks/useSocketBoard";
 import { useSocketDraw } from "./hooks/useSocketDraw";
 import { useCanvasZoom } from "./hooks/useCanvasZoom";
@@ -49,11 +49,11 @@ export default function MultiCursor({
   const measureRef = useRef<HTMLSpanElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [panTick, setPanTick] = useState(0);
-
-  const [filled,setFilled]=useState(false)
+  const shapesRef = useRef<Shape[]>([]);
+  const activeShape = useRef<Shape | null>(null);
 
   const {
-     textBoxes,
+    textBoxes,
     activeTextBox,
     placeTextBox,
     finalizeTextBox,
@@ -91,6 +91,8 @@ export default function MultiCursor({
     strokes,
     userIdRef,
     color,
+    shapesRef,
+    activeShape,
   );
   useSocketDraw(
     roomId ?? "",
@@ -107,6 +109,8 @@ export default function MultiCursor({
     setCursorPos,
     selectedImgIdx,
     eraserRef,
+    shapesRef,
+    activeShape,
   );
   useCanvasZoom(
     wrapperRef,
@@ -120,6 +124,8 @@ export default function MultiCursor({
     userIdRef,
     color,
     handleCameraChange,
+    shapesRef,
+    activeShape,
   );
 
   //image transformations
@@ -135,6 +141,8 @@ export default function MultiCursor({
     color,
     selectedImgIdx,
     roomId ?? "",
+    shapesRef,
+    activeShape,
   );
 
   useEffect(() => {
@@ -176,6 +184,8 @@ export default function MultiCursor({
       strokes,
       userIdRef.current,
       color,
+      shapesRef,
+      activeShape,
     );
   }, [imageUpdate]);
 
@@ -299,6 +309,8 @@ export default function MultiCursor({
                   userIdRef.current,
                   color,
                   () => setPanTick((t) => t + 1),
+                  shapesRef,
+                  activeShape,
                 );
               }
             }}

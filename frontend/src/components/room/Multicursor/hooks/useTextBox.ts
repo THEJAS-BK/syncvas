@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { socket } from "../../../../services/socket";
 import type { MutableRefObject } from "react";
-import type { TextBox, CanvasElement } from "../types";
+import type { TextBox, CanvasElement, Shape } from "../types";
 
 export function useTextBox(
   roomId: string,
   camera: React.RefObject<any>,
   userIdRef: MutableRefObject<string>,
   color: string,
+  shapesRef?: React.RefObject<Shape[]>,
+  activeShape?: React.RefObject<Shape | null>,
 ) {
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
   const [activeTextBox, setActiveTextBox] = useState<TextBox | null>(null);
@@ -68,7 +70,6 @@ export function useTextBox(
     socket.emit("element-delete", { roomId, id });
   };
 
-
   // ---- socket listeners ----
   useEffect(() => {
     const onElementAdd = (el: CanvasElement) => {
@@ -76,7 +77,13 @@ export function useTextBox(
       setTextBoxes((prev) => [...prev, el]);
     };
 
-    const onElementUpdate = ({ id, changes }: { id: string; changes: Partial<TextBox> }) => {
+    const onElementUpdate = ({
+      id,
+      changes,
+    }: {
+      id: string;
+      changes: Partial<TextBox>;
+    }) => {
       setTextBoxes((prev) =>
         prev.map((b) => (b.id === id ? { ...b, ...changes } : b)),
       );

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 import { socket } from "../../../../services/socket";
-import type { ActiveStroke, BoardImage, Point, Stroke } from "../types";
+import type { ActiveStroke, BoardImage, Point, Shape, Stroke } from "../types";
 import { redraw } from "../canvas";
 
 export function useSocketBoard(
@@ -15,6 +15,8 @@ export function useSocketBoard(
   strokes: React.RefObject<Stroke[]>,
   userIdRef: React.RefObject<string>,
   color: string,
+  shapesRef: React.RefObject<Shape[]>,
+  activeShape: React.RefObject<Shape | null>,
 ) {
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -36,6 +38,8 @@ export function useSocketBoard(
         strokes,
         userIdRef.current,
         color,
+        shapesRef,
+        activeShape,
       );
     });
     socket.on("image-state", (savedImages: BoardImage[]) => {
@@ -71,7 +75,7 @@ export function useSocketBoard(
         color,
       );
     });
-    
+
     return () => {
       socket.off("board-state");
       socket.off("image-state");

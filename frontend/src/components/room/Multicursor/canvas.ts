@@ -30,6 +30,8 @@ const redraw = (
   strokes: React.RefObject<Stroke[]>,
   userId: string,
   color: string,
+    shapesRef?: React.RefObject<Shape[]>,
+  activeShape?: React.RefObject<Shape | null>,
 ) => {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -234,14 +236,5 @@ const isPointNearStroke=(point: Point, stroke: Stroke, threshold = 10): boolean=
   }
   return false;
 }
-function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
-  ctx.strokeStyle = shape.color;
-  ctx.fillStyle = shape.color;
-  ctx.lineWidth = 2;
 
-  if (shape.shapeType === "rect") {
-    if (shape.filled) ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
-    else ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
-  }
-}
-export { getCanvasPoint, redraw, getSelectionLine, isRotationHandlerClicked,getClickedResizeHandle, isPointNearStroke, drawShape };
+export { getCanvasPoint, redraw, getSelectionLine, isRotationHandlerClicked,getClickedResizeHandle, isPointNearStroke };

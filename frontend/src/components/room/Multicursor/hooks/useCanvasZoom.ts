@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import type { ActiveStroke, BoardImage, Point, Stroke } from "../types";
+import type { ActiveStroke, BoardImage, Point, Shape, Stroke } from "../types";
 import { redraw } from "../canvas";
 
 export function useCanvasZoom(
@@ -14,6 +14,8 @@ export function useCanvasZoom(
   userIdRef: React.RefObject<string>,
   color: string,
   onCameraChange?: () => void,
+  shapesRef?: React.RefObject<Shape[]>,
+  activeShape?: React.RefObject<Shape | null>,
 ) {
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -55,6 +57,8 @@ export function useCanvasZoom(
         strokes,
         userIdRef.current,
         color,
+        shapesRef,
+        activeShape,
       );
 
       onCameraChange?.();

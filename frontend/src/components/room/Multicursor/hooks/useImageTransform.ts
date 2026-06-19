@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import type { BoardImage, Stroke, Point, ActiveStroke } from "../types";
+import type { BoardImage, Stroke, Point, ActiveStroke, Shape } from "../types";
 import {
   getCanvasPoint,
   getSelectionLine,
@@ -22,6 +22,8 @@ export function useImageTransform(
   color: string,
   selectedImgIdx: React.RefObject<number>,
   roomId: string,
+  shapesRef?: React.RefObject<Shape[]>,
+  activeShape?: React.RefObject<Shape | null>,
 ) {
   const dragOffset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
@@ -55,6 +57,8 @@ export function useImageTransform(
           strokes,
           userIdRef.current,
           color,
+          shapesRef,
+          activeShape,
         );
       }
     });
@@ -74,36 +78,40 @@ export function useImageTransform(
           strokes,
           userIdRef.current,
           color,
+          shapesRef,
+          activeShape,
         );
       }
     });
     //resize image
-    socket.on("resize-image",(data)=>{
-      const image=images.current.find((img)=>img.id===data.id);
-      if(image){
-        image.width=data.width;
-        image.height=data.height;
+    socket.on("resize-image", (data) => {
+      const image = images.current.find((img) => img.id === data.id);
+      if (image) {
+        image.width = data.width;
+        image.height = data.height;
       }
       redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-        );
-    })
+        canvas,
+        ctx,
+        camera,
+        images,
+        imageCache,
+        activeStrokes,
+        currentStroke,
+        strokes,
+        userIdRef.current,
+        color,
+        shapesRef,
+        activeShape,
+      );
+    });
     //delete image
     socket.on("delete-image", (imageId) => {
-      console.log("id ==",imageId)
-      console.log("images",images.current);
+      console.log("id ==", imageId);
+      console.log("images", images.current);
       images.current = images.current.filter((img) => img.id !== imageId);
-      console.log("after ",images.current);
-      
+      console.log("after ", images.current);
+
       imageCache.current.delete(imageId);
       selectedImgIdx.current = -1;
       redraw(
@@ -116,7 +124,9 @@ export function useImageTransform(
         currentStroke,
         strokes,
         userIdRef.current,
-        color
+        color,
+        shapesRef,
+        activeShape,
       );
     });
 
@@ -241,6 +251,8 @@ export function useImageTransform(
         strokes,
         userIdRef.current,
         color,
+        shapesRef,
+        activeShape,
       );
       //get outline
       getSelectionLine(ctx, images, selectedImgIdx.current);
@@ -255,20 +267,33 @@ export function useImageTransform(
 
     //delete image
     const onKeyDown = (e: KeyboardEvent) => {
-  if (e.key === "Delete" || e.key === "Backspace") {
-    if (selectedImgIdx.current === -1) return;
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (selectedImgIdx.current === -1) return;
 
-    const img = images.current[selectedImgIdx.current];
-    if (!img) return;
+        const img = images.current[selectedImgIdx.current];
+        if (!img) return;
 
-    images.current = images.current.filter((i) => i.id !== img.id);
-    selectedImgIdx.current = -1;
+        images.current = images.current.filter((i) => i.id !== img.id);
+        selectedImgIdx.current = -1;
 
-    socket.emit("delete-image", { id: img.id, roomId });
+        socket.emit("delete-image", { id: img.id, roomId });
 
-    redraw(canvas, ctx, camera, images, imageCache, activeStrokes, currentStroke, strokes, userIdRef.current, color);
-  }
-};
+        redraw(
+          canvas,
+          ctx,
+          camera,
+          images,
+          imageCache,
+          activeStrokes,
+          currentStroke,
+          strokes,
+          userIdRef.current,
+          color,
+          shapesRef,
+          activeShape,
+        );
+      }
+    };
 
     canvas.addEventListener("dblclick", onDblClick);
     canvas.addEventListener("mousedown", startImageMove);
