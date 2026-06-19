@@ -5,7 +5,7 @@ const COLORS = ["#ff6b6b", "#4ecdc4", "#f9ca24", "#6c5ce7", "#55efc4"];
 //helper function
 import { redraw } from "./canvas";
 //types
-import type { BoardImage, Stroke, Point, ActiveStroke, Shape } from "./types";
+import type { BoardImage, Stroke, Point, ActiveStroke, Shape, Line } from "./types";
 import { useSocketBoard } from "./hooks/useSocketBoard";
 import { useSocketDraw } from "./hooks/useSocketDraw";
 import { useCanvasZoom } from "./hooks/useCanvasZoom";
@@ -15,6 +15,7 @@ import { useTextBox } from "./hooks/useTextBox";
 //tools
 import { autoPanIfNeeded } from "./tools/autoPanTextBox";
 import { useShapes } from "./hooks/useShape";
+import { useLines } from "./hooks/useLines";
 
 export default function MultiCursor({
   images,
@@ -54,6 +55,9 @@ export default function MultiCursor({
   const activeShape = useRef<Shape | null>(null);
 
   const [filled,setFilled]=useState(false)
+
+  const linesRef = useRef<Line[]>([]);
+const activeLine = useRef<Line | null>(null);
 
   const {
     textBoxes,
@@ -98,6 +102,8 @@ export default function MultiCursor({
   color,
   filled,
   activeTool,
+   linesRef,
+      activeLine
 );
 
   useSocketBoard(
@@ -113,6 +119,8 @@ export default function MultiCursor({
     color,
     shapesRef,
     activeShape,
+     linesRef,
+      activeLine
   );
   useSocketDraw(
     roomId ?? "",
@@ -131,7 +139,9 @@ export default function MultiCursor({
     eraserRef,
     shapesRef,
     activeShape,
-    activeTool
+    activeTool, 
+    linesRef,
+      activeLine
   );
   useCanvasZoom(
     wrapperRef,
@@ -147,6 +157,8 @@ export default function MultiCursor({
     handleCameraChange,
     shapesRef,
     activeShape,
+     linesRef,
+      activeLine
   );
 
   //image transformations
@@ -164,7 +176,27 @@ export default function MultiCursor({
     roomId ?? "",
     shapesRef,
     activeShape,
+     linesRef,
+      activeLine
   );
+
+  useLines(
+  roomId ?? "",
+  canvasRef,
+  camera,
+  images,
+  imageCache,
+  activeStrokes,
+  currentStroke,
+  strokes,
+  shapesRef,
+  activeShape,
+  linesRef,
+  activeLine,
+  userIdRef,
+  color,
+  activeTool
+);
 
   useEffect(() => {
     socket.emit("my-info", (cb: { userId: string; name: string }) => {
@@ -207,6 +239,8 @@ export default function MultiCursor({
       color,
       shapesRef,
       activeShape,
+      linesRef,
+      activeLine
     );
   }, [imageUpdate]);
 
@@ -221,7 +255,6 @@ export default function MultiCursor({
         height: "100%",
       }}
     >
-      {activeTool&&activeTool}
       <canvas
         ref={canvasRef}
         width={window.innerWidth}
@@ -333,6 +366,8 @@ export default function MultiCursor({
                   () => setPanTick((t) => t + 1),
                   shapesRef,
                   activeShape,
+                   linesRef,
+      activeLine
                 );
               }
             }}

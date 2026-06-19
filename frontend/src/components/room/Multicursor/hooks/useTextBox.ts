@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { socket } from "../../../../services/socket";
 import type { MutableRefObject } from "react";
-import type { TextBox, CanvasElement, Shape } from "../types";
+import type { TextBox, CanvasElement, Shape, Line } from "../types";
 
 export function useTextBox(
   roomId: string,
   camera: React.RefObject<any>,
   userIdRef: MutableRefObject<string>,
   color: string,
-  shapesRef?: React.RefObject<Shape[]>,
-  activeShape?: React.RefObject<Shape | null>,
 ) {
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
   const [activeTextBox, setActiveTextBox] = useState<TextBox | null>(null);

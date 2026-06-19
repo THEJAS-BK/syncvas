@@ -1,5 +1,5 @@
 import type React from "react";
-import type { BoardImage, ActiveStroke, Point, Stroke, Shape } from "./types";
+import type { BoardImage, ActiveStroke, Point, Stroke, Shape,Line } from "./types";
 
 const getCanvasPoint = (
   e: MouseEvent,
@@ -32,6 +32,8 @@ const redraw = (
   color: string,
   shapesRef?: React.RefObject<Shape[]>,
   activeShape?: React.RefObject<Shape | null>,
+  linesRef?: React.RefObject<Line[]>,
+activeLine?: React.RefObject<Line | null>,
 ) => {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -80,6 +82,10 @@ const redraw = (
           strokes,
           userId,
           color,
+          shapesRef,
+          activeShape,
+              linesRef,
+      activeLine
         );
       };
 
@@ -92,6 +98,13 @@ const redraw = (
   }
   if (activeShape?.current) {
     drawShape(ctx, activeShape.current);
+  }
+  // lines
+  if (linesRef?.current) {
+    linesRef.current.forEach((line) => drawLine(ctx, line));
+  }
+  if (activeLine?.current) {
+    drawLine(ctx, activeLine.current);
   }
   // strokes on top
   const allActive = Object.entries(activeStrokes.current).map(
@@ -284,6 +297,31 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
     else ctx.stroke();
   }
 }
+function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
+  ctx.strokeStyle = line.color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(line.x1, line.y1);
+  ctx.lineTo(line.x2, line.y2);
+  ctx.stroke();
+
+  if (line.lineType === "arrow") {
+    const angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
+    const headLength = 12;
+    ctx.beginPath();
+    ctx.moveTo(line.x2, line.y2);
+    ctx.lineTo(
+      line.x2 - headLength * Math.cos(angle - Math.PI / 6),
+      line.y2 - headLength * Math.sin(angle - Math.PI / 6),
+    );
+    ctx.moveTo(line.x2, line.y2);
+    ctx.lineTo(
+      line.x2 - headLength * Math.cos(angle + Math.PI / 6),
+      line.y2 - headLength * Math.sin(angle + Math.PI / 6),
+    );
+    ctx.stroke();
+  }
+}
 
 export {
   getCanvasPoint,
@@ -293,4 +331,5 @@ export {
   getClickedResizeHandle,
   isPointNearStroke,
   drawShape,
+  drawLine
 };

@@ -1,25 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
 import type { RefObject, MutableRefObject } from "react";
 import type {
+  Line,
   Shape,
   CanvasElement,
   BoardImage,
   ActiveStroke,
   Point,
   Stroke,
-  Line,
 } from "../types";
 import { redraw } from "../canvas";
 
-// maps the active tool name to the shape type stored on the element
-const TOOL_TO_SHAPE: Record<string, "square" | "circle" | "diamond"> = {
-  square: "square",
-  circle: "circle",
-  diamond: "diamond",
-};
-
-export function useShapes(
+export function useLines(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
   camera: MutableRefObject<{ x: number; y: number; scale: number }>,
@@ -30,12 +23,12 @@ export function useShapes(
   strokes: RefObject<Stroke[]>,
   shapesRef: RefObject<Shape[]>,
   activeShape: RefObject<Shape | null>,
-  userIdRef: MutableRefObject<string>,
+  linesRef: RefObject<Line[]>,
+  activeLine: RefObject<Line | null>,
+  userIdRef:React.RefObject<string>,
   color: string,
-  filled: boolean,
   activeTool: string | null,
-  linesRef?: React.RefObject<Line[]>,
-activeLine?: React.RefObject<Line | null>,
+  
 ) {
   const isDragging = useRef(false);
 
@@ -55,8 +48,9 @@ activeLine?: React.RefObject<Line | null>,
       userIdRef.current,
       color,
       shapesRef,
-      activeShape,       linesRef,
-      activeLine
+      activeShape,
+      linesRef,
+      activeLine,
     );
   };
 
@@ -65,56 +59,55 @@ activeLine?: React.RefObject<Line | null>,
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  // ---- native mouse listeners on canvas ----
+  // ---- native mouse listeners ----
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const shapeType = activeTool ? TOOL_TO_SHAPE[activeTool] : undefined;
-
     const onMouseDown = (e: MouseEvent) => {
-      if (!shapeType) return;
+      if (activeTool !== "line" && activeTool !== "arrow") return;
       const { x, y } = toCanvas(e.clientX, e.clientY);
       isDragging.current = true;
-      activeShape.current = {
+      activeLine.current = {
         id: crypto.randomUUID(),
-        type: "shape",
-        shapeType:activeTool as "square" | "circle" | "diamond",
-        x,
-        y,
-        width: 0,
-        height: 0,
+        type: "line",
+        lineType: activeTool === "arrow" ? "arrow" : "straight",
+        x1: x,
+        y1: y,
+        x2: x,
+        y2: y,
         color,
-        filled,
         userId: userIdRef.current,
       };
     };
 
     const onMouseMove = (e: MouseEvent) => {
-      if (!isDragging.current || !activeShape.current) return;
+      if (!isDragging.current || !activeLine.current) return;
       const { x, y } = toCanvas(e.clientX, e.clientY);
-      activeShape.current = {
-        ...activeShape.current,
-        width: x - activeShape.current.x,
-        height: y - activeShape.current.y,
+      activeLine.current = {
+        ...activeLine.current,
+        x2: x,
+        y2: y,
       };
       requestAnimationFrame(doRedraw);
     };
 
     const onMouseUp = () => {
-      if (!isDragging.current || !activeShape.current) return;
+      if (!isDragging.current || !activeLine.current) return;
       isDragging.current = false;
 
-      const shape = activeShape.current;
-      activeShape.current = null;
+      const line = activeLine.current;
+      activeLine.current = null;
 
-      if (Math.abs(shape.width) < 5 && Math.abs(shape.height) < 5) {
+      const dx = line.x2 - line.x1;
+      const dy = line.y2 - line.y1;
+      if (dx * dx + dy * dy < 25) {
         doRedraw();
         return;
       }
 
-      shapesRef.current = [...shapesRef.current, shape];
-      socket.emit("element-add", { roomId, element: shape });
+      linesRef.current = [...linesRef.current, line];
+      socket.emit("element-add", { roomId, element: line });
       doRedraw();
     };
 
@@ -127,30 +120,30 @@ activeLine?: React.RefObject<Line | null>,
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, color, filled]);
+  }, [activeTool, color]);
 
   // ---- socket listeners ----
   useEffect(() => {
     const onElementAdd = (el: CanvasElement) => {
-      if (el.type !== "shape") return;
-      shapesRef.current = [...shapesRef.current, el];
+      if (el.type !== "line") return;
+      linesRef.current = [...linesRef.current, el];
       doRedraw();
     };
 
-    const onElementUpdate = ({ id, changes }: { id: string; changes: Partial<Shape> }) => {
-      shapesRef.current = shapesRef.current.map((s) =>
-        s.id === id ? { ...s, ...changes } : s,
+    const onElementUpdate = ({ id, changes }: { id: string; changes: Partial<Line> }) => {
+      linesRef.current = linesRef.current.map((l) =>
+        l.id === id ? { ...l, ...changes } : l,
       );
       doRedraw();
     };
 
     const onElementDelete = (id: string) => {
-      shapesRef.current = shapesRef.current.filter((s) => s.id !== id);
+      linesRef.current = linesRef.current.filter((l) => l.id !== id);
       doRedraw();
     };
 
     const onElementState = (elements: CanvasElement[]) => {
-      shapesRef.current = elements.filter((e): e is Shape => e.type === "shape");
+      linesRef.current = elements.filter((e): e is Line => e.type === "line");
       doRedraw();
     };
 
@@ -167,11 +160,11 @@ activeLine?: React.RefObject<Line | null>,
     };
   }, []);
 
-  const deleteShape = (id: string) => {
-    shapesRef.current = shapesRef.current.filter((s) => s.id !== id);
+  const deleteLine = (id: string) => {
+    linesRef.current = linesRef.current.filter((l) => l.id !== id);
     socket.emit("element-delete", { roomId, id });
     doRedraw();
   };
 
-  return { deleteShape };
+  return { deleteLine };
 }

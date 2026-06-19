@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
 import { socket } from "../../../../services/socket";
-import type { ActiveStroke, BoardImage, Point, Shape, Stroke } from "../types";
+import type { ActiveStroke, BoardImage, Line, Point, Shape, Stroke } from "../types";
 
 import { getCanvasPoint, redraw, isPointNearStroke } from "../canvas";
 
@@ -23,6 +23,8 @@ export function useSocketDraw(
   shapesRef?: React.RefObject<Shape[]>,
   activeShape?: React.RefObject<Shape | null>,
   activeTool?: string | null,
+  linesRef?: React.RefObject<Line[]>,
+activeLine?: React.RefObject<Line | null>,
 ) {
   const isEraserSelected = useRef(false);
 
@@ -63,6 +65,8 @@ export function useSocketDraw(
         color,
         shapesRef,
         activeShape,
+               linesRef,
+      activeLine
       );
     };
 
@@ -99,6 +103,8 @@ export function useSocketDraw(
         color,
         shapesRef,
         activeShape,
+               linesRef,
+      activeLine
       );
     };
 
@@ -135,6 +141,8 @@ export function useSocketDraw(
         color,
         shapesRef,
         activeShape,
+               linesRef,
+      activeLine
       );
     };
 
@@ -168,6 +176,8 @@ export function useSocketDraw(
         incomingColor,
         shapesRef,
         activeShape,
+        linesRef,
+        activeLine
       );
     });
 
@@ -197,6 +207,8 @@ export function useSocketDraw(
         color,
         shapesRef,
         activeShape,
+               linesRef,
+      activeLine
       );
     });
     socket.on("stroke-delete", (point: Point) => {
@@ -215,7 +227,8 @@ export function useSocketDraw(
         userIdRef.current,
         color,
         shapesRef,
-        activeShape,
+        activeShape,       linesRef,
+      activeLine
       );
     });
 
@@ -238,7 +251,8 @@ export function useSocketDraw(
           userIdRef.current,
           color,
           shapesRef,
-          activeShape,
+          activeShape,       linesRef,
+      activeLine
         );
       }
     };

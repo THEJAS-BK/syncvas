@@ -1,5 +1,12 @@
 import { redraw } from "../canvas";
-import type { Stroke, Point, BoardImage, ActiveStroke, Shape } from "../types";
+import type {
+  Stroke,
+  Point,
+  BoardImage,
+  ActiveStroke,
+  Shape,
+  Line,
+} from "../types";
 
 export function autoPanIfNeeded(
   canvas: HTMLCanvasElement,
@@ -17,6 +24,8 @@ export function autoPanIfNeeded(
   onPan: () => void,
   shapesRef?: React.RefObject<Shape[]>,
   activeShape?: React.RefObject<Shape | null>,
+  linesRef?: React.RefObject<Line[]>,
+  activeLine?: React.RefObject<Line | null>,
 ): boolean {
   const margin = 40;
   let panned = false;
@@ -47,6 +56,8 @@ export function autoPanIfNeeded(
       color,
       shapesRef,
       activeShape,
+      linesRef,
+      activeLine,
     );
     onPan();
   }

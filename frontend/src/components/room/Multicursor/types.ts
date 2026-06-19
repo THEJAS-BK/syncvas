@@ -47,8 +47,19 @@ interface Shape {
   filled: boolean;
   userId: string;
 }
+interface Line {
+  id: string;
+  type: "line";
+  lineType: "straight" | "arrow";
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  color: string;
+  userId: string;
+}
 
-type CanvasElement = TextBox | Shape;
+type CanvasElement = TextBox | Shape | Line;
 
 export type {
   Point,
@@ -57,5 +68,6 @@ export type {
   BoardImage,
   TextBox,
   Shape,
+  Line,
   CanvasElement,
 };

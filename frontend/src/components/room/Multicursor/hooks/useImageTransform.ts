@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import type { BoardImage, Stroke, Point, ActiveStroke, Shape } from "../types";
+import type { BoardImage, Stroke, Point, ActiveStroke, Shape, Line } from "../types";
 import {
   getCanvasPoint,
   getSelectionLine,
@@ -24,6 +24,8 @@ export function useImageTransform(
   roomId: string,
   shapesRef?: React.RefObject<Shape[]>,
   activeShape?: React.RefObject<Shape | null>,
+  linesRef?: React.RefObject<Line[]>,
+activeLine?: React.RefObject<Line | null>,
 ) {
   const dragOffset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
@@ -59,6 +61,8 @@ export function useImageTransform(
           color,
           shapesRef,
           activeShape,
+           linesRef,
+      activeLine
         );
       }
     });
@@ -80,6 +84,8 @@ export function useImageTransform(
           color,
           shapesRef,
           activeShape,
+              linesRef,
+      activeLine
         );
       }
     });
@@ -103,6 +109,8 @@ export function useImageTransform(
         color,
         shapesRef,
         activeShape,
+            linesRef,
+      activeLine
       );
     });
     //delete image
@@ -126,7 +134,8 @@ export function useImageTransform(
         userIdRef.current,
         color,
         shapesRef,
-        activeShape,
+        activeShape,       linesRef,
+      activeLine
       );
     });
 
@@ -252,7 +261,8 @@ export function useImageTransform(
         userIdRef.current,
         color,
         shapesRef,
-        activeShape,
+        activeShape,       linesRef,
+      activeLine
       );
       //get outline
       getSelectionLine(ctx, images, selectedImgIdx.current);
@@ -290,7 +300,8 @@ export function useImageTransform(
           userIdRef.current,
           color,
           shapesRef,
-          activeShape,
+          activeShape,       linesRef,
+      activeLine
         );
       }
     };
