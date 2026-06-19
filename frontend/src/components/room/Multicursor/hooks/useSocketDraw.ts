@@ -22,8 +22,10 @@ export function useSocketDraw(
   eraserRef: React.MutableRefObject<boolean>,
   shapesRef?: React.RefObject<Shape[]>,
   activeShape?: React.RefObject<Shape | null>,
+  activeTool?: string | null,
 ) {
   const isEraserSelected = useRef(false);
+
   useEffect(() => {
     //handle drawing
     const canvas = canvasRef.current;
@@ -36,7 +38,14 @@ export function useSocketDraw(
         return;
       }
       if (selectedImgIdx.current !== -1) return;
-      isDrawing.current = true;
+      if (activeTool == "pen") {
+        isDrawing.current = true;  
+      }
+      if(activeTool=="square"){
+        isDrawing.current=false;
+        return;
+      }
+   
       const { x, y } = getCanvasPoint(e, canvas, camera);
       currentStroke.current = [{ x, y }];
 
@@ -52,6 +61,8 @@ export function useSocketDraw(
         strokes,
         userIdRef.current,
         color,
+        shapesRef,
+        activeShape,
       );
     };
 
@@ -244,5 +255,5 @@ export function useSocketDraw(
       canvas.removeEventListener("mousemove", draw);
       window.removeEventListener("mouseup", stopDrawing);
     };
-  }, []);
+  }, [activeTool]);
 }

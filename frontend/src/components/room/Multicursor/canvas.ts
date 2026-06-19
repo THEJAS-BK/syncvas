@@ -30,7 +30,7 @@ const redraw = (
   strokes: React.RefObject<Stroke[]>,
   userId: string,
   color: string,
-    shapesRef?: React.RefObject<Shape[]>,
+  shapesRef?: React.RefObject<Shape[]>,
   activeShape?: React.RefObject<Shape | null>,
 ) => {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -47,15 +47,13 @@ const redraw = (
   for (const imageData of images.current) {
     const cached = imageCache.current.get(imageData.id);
     if (cached) {
-          const centerX = imageData.x + imageData.width / 2;
+      const centerX = imageData.x + imageData.width / 2;
       const centerY = imageData.y + imageData.height / 2;
       const rotation = imageData.rotation || 0;
 
       ctx.save();
-      ctx.translate(centerX,centerY)
-      ctx.rotate(rotation)
-
-
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotation);
 
       ctx.drawImage(
         cached,
@@ -88,7 +86,13 @@ const redraw = (
       img.src = imageData.image;
     }
   }
-
+  //shapes
+  if (shapesRef?.current) {
+    shapesRef.current.forEach((shape) => drawShape(ctx, shape));
+  }
+  if (activeShape?.current) {
+    drawShape(ctx, activeShape.current);
+  }
   // strokes on top
   const allActive = Object.entries(activeStrokes.current).map(
     ([userId, activeStroke]) => ({
@@ -152,14 +156,14 @@ const getSelectionLine = (
       ctx.strokeStyle = "blue";
       ctx.stroke();
 
-         const corners = [
+      const corners = [
         { x: -image.width / 2, y: -image.height / 2 }, // top-left
-        { x: image.width / 2, y: -image.height / 2 },  // top-right
-        { x: -image.width / 2, y: image.height / 2 },  // bottom-left
-        { x: image.width / 2, y: image.height / 2 },   // bottom-right
+        { x: image.width / 2, y: -image.height / 2 }, // top-right
+        { x: -image.width / 2, y: image.height / 2 }, // bottom-left
+        { x: image.width / 2, y: image.height / 2 }, // bottom-right
       ];
 
-        corners.forEach((corner) => {
+      corners.forEach((corner) => {
         ctx.beginPath();
         ctx.rect(corner.x - 5, corner.y - 5, 10, 10);
         ctx.fillStyle = "white";
@@ -193,9 +197,9 @@ const isRotationHandlerClicked = (image: BoardImage, point: Point): boolean => {
   return ddx * ddx + ddy * ddy <= 10 * 10;
 };
 
-const getClickedResizeHandle=(
+const getClickedResizeHandle = (
   image: BoardImage,
-  point: Point
+  point: Point,
 ): "top-left" | "top-right" | "bottom-left" | "bottom-right" | null => {
   const centerX = image.x + image.width / 2;
   const centerY = image.y + image.height / 2;
@@ -208,7 +212,11 @@ const getClickedResizeHandle=(
   const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
   const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
 
-  const corners: { name: "top-left" | "top-right" | "bottom-left" | "bottom-right"; x: number; y: number }[] = [
+  const corners: {
+    name: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+    x: number;
+    y: number;
+  }[] = [
     { name: "top-left", x: -image.width / 2, y: -image.height / 2 },
     { name: "top-right", x: image.width / 2, y: -image.height / 2 },
     { name: "bottom-left", x: -image.width / 2, y: image.height / 2 },
@@ -224,9 +232,13 @@ const getClickedResizeHandle=(
   }
 
   return null;
-}
+};
 
-const isPointNearStroke=(point: Point, stroke: Stroke, threshold = 10): boolean=> {
+const isPointNearStroke = (
+  point: Point,
+  stroke: Stroke,
+  threshold = 10,
+): boolean => {
   for (const p of stroke.points) {
     const dx = p.x - point.x;
     const dy = p.y - point.y;
@@ -235,6 +247,50 @@ const isPointNearStroke=(point: Point, stroke: Stroke, threshold = 10): boolean=
     }
   }
   return false;
+};
+
+function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
+  ctx.strokeStyle = shape.color;
+  ctx.fillStyle = shape.color;
+  ctx.lineWidth = 2;
+
+  if (shape.shapeType === "square") {
+    if (shape.filled) {
+      ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
+    } else {
+      ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+    }
+  } else if (shape.shapeType === "circle") {
+    const cx = shape.x + shape.width / 2;
+    const cy = shape.y + shape.height / 2;
+    const rx = Math.abs(shape.width / 2);
+    const ry = Math.abs(shape.height / 2);
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    if (shape.filled) ctx.fill();
+    else ctx.stroke();
+  } else if (shape.shapeType === "diamond") {
+    const cx = shape.x + shape.width / 2;
+    const cy = shape.y + shape.height / 2;
+    const halfW = shape.width / 2;
+    const halfH = shape.height / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - halfH); // top
+    ctx.lineTo(cx + halfW, cy); // right
+    ctx.lineTo(cx, cy + halfH); // bottom
+    ctx.lineTo(cx - halfW, cy); // left
+    ctx.closePath();
+    if (shape.filled) ctx.fill();
+    else ctx.stroke();
+  }
 }
 
-export { getCanvasPoint, redraw, getSelectionLine, isRotationHandlerClicked,getClickedResizeHandle, isPointNearStroke };
+export {
+  getCanvasPoint,
+  redraw,
+  getSelectionLine,
+  isRotationHandlerClicked,
+  getClickedResizeHandle,
+  isPointNearStroke,
+  drawShape,
+};

@@ -38,7 +38,7 @@ interface TextBox {
 interface Shape {
   id: string;
   type: "shape";
-  shapeType: "rect" | "circle" | "diamond";
+  shapeType: "square" | "circle" | "diamond";
   x: number;
   y: number;
   width: number;

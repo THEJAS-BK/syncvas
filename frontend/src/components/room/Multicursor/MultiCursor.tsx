@@ -14,6 +14,7 @@ import { getCursorStyle } from "./tools/CustomCursor";
 import { useTextBox } from "./hooks/useTextBox";
 //tools
 import { autoPanIfNeeded } from "./tools/autoPanTextBox";
+import { useShapes } from "./hooks/useShape";
 
 export default function MultiCursor({
   images,
@@ -52,6 +53,8 @@ export default function MultiCursor({
   const shapesRef = useRef<Shape[]>([]);
   const activeShape = useRef<Shape | null>(null);
 
+  const [filled,setFilled]=useState(false)
+
   const {
     textBoxes,
     activeTextBox,
@@ -79,6 +82,23 @@ export default function MultiCursor({
       placeTextBox(e.clientX, e.clientY);
     }
   };
+
+  useShapes(
+  roomId ?? "",
+  canvasRef,
+  camera,
+  images,
+  imageCache,
+  activeStrokes,
+  currentStroke,
+  strokes,
+  shapesRef,
+  activeShape,
+  userIdRef,
+  color,
+  filled,
+  activeTool,
+);
 
   useSocketBoard(
     roomId ?? "",
@@ -111,6 +131,7 @@ export default function MultiCursor({
     eraserRef,
     shapesRef,
     activeShape,
+    activeTool
   );
   useCanvasZoom(
     wrapperRef,
@@ -200,11 +221,12 @@ export default function MultiCursor({
         height: "100%",
       }}
     >
+      {activeTool&&activeTool}
       <canvas
         ref={canvasRef}
         width={window.innerWidth}
         height={window.innerHeight}
-        className={`bg-gray-700 `}
+        className={`bg-gray-700 `}  
         style={{
           cursor: getCursorStyle(activeTool),
           overscrollBehavior: "none",
