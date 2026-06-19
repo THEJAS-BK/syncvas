@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "../../../services/socket";
 import { useNavigate, useParams } from "react-router-dom";
 const COLORS = ["#ff6b6b", "#4ecdc4", "#f9ca24", "#6c5ce7", "#55efc4"];
 //helper function
-import { getCanvasPoint, redraw } from "./canvas";
+import { redraw } from "./canvas";
 //types
 import type { BoardImage, Stroke, Point, ActiveStroke } from "./types";
 import { useSocketBoard } from "./hooks/useSocketBoard";
@@ -11,6 +11,9 @@ import { useSocketDraw } from "./hooks/useSocketDraw";
 import { useCanvasZoom } from "./hooks/useCanvasZoom";
 import { useImageTransform } from "./hooks/useImageTransform";
 import { getCursorStyle } from "./tools/CustomCursor";
+import { useTextBox } from "./hooks/useTextBox";
+//tools
+import { autoPanIfNeeded } from "./tools/autoPanTextBox";
 
 export default function MultiCursor({
   images,
@@ -27,6 +30,7 @@ export default function MultiCursor({
 }) {
   const camera = useRef({ x: 0, y: 0, scale: 1 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const strokes = useRef<Stroke[]>([]);
   const currentStroke = useRef<Point[]>([]);
   const activeStrokes = useRef<Record<string, ActiveStroke>>({});
@@ -42,9 +46,42 @@ export default function MultiCursor({
   const { roomId } = useParams();
   const navigate = useNavigate();
 
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [panTick, setPanTick] = useState(0);
+
+  const {
+    textBoxes,
+    activeTextBox,
+    placeTextBox,
+    finalizeTextBox,
+    cancelTextBox,
+    onRemoteTextBox,
+  } = useTextBox(roomId ?? "", camera, userIdRef, color);
+
+  const hasTextElements = activeTextBox !== null || textBoxes.length > 0;
+
+  // stable callback so useCanvasZoom's effect doesn't tear down/reattach every render
+  const handleCameraChange = useCallback(() => {
+    if (hasTextElements) setPanTick((t) => t + 1);
+  }, [hasTextElements]);
+
   useEffect(() => {
     if (!roomId) navigate("/dashboard");
   }, [roomId]);
+
+  useEffect(() => {
+    socket.on("textbox:add", onRemoteTextBox);
+    return () => {
+      socket.off("textbox:add", onRemoteTextBox);
+    };
+  }, []);
+
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (activeTool === "text") {
+      placeTextBox(e.clientX, e.clientY);
+    }
+  };
 
   useSocketBoard(
     roomId ?? "",
@@ -75,6 +112,7 @@ export default function MultiCursor({
     eraserRef,
   );
   useCanvasZoom(
+    wrapperRef,
     canvasRef,
     camera,
     images,
@@ -84,6 +122,7 @@ export default function MultiCursor({
     strokes,
     userIdRef,
     color,
+    handleCameraChange,
   );
 
   //image transformations
@@ -144,26 +183,133 @@ export default function MultiCursor({
   }, [imageUpdate]);
 
   return (
-    <div className="relative">
+    <div
+      ref={wrapperRef}
+      style={{
+        position: "relative",
+        touchAction: "none",
+        overscrollBehavior: "none",
+        width: "100%",
+        height: "100%",
+      }}
+    >
       <canvas
         ref={canvasRef}
         width={window.innerWidth}
         height={window.innerHeight}
         className={`bg-gray-700 `}
-        style={{ cursor: getCursorStyle(activeTool) }}
-      />
-      {/* <div
         style={{
-          position: "fixed",
-          left: cursorPos.x - 5,
-          top: cursorPos.y - 5,
-          width: 10,
-          height: 10,
-          borderRadius: "50%",
-          background: "white",
-          pointerEvents: "none",
+          cursor: getCursorStyle(activeTool),
+          overscrollBehavior: "none",
+          overflow: "hidden",
         }}
-      /> */}
+        onClick={handleCanvasClick}
+      />
+
+      {/* render finalized textboxes */}
+      {textBoxes.map((box) => (
+        <div
+          key={box.id}
+          style={{
+            position: "absolute",
+            left: box.x * camera.current.scale + camera.current.x,
+            top: box.y * camera.current.scale + camera.current.y,
+            color: box.color,
+            fontSize: box.fontSize * camera.current.scale,
+            pointerEvents: "none",
+            whiteSpace: "pre",
+          }}
+        >
+          {box.text}
+        </div>
+      ))}
+
+      {/* active textarea overlay */}
+      {activeTextBox && (
+        <>
+          <span
+            ref={measureRef}
+            style={{
+              position: "absolute",
+              visibility: "hidden",
+              whiteSpace: "pre",
+              fontSize: activeTextBox.fontSize * camera.current.scale,
+              fontFamily: "monospace",
+              top: -9999,
+            }}
+          />
+          <textarea
+            ref={textareaRef}
+            autoFocus
+            rows={1}
+            spellCheck={false}
+            style={{
+              position: "absolute",
+              left: activeTextBox.x * camera.current.scale + camera.current.x,
+              top: activeTextBox.y * camera.current.scale + camera.current.y,
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              color: activeTextBox.color,
+              fontSize: activeTextBox.fontSize * camera.current.scale,
+              fontFamily: "monospace",
+              resize: "none",
+              overflow: "hidden",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              width: "20px",
+              height: `${activeTextBox.fontSize * camera.current.scale + 6}px`,
+              lineHeight: 1.4,
+            }}
+            onInput={(e) => {
+              const el = e.currentTarget;
+              const measure = measureRef.current!;
+              const scale = camera.current.scale;
+
+              const lines = el.value.split("\n");
+              const longest = lines.reduce(
+                (a, b) => (a.length > b.length ? a : b),
+                "",
+              );
+              measure.textContent = longest || " ";
+              measure.style.fontSize = `${activeTextBox.fontSize * scale}px`;
+
+              const naturalWidth = measure.offsetWidth + 20;
+              const leftPos = activeTextBox.x * scale + camera.current.x;
+              const maxAllowed = window.innerWidth - leftPos - 20;
+
+              el.style.width =
+                Math.min(naturalWidth, Math.max(maxAllowed, 20)) + "px";
+              el.style.height = "auto";
+              el.style.height = el.scrollHeight + "px";
+
+              // check overflow against viewport and pan camera
+              const rect = el.getBoundingClientRect();
+              const canvas = canvasRef.current;
+              const ctx = canvas?.getContext("2d");
+              if (canvas && ctx) {
+                autoPanIfNeeded(
+                  canvas,
+                  ctx,
+                  camera,
+                  rect.right,
+                  rect.bottom,
+                  images,
+                  imageCache,
+                  activeStrokes,
+                  currentStroke,
+                  strokes,
+                  userIdRef.current,
+                  color,
+                  () => setPanTick((t) => t + 1),
+                );
+              }
+            }}
+            onBlur={(e) => finalizeTextBox(e.target.value)}
+            onKeyDown={(e) => e.key === "Escape" && cancelTextBox()}
+          />
+        </>
+      )}
     </div>
   );
 }

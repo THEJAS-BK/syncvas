@@ -22,5 +22,26 @@ type BoardImage = {
   height: number;
   rotation:number|0;
 };
+interface TextBox {
+  id: string;
+  type: 'textbox';
+  x: number;
+  y: number;
+  text: string;
+  fontSize: number;
+  color: string;
+  userId: string;
+}
 
-export type { Point, Stroke, ActiveStroke, BoardImage };
+interface Shape{
+    id: string;
+  type: "rect" | "circle";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+  filled: boolean;
+  userId: string;
+}
+export type { Point, Stroke, ActiveStroke, BoardImage,TextBox,Shape };

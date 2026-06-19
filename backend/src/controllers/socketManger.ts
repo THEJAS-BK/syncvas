@@ -221,6 +221,11 @@ const setSocketConnection = (server: any) => {
       );
       socket.to(data.roomId).emit("delete-image", data.id);
     });
+
+    //text box
+    socket.on("textbox:add", ({ roomId, box }) => {
+      socket.to(roomId).emit("textbox:add", box);
+    });
   });
 
   return io;

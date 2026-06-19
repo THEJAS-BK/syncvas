@@ -27,7 +27,7 @@ type BoardImage = {
 export default function RoomPage() {
   const { roomId } = useParams();
   const [openCursor, setOpenCursor] = useState(true);
-  const [floatChatInterface, setFloatChatInterface] = useState(false);
+  const [floatChatInterface, setFloatChatInterface] = useState(true);
   const images = useRef<BoardImage[]>([]);
   const [eraserMode, setEraserMode] = useState(false);
   const eraserRef = useRef(false);
@@ -55,7 +55,7 @@ export default function RoomPage() {
       />
 
       <WebRtcProvider roomId={roomId}>
-        <div className="h-screen flex flex-col">
+        <div className="h-screen flex flex-col overflow-hidden">
           {!openCursor && <RoomNavbar />}
           <main className="flex-1 flex static">
             {openCursor && (
