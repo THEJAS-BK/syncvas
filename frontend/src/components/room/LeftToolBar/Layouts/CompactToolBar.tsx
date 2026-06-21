@@ -21,7 +21,7 @@ export default function CompactToolBar({ activeTool }: { activeTool: string|null
     <div className="absolute left-3 top-1/4 flex flex-col bg-blue-200 z-20 p-2 gap-3">
       <div className="relative w-8 h-8" onClick={() => toggle("strokes")}>
         <LineSquiggle />
-        <div className="left-full top-0" onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()}>
           {panel === "strokes" && <ColorGrid isMostUsedColorsNeeded={true} />}
         </div>
       </div>
@@ -29,7 +29,7 @@ export default function CompactToolBar({ activeTool }: { activeTool: string|null
         className="w-8 h-8 bg-green-500 relative"
         onClick={() => toggle("background")}
       >
-        <div className=" absolute left-full top-0 bg-red-600" onClick={(e) => e.stopPropagation()}>
+        <div className=" relative left-full top-0 bg-red-600" onClick={(e) => e.stopPropagation()}>
           {panel === "background" && (
             <ColorGrid isMostUsedColorsNeeded={false} />
           )}
@@ -64,7 +64,7 @@ export default function CompactToolBar({ activeTool }: { activeTool: string|null
                 <>
                   <StrokeWidth />
                   <StrokeStyle />
-                  <ArrowSetting />
+                  <ArrowSetting activeTool={activeTool}/>
                   <OpacitySlider />
                   <LayerControls />
                 </>
@@ -74,7 +74,7 @@ export default function CompactToolBar({ activeTool }: { activeTool: string|null
                 <>
                   <FillToggle />
                   <StrokeWidth />
-                  <ArrowSetting />
+                  <ArrowSetting activeTool={activeTool} />
                   <EdgeSetting />
                   <OpacitySlider />
                   <LayerControls />
