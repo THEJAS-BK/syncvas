@@ -270,29 +270,27 @@ export default function MultiCursor({
     activeTextBox,
   );
 
- 
-
   useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = `${window.innerWidth}px`;
+    canvas.style.height = `${window.innerHeight}px`;
+    ctx.scale(dpr, dpr);
+
+    ctx.lineWidth = 5;
+    ctx.lineCap = "round";
+
     socket.emit("my-info", (cb: { userId: string; name: string }) => {
       setUserName(cb.name);
       setUserId(cb.userId);
       userIdRef.current = cb.userId;
     });
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.lineWidth = 5;
-    ctx.lineCap = "round";
-    ctx.setTransform(
-      camera.current.scale,
-      0,
-      0,
-      camera.current.scale,
-      camera.current.x,
-      camera.current.y,
-    );
   }, []);
 
   useEffect(() => {
@@ -334,9 +332,7 @@ export default function MultiCursor({
     >
       <canvas
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
-        className={`bg-gray-700 `}
+        className="bg-gray-700"
         style={{
           cursor: getCursorStyle(activeTool),
           overscrollBehavior: "none",
@@ -411,9 +407,6 @@ export default function MultiCursor({
               measure.textContent = longest || " ";
               measure.style.fontSize = `${activeTextBox.current!.fontSize * scale}px`;
               measure.style.fontFamily = "monospace";
-
-
-
 
               const naturalWidth = measure.offsetWidth + 20;
               const leftPos =

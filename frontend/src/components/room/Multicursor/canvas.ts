@@ -15,14 +15,12 @@ const getCanvasPoint = (
   camera: React.RefObject<any>,
 ) => {
   const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const screenX = (e.clientX - rect.left) * scaleX;
-  const screenY = (e.clientY - rect.top) * scaleY;
+  const dpr = window.devicePixelRatio || 1;
+  const screenX = (e.clientX - rect.left) * dpr;
+  const screenY = (e.clientY - rect.top) * dpr;
   return {
-    x: (screenX - camera.current.x) / camera.current.scale,
-
-    y: (screenY - camera.current.y) / camera.current.scale,
+    x: (screenX - camera.current.x * dpr) / (camera.current.scale * dpr),
+    y: (screenY - camera.current.y * dpr) / (camera.current.scale * dpr),
   };
 };
 
@@ -46,16 +44,17 @@ const redraw = (
   textBoxesRef?: React.RefObject<TextBox[]>,
   activeTextBox?: React.RefObject<TextBox | null>,
 ) => {
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.setTransform(
-    camera.current.scale,
-    0,
-    0,
-    camera.current.scale,
-    camera.current.x,
-    camera.current.y,
-  );
+ ctx.setTransform(1, 0, 0, 1, 0, 0);
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+const dpr = window.devicePixelRatio || 1;
+ctx.setTransform(
+  camera.current.scale * dpr,
+  0,
+  0,
+  camera.current.scale * dpr,
+  camera.current.x * dpr,
+  camera.current.y * dpr,
+);
 
   for (const imageData of images.current) {
     const cached = imageCache.current.get(imageData.id);
@@ -153,23 +152,21 @@ const redraw = (
     ctx.stroke();
   }
 
-  
-for (const tb of allTextBoxes) {
-  ctx.save();
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "source-over";
-  ctx.textRendering = "geometricPrecision";
-  ctx.font = `normal ${tb.fontSize}px monospace`;
-  ctx.fillStyle = tb.color;
-  console.log("after set:", ctx.fillStyle); // ← move here
-  console.log("drawing with color:", tb.color, ctx.fillStyle);
-  const lineHeight = tb.fontSize * 1.4;
-  tb.text.split("\n").forEach((line: any, i: any) => {
-    ctx.fillText(line, tb.x, tb.y + tb.fontSize + i * lineHeight);
-  });
-  ctx.restore();
-}
-
+  for (const tb of allTextBoxes) {
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.textRendering = "geometricPrecision";
+    ctx.font = `normal ${tb.fontSize}px monospace`;
+    ctx.fillStyle = tb.color;
+    console.log("after set:", ctx.fillStyle); // ← move here
+    console.log("drawing with color:", tb.color, ctx.fillStyle);
+    const lineHeight = tb.fontSize * 1.4;
+    tb.text.split("\n").forEach((line: any, i: any) => {
+      ctx.fillText(line, tb.x, tb.y + tb.fontSize + i * lineHeight);
+    });
+    ctx.restore();
+  }
 
   //selection
   // ---- selection indicators ----
