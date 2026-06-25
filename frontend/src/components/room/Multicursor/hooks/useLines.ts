@@ -25,10 +25,9 @@ export function useLines(
   activeShape: RefObject<Shape | null>,
   linesRef: RefObject<Line[]>,
   activeLine: RefObject<Line | null>,
-  userIdRef:React.RefObject<string>,
+  userIdRef: React.RefObject<string>,
   color: string,
   activeTool: string | null,
-  
 ) {
   const isDragging = useRef(false);
 
@@ -79,6 +78,8 @@ export function useLines(
         color,
         userId: userIdRef.current,
       };
+      const line = activeLine.current;
+      socket.emit("element-add", { roomId, element: line });
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -89,6 +90,13 @@ export function useLines(
         x2: x,
         y2: y,
       };
+
+      const line = activeLine.current;
+      socket.emit("element-update", {
+        roomId,
+        id: line.id,
+        changes: {x1:line.x1, x2: line.x2,y1:line.y1, y2: line.y2 },
+      });
       requestAnimationFrame(doRedraw);
     };
 
@@ -107,7 +115,6 @@ export function useLines(
       }
 
       linesRef.current = [...linesRef.current, line];
-      socket.emit("element-add", { roomId, element: line });
       doRedraw();
     };
 
@@ -130,7 +137,13 @@ export function useLines(
       doRedraw();
     };
 
-    const onElementUpdate = ({ id, changes }: { id: string; changes: Partial<Line> }) => {
+    const onElementUpdate = ({
+      id,
+      changes,
+    }: {
+      id: string;
+      changes: Partial<Line>;
+    }) => {
       linesRef.current = linesRef.current.map((l) =>
         l.id === id ? { ...l, ...changes } : l,
       );

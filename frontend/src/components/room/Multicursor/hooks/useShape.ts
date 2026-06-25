@@ -35,7 +35,7 @@ export function useShapes(
   filled: boolean,
   activeTool: string | null,
   linesRef?: React.RefObject<Line[]>,
-activeLine?: React.RefObject<Line | null>,
+  activeLine?: React.RefObject<Line | null>,
 ) {
   const isDragging = useRef(false);
 
@@ -55,8 +55,9 @@ activeLine?: React.RefObject<Line | null>,
       userIdRef.current,
       color,
       shapesRef,
-      activeShape,       linesRef,
-      activeLine
+      activeShape,
+      linesRef,
+      activeLine,
     );
   };
 
@@ -79,7 +80,7 @@ activeLine?: React.RefObject<Line | null>,
       activeShape.current = {
         id: crypto.randomUUID(),
         type: "shape",
-        shapeType:activeTool as "square" | "circle" | "diamond",
+        shapeType: activeTool as "square" | "circle" | "diamond",
         x,
         y,
         width: 0,
@@ -88,6 +89,9 @@ activeLine?: React.RefObject<Line | null>,
         filled,
         userId: userIdRef.current,
       };
+
+      const shape = activeShape.current;
+      socket.emit("element-add", { roomId, element: shape });
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -98,6 +102,14 @@ activeLine?: React.RefObject<Line | null>,
         width: x - activeShape.current.x,
         height: y - activeShape.current.y,
       };
+
+      
+      const shape = activeShape.current;
+      socket.emit("element-update", {
+        roomId,
+        id: shape.id,
+        changes: { width: shape.width, height: shape.height },
+      });
       requestAnimationFrame(doRedraw);
     };
 
@@ -114,7 +126,6 @@ activeLine?: React.RefObject<Line | null>,
       }
 
       shapesRef.current = [...shapesRef.current, shape];
-      socket.emit("element-add", { roomId, element: shape });
       doRedraw();
     };
 
@@ -137,7 +148,13 @@ activeLine?: React.RefObject<Line | null>,
       doRedraw();
     };
 
-    const onElementUpdate = ({ id, changes }: { id: string; changes: Partial<Shape> }) => {
+    const onElementUpdate = ({
+      id,
+      changes,
+    }: {
+      id: string;
+      changes: Partial<Shape>;
+    }) => {
       shapesRef.current = shapesRef.current.map((s) =>
         s.id === id ? { ...s, ...changes } : s,
       );
@@ -150,7 +167,9 @@ activeLine?: React.RefObject<Line | null>,
     };
 
     const onElementState = (elements: CanvasElement[]) => {
-      shapesRef.current = elements.filter((e): e is Shape => e.type === "shape");
+      shapesRef.current = elements.filter(
+        (e): e is Shape => e.type === "shape",
+      );
       doRedraw();
     };
 
