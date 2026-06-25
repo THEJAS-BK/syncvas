@@ -1,5 +1,13 @@
 import type React from "react";
-import type { BoardImage, ActiveStroke, Point, Stroke, Shape,Line } from "./types";
+import type {
+  BoardImage,
+  ActiveStroke,
+  Point,
+  Stroke,
+  Shape,
+  Line,
+  TextBox,
+} from "./types";
 
 const getCanvasPoint = (
   e: MouseEvent,
@@ -33,7 +41,10 @@ const redraw = (
   shapesRef?: React.RefObject<Shape[]>,
   activeShape?: React.RefObject<Shape | null>,
   linesRef?: React.RefObject<Line[]>,
-activeLine?: React.RefObject<Line | null>,
+  activeLine?: React.RefObject<Line | null>,
+  selectedId?: React.RefObject<string | null>,
+  textBoxesRef?: React.RefObject<TextBox[]>,
+  activeTextBox?: React.RefObject<TextBox | null>,
 ) => {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -84,8 +95,11 @@ activeLine?: React.RefObject<Line | null>,
           color,
           shapesRef,
           activeShape,
-              linesRef,
-      activeLine
+          linesRef,
+          activeLine,
+          selectedId,
+          textBoxesRef,
+          activeTextBox,
         );
       };
 
@@ -115,6 +129,13 @@ activeLine?: React.RefObject<Line | null>,
     }),
   );
 
+  const allTextBoxes = [
+    ...(textBoxesRef?.current ?? []).filter(
+      (tb) => tb.id !== activeTextBox?.current?.id,
+    ),
+    ...(activeTextBox?.current ? [activeTextBox.current] : []),
+  ];
+
   const allStrokes = [
     ...strokes.current,
     { userId, points: currentStroke.current, color },
@@ -131,9 +152,141 @@ activeLine?: React.RefObject<Line | null>,
     });
     ctx.stroke();
   }
+
+  
+for (const tb of allTextBoxes) {
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.textRendering = "geometricPrecision";
+  ctx.font = `normal ${tb.fontSize}px monospace`;
+  ctx.fillStyle = tb.color;
+  console.log("after set:", ctx.fillStyle); // ← move here
+  console.log("drawing with color:", tb.color, ctx.fillStyle);
+  const lineHeight = tb.fontSize * 1.4;
+  tb.text.split("\n").forEach((line: any, i: any) => {
+    ctx.fillText(line, tb.x, tb.y + tb.fontSize + i * lineHeight);
+  });
+  ctx.restore();
+}
+
+
+  //selection
+  // ---- selection indicators ----
+  if (selectedId?.current) {
+    const id = selectedId.current;
+    const scale = camera.current.scale;
+
+    const drawSelectionBox = (
+      left: number,
+      top: number,
+      right: number,
+      bottom: number,
+      rotation = 0,
+      cx = (left + right) / 2,
+      cy = (top + bottom) / 2,
+    ) => {
+      const w = right - left;
+      const h = bottom - top;
+      const PAD = 6 / scale;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rotation);
+
+      // outline
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 2 / scale;
+      ctx.setLineDash([]);
+      ctx.strokeRect(-w / 2 - PAD, -h / 2 - PAD, w + PAD * 2, h + PAD * 2);
+
+      // rotation handle
+      ctx.beginPath();
+      ctx.arc(0, -h / 2 - PAD - 20 / scale, 8 / scale, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 2 / scale;
+      ctx.stroke();
+
+      // corner handles
+      const corners = [
+        { x: -w / 2 - PAD, y: -h / 2 - PAD },
+        { x: w / 2 + PAD, y: -h / 2 - PAD },
+        { x: -w / 2 - PAD, y: h / 2 + PAD },
+        { x: w / 2 + PAD, y: h / 2 + PAD },
+      ];
+      const hs = 5 / scale;
+      corners.forEach((c) => {
+        ctx.beginPath();
+        ctx.rect(c.x - hs, c.y - hs, hs * 2, hs * 2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.strokeStyle = "blue";
+        ctx.stroke();
+      });
+
+      ctx.restore();
+    };
+
+    const selectedShape = shapesRef?.current?.find((s) => s.id === id);
+    if (selectedShape) {
+      const left = Math.min(
+        selectedShape.x,
+        selectedShape.x + selectedShape.width,
+      );
+      const top = Math.min(
+        selectedShape.y,
+        selectedShape.y + selectedShape.height,
+      );
+      const right = Math.max(
+        selectedShape.x,
+        selectedShape.x + selectedShape.width,
+      );
+      const bottom = Math.max(
+        selectedShape.y,
+        selectedShape.y + selectedShape.height,
+      );
+      drawSelectionBox(left, top, right, bottom);
+    }
+
+    const selectedLine = linesRef?.current?.find((l) => l.id === id);
+    if (selectedLine) {
+      ctx.save();
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 2 / scale;
+      ctx.setLineDash([]);
+      for (const pt of [
+        { x: selectedLine.x1, y: selectedLine.y1 },
+        { x: selectedLine.x2, y: selectedLine.y2 },
+      ]) {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 5 / scale, 0, Math.PI * 2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    const selectedText = textBoxesRef?.current?.find((t) => t.id === id);
+    if (selectedText) {
+      ctx.font = `${selectedText.fontSize}px monospace`;
+      const lines = selectedText.text.split("\n");
+      const lineHeight = selectedText.fontSize * 1.2;
+      const width = Math.max(...lines.map((l) => ctx.measureText(l).width));
+      const height = lines.length * lineHeight;
+      drawSelectionBox(
+        selectedText.x,
+        selectedText.y,
+        selectedText.x + width,
+        selectedText.y + height,
+      );
+    }
+  }
 };
 
-const getSelectionLine = (
+const getSelectionLineForImage = (
   ctx: CanvasRenderingContext2D,
   images: React.RefObject<BoardImage[]>,
   selectedImageIdx: number,
@@ -326,10 +479,10 @@ function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
 export {
   getCanvasPoint,
   redraw,
-  getSelectionLine,
+  getSelectionLineForImage,
   isRotationHandlerClicked,
   getClickedResizeHandle,
   isPointNearStroke,
   drawShape,
-  drawLine
+  drawLine,
 };

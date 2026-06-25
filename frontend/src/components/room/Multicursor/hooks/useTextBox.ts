@@ -1,17 +1,62 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
-import type { MutableRefObject } from "react";
-import type { TextBox, CanvasElement, Shape, Line } from "../types";
-
+import type { MutableRefObject, RefObject } from "react";
+import type {
+  TextBox,
+  CanvasElement,
+  BoardImage,
+  Point,
+  Stroke,
+  Shape,
+  Line,
+  ActiveStroke,
+} from "../types";
+import { redraw } from "../canvas";
 export function useTextBox(
   roomId: string,
-  camera: React.RefObject<any>,
-  userIdRef: MutableRefObject<string>,
+  canvasRef: RefObject<HTMLCanvasElement | null>,
+  camera: MutableRefObject<{ x: number; y: number; scale: number }>,
+  images: RefObject<BoardImage[]>,
+  imageCache: RefObject<Map<string, HTMLImageElement>>,
+  activeStrokes: RefObject<Record<string, ActiveStroke>>,
+  currentStroke: RefObject<Point[]>,
+  strokes: RefObject<Stroke[]>,
+  shapesRef: RefObject<Shape[]>,
+  activeShape: RefObject<Shape | null>,
+  userId: string,
   color: string,
+  filled: boolean,
+  activeTool: string | null,
+linesRef: React.RefObject<Line[]>,
+activeLine: React.RefObject<Line | null>,
+selectedId: React.RefObject<string | null>,
+textBoxesRef: React.RefObject<TextBox[]>,
+activeTextBox: React.RefObject<TextBox | null>,
 ) {
-  const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
-  const [activeTextBox, setActiveTextBox] = useState<TextBox | null>(null);
-
+  const doRedraw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    redraw(
+      canvas,
+      ctx,
+      camera,
+      images,
+      imageCache,
+      activeStrokes,
+      currentStroke,
+      strokes,
+      userId,
+      color,
+      shapesRef,
+      activeShape,
+      linesRef,
+      activeLine,
+      selectedId,
+      textBoxesRef,
+      activeTextBox!,
+    );
+  };
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;
     const cx = camera.current?.x ?? 0;
@@ -19,7 +64,7 @@ export function useTextBox(
     const x = (clientX - cx) / scale;
     const y = (clientY - cy) / scale;
 
-    setActiveTextBox({
+    activeTextBox!.current = {
       id: crypto.randomUUID(),
       type: "textbox",
       x,
@@ -27,52 +72,73 @@ export function useTextBox(
       text: "",
       fontSize: 16,
       color,
-      userId: userIdRef.current,
-    });
+      userId: userId,
+    };
+    doRedraw();
   };
 
   const finalizeTextBox = (text: string) => {
-    if (!activeTextBox) return;
+    if (!activeTextBox?.current) return;
     if (!text.trim()) {
-      setActiveTextBox(null);
+      activeTextBox.current = null;
+      doRedraw();
       return;
     }
 
-    const box: TextBox = { ...activeTextBox, text };
-    setTextBoxes((prev) => [...prev, box]);
+    const box: TextBox = {
+      id: activeTextBox.current.id,
+      type: "textbox",
+      x: activeTextBox.current.x,
+      y: activeTextBox.current.y,
+      fontSize: activeTextBox.current.fontSize,
+      color: activeTextBox.current.color,
+      userId: activeTextBox.current.userId,
+      text,
+    };
 
-    socket.emit("element-add", {
-      roomId,
-      element: box, // send full element, backend tags userId itself
-    });
-    setActiveTextBox(null);
+    if (!textBoxesRef?.current) return;
+    textBoxesRef.current = [...textBoxesRef.current, box];
+    activeTextBox.current = null;
+
+    console.log("finalizing with color:", box.color);
+
+    socket.emit("element-add", { roomId, element: box });
+    doRedraw();
   };
 
-  const cancelTextBox = () => setActiveTextBox(null);
+  const cancelTextBox = () => {
+    activeTextBox!.current = null;
+    doRedraw();
+  };
 
-  // edit existing textbox (e.g. after re-opening to change text)
   const updateTextBox = (id: string, changes: Partial<TextBox>) => {
-    setTextBoxes((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, ...changes } : b)),
+    if (!textBoxesRef?.current) return;
+
+    textBoxesRef.current = textBoxesRef.current.map((b) =>
+      b.id === id ? { ...b, ...changes } : b,
     );
     socket.emit("element-update", { roomId, id, changes });
+    doRedraw();
   };
 
-  // change font size on an existing textbox
   const changeFontSize = (id: string, fontSize: number) => {
     updateTextBox(id, { fontSize });
   };
 
   const deleteTextBox = (id: string) => {
-    setTextBoxes((prev) => prev.filter((b) => b.id !== id));
+
+    textBoxesRef.current = textBoxesRef.current.filter((b) => b.id !== id);
     socket.emit("element-delete", { roomId, id });
+    doRedraw();
   };
 
   // ---- socket listeners ----
   useEffect(() => {
+
     const onElementAdd = (el: CanvasElement) => {
       if (el.type !== "textbox") return;
-      setTextBoxes((prev) => [...prev, el]);
+      textBoxesRef.current = [...textBoxesRef.current, el];
+      doRedraw();
     };
 
     const onElementUpdate = ({
@@ -82,17 +148,22 @@ export function useTextBox(
       id: string;
       changes: Partial<TextBox>;
     }) => {
-      setTextBoxes((prev) =>
-        prev.map((b) => (b.id === id ? { ...b, ...changes } : b)),
+      textBoxesRef.current = textBoxesRef.current.map((b) =>
+        b.id === id ? { ...b, ...changes } : b,
       );
+      doRedraw();
     };
 
     const onElementDelete = (id: string) => {
-      setTextBoxes((prev) => prev.filter((b) => b.id !== id));
+      textBoxesRef.current = textBoxesRef.current.filter((b) => b.id !== id);
+      doRedraw();
     };
 
     const onElementState = (elements: CanvasElement[]) => {
-      setTextBoxes(elements.filter((e): e is TextBox => e.type === "textbox"));
+      textBoxesRef.current = elements.filter(
+        (e): e is TextBox => e.type === "textbox",
+      );
+      doRedraw();
     };
 
     socket.on("element-add", onElementAdd);
@@ -109,8 +180,6 @@ export function useTextBox(
   }, []);
 
   return {
-    textBoxes,
-    activeTextBox,
     placeTextBox,
     finalizeTextBox,
     cancelTextBox,

@@ -9,6 +9,7 @@ import type {
   ActiveStroke,
   Point,
   Stroke,
+  TextBox,
 } from "../types";
 import { redraw } from "../canvas";
 
@@ -27,7 +28,9 @@ export function useLines(
   activeLine: RefObject<Line | null>,
   userIdRef: React.RefObject<string>,
   color: string,
-  activeTool: string | null,
+  activeTool: string | null,  selectedId?: React.RefObject<string | null>,
+    textBoxesRef?: React.RefObject<TextBox[]>,       
+  activeTextBox?: React.RefObject<TextBox | null>,
 ) {
   const isDragging = useRef(false);
 
@@ -36,21 +39,24 @@ export function useLines(
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
     redraw(
-      canvas,
-      ctx,
-      camera,
-      images,
-      imageCache,
-      activeStrokes,
-      currentStroke,
-      strokes,
-      userIdRef.current,
-      color,
-      shapesRef,
-      activeShape,
-      linesRef,
-      activeLine,
-    );
+          canvas,
+          ctx,
+          camera,
+          images,
+          imageCache,
+          activeStrokes,
+          currentStroke,
+          strokes,
+          userIdRef.current,
+          color,
+          shapesRef,
+          activeShape,
+          linesRef,
+          activeLine,
+          selectedId,
+          textBoxesRef,
+          activeTextBox
+        );
   };
 
   const toCanvas = (clientX: number, clientY: number) => ({

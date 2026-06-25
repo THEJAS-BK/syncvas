@@ -4,6 +4,7 @@ import MainContent from "../components/room/MainContent";
 import RoomNavbar from "../components/room/RoomNavbar";
 import {  useRef, useState } from "react";
 import { WebRtcProvider } from "../context/WebRtcContext";
+import { ToolSettingsProvider } from "../context/ToolBarLeftContext.tsx";
 import MultiCursor from "../components/room/Multicursor/MultiCursor";
 import "./RoomPage.css";
 //image upload function
@@ -55,6 +56,7 @@ export default function RoomPage() {
       />
 
       <WebRtcProvider roomId={roomId}>
+        <ToolSettingsProvider>
         <div className="h-screen flex flex-col overflow-hidden">
           {!openCursor && <RoomNavbar />}
           <main className="flex-1 flex static">
@@ -117,6 +119,7 @@ export default function RoomPage() {
             />
           </main>
         </div>
+        </ToolSettingsProvider>
       </WebRtcProvider>
     </>
   );

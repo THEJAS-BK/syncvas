@@ -1,8 +1,16 @@
 import React, { useEffect, useRef } from "react";
-import type { BoardImage, Stroke, Point, ActiveStroke, Shape, Line } from "../types";
+import type {
+  BoardImage,
+  Stroke,
+  Point,
+  ActiveStroke,
+  Shape,
+  Line,
+  TextBox,
+} from "../types";
 import {
   getCanvasPoint,
-  getSelectionLine,
+  getSelectionLineForImage,
   redraw,
   isRotationHandlerClicked,
   getClickedResizeHandle,
@@ -25,7 +33,10 @@ export function useImageTransform(
   shapesRef?: React.RefObject<Shape[]>,
   activeShape?: React.RefObject<Shape | null>,
   linesRef?: React.RefObject<Line[]>,
-activeLine?: React.RefObject<Line | null>,
+  activeLine?: React.RefObject<Line | null>,
+  selectedId?: React.RefObject<string | null>,
+  textBoxesRef?: React.RefObject<TextBox[]>,
+  activeTextBox?: React.RefObject<TextBox | null>,
 ) {
   const dragOffset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
@@ -34,6 +45,31 @@ activeLine?: React.RefObject<Line | null>,
   const resizeHandler = useRef<
     "top-left" | "top-right" | "bottom-left" | "bottom-right" | null
   >(null);
+
+  const doRedraw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    redraw(
+      canvas,
+      ctx,
+      camera,
+      images,
+      imageCache,
+      activeStrokes,
+      currentStroke,
+      strokes,
+      userIdRef.current,
+      color,
+      shapesRef,
+      activeShape,
+      linesRef,
+      activeLine,
+      selectedId,
+      textBoxesRef,
+      activeTextBox,
+    );
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -48,22 +84,7 @@ activeLine?: React.RefObject<Line | null>,
         image.x = data.x;
         image.y = data.y;
 
-        redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,
-           linesRef,
-      activeLine
-        );
+        doRedraw();
       }
     });
     //rotate image
@@ -71,22 +92,7 @@ activeLine?: React.RefObject<Line | null>,
       const image = images.current.find((img) => img.id === data.id);
       if (image) {
         image.rotation = data.rotation;
-        redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,
-              linesRef,
-      activeLine
-        );
+        doRedraw();
       }
     });
     //resize image
@@ -96,22 +102,7 @@ activeLine?: React.RefObject<Line | null>,
         image.width = data.width;
         image.height = data.height;
       }
-      redraw(
-        canvas,
-        ctx,
-        camera,
-        images,
-        imageCache,
-        activeStrokes,
-        currentStroke,
-        strokes,
-        userIdRef.current,
-        color,
-        shapesRef,
-        activeShape,
-            linesRef,
-      activeLine
-      );
+      doRedraw();
     });
     //delete image
     socket.on("delete-image", (imageId) => {
@@ -122,21 +113,7 @@ activeLine?: React.RefObject<Line | null>,
 
       imageCache.current.delete(imageId);
       selectedImgIdx.current = -1;
-      redraw(
-        canvas,
-        ctx,
-        camera,
-        images,
-        imageCache,
-        activeStrokes,
-        currentStroke,
-        strokes,
-        userIdRef.current,
-        color,
-        shapesRef,
-        activeShape,       linesRef,
-      activeLine
-      );
+      doRedraw();
     });
 
     const onDblClick = (e: MouseEvent) => {
@@ -145,7 +122,7 @@ activeLine?: React.RefObject<Line | null>,
       selectedImgIdx.current = isImageClicked;
 
       //get outline
-      getSelectionLine(ctx, images, selectedImgIdx.current);
+      getSelectionLineForImage(ctx, images, selectedImgIdx.current);
     };
 
     const startImageMove = (e: MouseEvent) => {
@@ -249,23 +226,9 @@ activeLine?: React.RefObject<Line | null>,
         socket.emit("move-image", { x: img.x, y: img.y, id: img.id, roomId });
       }
 
-      redraw(
-        canvas,
-        ctx,
-        camera,
-        images,
-        imageCache,
-        activeStrokes,
-        currentStroke,
-        strokes,
-        userIdRef.current,
-        color,
-        shapesRef,
-        activeShape,       linesRef,
-      activeLine
-      );
+      doRedraw();
       //get outline
-      getSelectionLine(ctx, images, selectedImgIdx.current);
+      getSelectionLineForImage(ctx, images, selectedImgIdx.current);
     };
     const stopMoveImage = () => {
       selectedImgIdx.current = -1;
@@ -288,21 +251,7 @@ activeLine?: React.RefObject<Line | null>,
 
         socket.emit("delete-image", { id: img.id, roomId });
 
-        redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,       linesRef,
-      activeLine
-        );
+        doRedraw();
       }
     };
 

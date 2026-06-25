@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import type { ActiveStroke, BoardImage, Line, Point, Shape, Stroke } from "../types";
+import type { ActiveStroke, BoardImage, Line, Point, Shape, Stroke, TextBox } from "../types";
 import { redraw } from "../canvas";
 
 export function useCanvasZoom(
@@ -18,6 +18,9 @@ export function useCanvasZoom(
   activeShape?: React.RefObject<Shape | null>,
   linesRef?: React.RefObject<Line[]>,
 activeLine?: React.RefObject<Line | null>,
+  selectedId?: React.RefObject<string | null>,
+    textBoxesRef?: React.RefObject<TextBox[]>,       
+  activeTextBox?: React.RefObject<TextBox | null>,
 ) {
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -49,21 +52,24 @@ activeLine?: React.RefObject<Line | null>,
       }
 
       redraw(
-        canvas,
-        ctx,
-        camera,
-        images,
-        imageCache,
-        activeStrokes,
-        currentStroke,
-        strokes,
-        userIdRef.current,
-        color,
-        shapesRef,
-        activeShape,
-            linesRef,
-      activeLine
-      );
+          canvas,
+          ctx,
+          camera,
+          images,
+          imageCache,
+          activeStrokes,
+          currentStroke,
+          strokes,
+          userIdRef.current,
+          color,
+          shapesRef,
+          activeShape,
+          linesRef,
+          activeLine,
+          selectedId,
+          textBoxesRef,
+          activeTextBox
+        );
 
       onCameraChange?.();
     };

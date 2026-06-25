@@ -6,6 +6,7 @@ import type {
   ActiveStroke,
   Shape,
   Line,
+  TextBox,
 } from "../types";
 
 export function autoPanIfNeeded(
@@ -26,6 +27,9 @@ export function autoPanIfNeeded(
   activeShape?: React.RefObject<Shape | null>,
   linesRef?: React.RefObject<Line[]>,
   activeLine?: React.RefObject<Line | null>,
+  selectedId?: React.RefObject<string | null>,
+    textBoxesRef?: React.RefObject<TextBox[]>,       
+  activeTextBox?: React.RefObject<TextBox | null>,  
 ): boolean {
   const margin = 40;
   let panned = false;
@@ -43,22 +47,25 @@ export function autoPanIfNeeded(
   }
 
   if (panned) {
-    redraw(
-      canvas,
-      ctx,
-      camera,
-      images,
-      imageCache,
-      activeStrokes,
-      currentStroke,
-      strokes,
-      userId,
-      color,
-      shapesRef,
-      activeShape,
-      linesRef,
-      activeLine,
-    );
+  redraw(
+          canvas,
+          ctx,
+          camera,
+          images,
+          imageCache,
+          activeStrokes,
+          currentStroke,
+          strokes,
+          userId,
+          color,
+          shapesRef,
+          activeShape,
+          linesRef,
+          activeLine,
+          selectedId,
+          textBoxesRef,
+          activeTextBox
+        );
     onPan();
   }
 

@@ -5,7 +5,15 @@ const COLORS = ["#ff6b6b", "#4ecdc4", "#f9ca24", "#6c5ce7", "#55efc4"];
 //helper function
 import { redraw } from "./canvas";
 //types
-import type { BoardImage, Stroke, Point, ActiveStroke, Shape, Line } from "./types";
+import type {
+  BoardImage,
+  Stroke,
+  Point,
+  ActiveStroke,
+  Shape,
+  Line,
+  TextBox,
+} from "./types";
 import { useSocketBoard } from "./hooks/useSocketBoard";
 import { useSocketDraw } from "./hooks/useSocketDraw";
 import { useCanvasZoom } from "./hooks/useCanvasZoom";
@@ -16,6 +24,7 @@ import { useTextBox } from "./hooks/useTextBox";
 import { autoPanIfNeeded } from "./tools/autoPanTextBox";
 import { useShapes } from "./hooks/useShape";
 import { useLines } from "./hooks/useLines";
+import { useSelection } from "./hooks/useSelection";
 
 export default function MultiCursor({
   images,
@@ -54,23 +63,67 @@ export default function MultiCursor({
   const shapesRef = useRef<Shape[]>([]);
   const activeShape = useRef<Shape | null>(null);
 
-  const [filled,setFilled]=useState(false)
+  const [filled, setFilled] = useState(false);
 
   const linesRef = useRef<Line[]>([]);
-const activeLine = useRef<Line | null>(null);
+  const activeLine = useRef<Line | null>(null);
 
-  const {
-    textBoxes,
+  const selectedId = useRef<string | null>(null);
+
+  const textBoxesRef = useRef<TextBox[]>([]);
+  const activeTextBox = useRef<TextBox | null>(null);
+
+  const [, forceUpdate] = useState(0);
+  const triggerUpdate = () => forceUpdate((n) => n + 1);
+  useSelection(
+    canvasRef,
+    camera,
+    images,
+    imageCache,
+    activeStrokes,
+    currentStroke,
+    strokes,
+    shapesRef,
+    activeShape,
+    linesRef,
+    activeLine,
+    selectedId,
+    userIdRef,
+    color,
+    activeTool,
+    textBoxesRef,
     activeTextBox,
+  );
+  const {
     placeTextBox,
     finalizeTextBox,
     cancelTextBox,
     updateTextBox,
     changeFontSize,
     deleteTextBox,
-  } = useTextBox(roomId ?? "", camera, userIdRef, color);
-
-  const hasTextElements = activeTextBox !== null || textBoxes.length > 0;
+  } = useTextBox(
+    roomId ?? "",
+    canvasRef,
+    camera,
+    images,
+    imageCache,
+    activeStrokes,
+    currentStroke,
+    strokes,
+    shapesRef,
+    activeShape,
+    userIdRef.current,
+    color,
+    filled,
+    activeTool,
+    linesRef,
+    activeLine,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
+  );
+  const hasTextElements =
+    activeTextBox !== null || textBoxesRef.current.length > 0;
 
   // stable callback so useCanvasZoom's effect doesn't tear down/reattach every render
   const handleCameraChange = useCallback(() => {
@@ -84,27 +137,31 @@ const activeLine = useRef<Line | null>(null);
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (activeTool === "text") {
       placeTextBox(e.clientX, e.clientY);
+      triggerUpdate();
     }
   };
 
   useShapes(
-  roomId ?? "",
-  canvasRef,
-  camera,
-  images,
-  imageCache,
-  activeStrokes,
-  currentStroke,
-  strokes,
-  shapesRef,
-  activeShape,
-  userIdRef,
-  color,
-  filled,
-  activeTool,
-   linesRef,
-      activeLine
-);
+    roomId ?? "",
+    canvasRef,
+    camera,
+    images,
+    imageCache,
+    activeStrokes,
+    currentStroke,
+    strokes,
+    shapesRef,
+    activeShape,
+    userIdRef,
+    color,
+    filled,
+    activeTool,
+    linesRef,
+    activeLine,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
+  );
 
   useSocketBoard(
     roomId ?? "",
@@ -119,8 +176,11 @@ const activeLine = useRef<Line | null>(null);
     color,
     shapesRef,
     activeShape,
-     linesRef,
-      activeLine
+    linesRef,
+    activeLine,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
   );
   useSocketDraw(
     roomId ?? "",
@@ -139,9 +199,12 @@ const activeLine = useRef<Line | null>(null);
     eraserRef,
     shapesRef,
     activeShape,
-    activeTool, 
+    activeTool,
     linesRef,
-      activeLine
+    activeLine,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
   );
   useCanvasZoom(
     wrapperRef,
@@ -157,8 +220,11 @@ const activeLine = useRef<Line | null>(null);
     handleCameraChange,
     shapesRef,
     activeShape,
-     linesRef,
-      activeLine
+    linesRef,
+    activeLine,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
   );
 
   //image transformations
@@ -176,27 +242,35 @@ const activeLine = useRef<Line | null>(null);
     roomId ?? "",
     shapesRef,
     activeShape,
-     linesRef,
-      activeLine
+    linesRef,
+    activeLine,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
   );
 
   useLines(
-  roomId ?? "",
-  canvasRef,
-  camera,
-  images,
-  imageCache,
-  activeStrokes,
-  currentStroke,
-  strokes,
-  shapesRef,
-  activeShape,
-  linesRef,
-  activeLine,
-  userIdRef,
-  color,
-  activeTool
-);
+    roomId ?? "",
+    canvasRef,
+    camera,
+    images,
+    imageCache,
+    activeStrokes,
+    currentStroke,
+    strokes,
+    shapesRef,
+    activeShape,
+    linesRef,
+    activeLine,
+    userIdRef,
+    color,
+    activeTool,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
+  );
+
+ 
 
   useEffect(() => {
     socket.emit("my-info", (cb: { userId: string; name: string }) => {
@@ -240,7 +314,10 @@ const activeLine = useRef<Line | null>(null);
       shapesRef,
       activeShape,
       linesRef,
-      activeLine
+      activeLine,
+      selectedId,
+      textBoxesRef,
+      activeTextBox,
     );
   }, [imageUpdate]);
 
@@ -259,7 +336,7 @@ const activeLine = useRef<Line | null>(null);
         ref={canvasRef}
         width={window.innerWidth}
         height={window.innerHeight}
-        className={`bg-gray-700 `}  
+        className={`bg-gray-700 `}
         style={{
           cursor: getCursorStyle(activeTool),
           overscrollBehavior: "none",
@@ -268,26 +345,8 @@ const activeLine = useRef<Line | null>(null);
         onClick={handleCanvasClick}
       />
 
-      {/* render finalized textboxes */}
-      {textBoxes.map((box) => (
-        <div
-          key={box.id}
-          style={{
-            position: "absolute",
-            left: box.x * camera.current.scale + camera.current.x,
-            top: box.y * camera.current.scale + camera.current.y,
-            color: box.color,
-            fontSize: box.fontSize * camera.current.scale,
-            pointerEvents: "none",
-            whiteSpace: "pre",
-          }}
-        >
-          {box.text}
-        </div>
-      ))}
-
       {/* active textarea overlay */}
-      {activeTextBox && (
+      {activeTextBox.current && (
         <>
           <span
             ref={measureRef}
@@ -295,7 +354,7 @@ const activeLine = useRef<Line | null>(null);
               position: "absolute",
               visibility: "hidden",
               whiteSpace: "pre",
-              fontSize: activeTextBox.fontSize * camera.current.scale,
+              fontSize: activeTextBox.current.fontSize * camera.current.scale,
               fontFamily: "monospace",
               top: -9999,
             }}
@@ -306,27 +365,43 @@ const activeLine = useRef<Line | null>(null);
             rows={1}
             spellCheck={false}
             style={{
+              color: "transparent",
+              caretColor: activeTextBox.current.color,
               position: "absolute",
-              left: activeTextBox.x * camera.current.scale + camera.current.x,
-              top: activeTextBox.y * camera.current.scale + camera.current.y,
-              background: "transparent",
+              left:
+                activeTextBox.current.x * camera.current.scale +
+                camera.current.x,
+              top:
+                activeTextBox.current.y * camera.current.scale +
+                camera.current.y,
+
               border: "none",
               outline: "none",
-              color: activeTextBox.color,
-              fontSize: activeTextBox.fontSize * camera.current.scale,
+
+              fontSize: activeTextBox.current.fontSize * camera.current.scale,
               fontFamily: "monospace",
+              fontWeight: "normal",
               resize: "none",
               overflow: "hidden",
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",
               width: "20px",
-              height: `${activeTextBox.fontSize * camera.current.scale + 6}px`,
-              lineHeight: 1.4,
+              height: `${activeTextBox.current.fontSize * camera.current.scale + 6}px`,
+              padding: 0,
+              margin: 0,
+              boxSizing: "border-box" as const,
+              lineHeight: `${activeTextBox.current.fontSize * camera.current.scale * 1.4}px`,
+              verticalAlign: "top",
+
+              background: "transparent",
             }}
             onInput={(e) => {
               const el = e.currentTarget;
               const measure = measureRef.current!;
               const scale = camera.current.scale;
+
+              // sync text to ref so canvas redraws it
+              activeTextBox.current!.text = el.value;
 
               const lines = el.value.split("\n");
               const longest = lines.reduce(
@@ -334,10 +409,15 @@ const activeLine = useRef<Line | null>(null);
                 "",
               );
               measure.textContent = longest || " ";
-              measure.style.fontSize = `${activeTextBox.fontSize * scale}px`;
+              measure.style.fontSize = `${activeTextBox.current!.fontSize * scale}px`;
+              measure.style.fontFamily = "monospace";
+
+
+
 
               const naturalWidth = measure.offsetWidth + 20;
-              const leftPos = activeTextBox.x * scale + camera.current.x;
+              const leftPos =
+                activeTextBox.current!.x * scale + camera.current.x;
               const maxAllowed = window.innerWidth - leftPos - 20;
 
               el.style.width =
@@ -345,11 +425,32 @@ const activeLine = useRef<Line | null>(null);
               el.style.height = "auto";
               el.style.height = el.scrollHeight + "px";
 
-              // check overflow against viewport and pan camera
-              const rect = el.getBoundingClientRect();
+              // redraw canvas with updated text
               const canvas = canvasRef.current;
               const ctx = canvas?.getContext("2d");
               if (canvas && ctx) {
+                redraw(
+                  canvas,
+                  ctx,
+                  camera,
+                  images,
+                  imageCache,
+                  activeStrokes,
+                  currentStroke,
+                  strokes,
+                  userIdRef.current,
+                  color,
+                  shapesRef,
+                  activeShape,
+                  linesRef,
+                  activeLine,
+                  selectedId,
+                  textBoxesRef,
+                  activeTextBox,
+                );
+
+                // pan if needed
+                const rect = el.getBoundingClientRect();
                 autoPanIfNeeded(
                   canvas,
                   ctx,
@@ -366,13 +467,24 @@ const activeLine = useRef<Line | null>(null);
                   () => setPanTick((t) => t + 1),
                   shapesRef,
                   activeShape,
-                   linesRef,
-      activeLine
+                  linesRef,
+                  activeLine,
+                  selectedId,
+                  textBoxesRef,
+                  activeTextBox,
                 );
               }
             }}
-            onBlur={(e) => finalizeTextBox(e.target.value)}
-            onKeyDown={(e) => e.key === "Escape" && cancelTextBox()}
+            onBlur={(e) => {
+              finalizeTextBox(e.target.value);
+              triggerUpdate();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                cancelTextBox();
+                triggerUpdate();
+              }
+            }}
           />
         </>
       )}
