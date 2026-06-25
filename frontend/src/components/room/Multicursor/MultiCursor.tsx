@@ -25,7 +25,7 @@ import { autoPanIfNeeded } from "./tools/autoPanTextBox";
 import { useShapes } from "./hooks/useShape";
 import { useLines } from "./hooks/useLines";
 import { useSelection } from "./hooks/useSelection";
-
+import { useDeleteElement } from "./hooks/useDeleteElement";
 export default function MultiCursor({
   images,
   floatChatInterface,
@@ -265,6 +265,28 @@ export default function MultiCursor({
     userIdRef,
     color,
     activeTool,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
+  );
+
+  useDeleteElement(
+    roomId ?? "",
+    canvasRef,
+    camera,
+    images,
+    imageCache,
+    activeStrokes,
+    currentStroke,
+    strokes,
+    shapesRef,
+    activeShape,
+    userIdRef,
+    color,
+    filled,
+    activeTool,
+    linesRef,
+    activeLine,
     selectedId,
     textBoxesRef,
     activeTextBox,
