@@ -11,14 +11,21 @@ import ArrowSetting from "../controls/ArrowSetting";
 import EdgeSetting from "../controls/EdgeSetting";
 import { LineSquiggle } from "lucide-react";
 
-export default function CompactToolBar({ activeTool }: { activeTool: string|null }) {
+export default function CompactToolBar({
+  activeTool,
+}: {
+  activeTool: string | null;
+}) {
   const [panel, setPanel] = useState<string | null>(null);
 
   const toggle = (panel: string) => {
     setPanel((prev) => (prev === panel ? null : panel));
   };
+  const tools = ["pen", "text", "arrow", "line", "square", "diamond", "circle"];
   return (
-    <div className="absolute left-3 top-1/4 flex flex-col bg-blue-200 z-20 p-2 gap-3">
+    <div
+      className={`absolute text-white rounded-2xl bg-[#1f1f2b] p-3 shadow-xl left-3 top-1/4 flex flex-col z-20 ${tools.includes(activeTool ?? "") ? "p-2" : "hidden"}  gap-3`}
+    >
       <div className="relative w-8 h-8" onClick={() => toggle("strokes")}>
         <LineSquiggle />
         <div onClick={(e) => e.stopPropagation()}>
@@ -26,10 +33,13 @@ export default function CompactToolBar({ activeTool }: { activeTool: string|null
         </div>
       </div>
       <div
-        className="w-8 h-8 bg-green-500 relative"
+        className="w-8 h-8 rounded bg-green-500 relative"
         onClick={() => toggle("background")}
       >
-        <div className=" relative left-full top-0 bg-red-600" onClick={(e) => e.stopPropagation()}>
+        <div
+          className=" relative left-full top-0 bg-red-600"
+          onClick={(e) => e.stopPropagation()}
+        >
           {panel === "background" && (
             <ColorGrid isMostUsedColorsNeeded={false} />
           )}
@@ -38,8 +48,10 @@ export default function CompactToolBar({ activeTool }: { activeTool: string|null
 
       <div className="relative w-8 h-8" onClick={() => toggle("settings")}>
         <Settings2 />
-        <div className=" absolute left-full top-0 bg-gray-600 z-9999" onClick={(e) => e.stopPropagation()}>
-          
+        <div
+          className={`absolute text-white left-[150%] w-[170px] top-0 flex flex-col justify-center rounded-2xl bg-[#1f1f2b] shadow-xl ${panel === "settings" ? "p-4" : "hidden"} z-20`}
+          onClick={(e) => e.stopPropagation()}
+        >
           {panel === "settings" && (
             <>
               {activeTool === "pen" && (
@@ -64,7 +76,7 @@ export default function CompactToolBar({ activeTool }: { activeTool: string|null
                 <>
                   <StrokeWidth />
                   <StrokeStyle />
-                  <ArrowSetting activeTool={activeTool}/>
+                  <ArrowSetting activeTool={activeTool} />
                   <OpacitySlider />
                   <LayerControls />
                 </>
