@@ -76,6 +76,7 @@ export default function MultiCursor({
   const [, forceUpdate] = useState(0);
   const triggerUpdate = () => forceUpdate((n) => n + 1);
   useSelection(
+    roomId??"",
     canvasRef,
     camera,
     images,
