@@ -471,6 +471,79 @@ function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   }
 }
 
+function hitTestCorner(
+  shape: Shape,
+  x: number,
+  y: number,
+  scale: number,
+): "tl" | "tr" | "bl" | "br" | null {
+  console.log("hitTestCorner called", x, y, scale);
+  const left   = Math.min(shape.x, shape.x + shape.width);
+  const top    = Math.min(shape.y, shape.y + shape.height);
+  const right  = Math.max(shape.x, shape.x + shape.width);
+  const bottom = Math.max(shape.y, shape.y + shape.height);
+  const w = right - left;
+  const h = bottom - top;
+  const PAD = 6 / scale;
+
+  const centerX = (left + right) / 2;
+  const centerY = (top + bottom) / 2;
+
+  // rotation is 0 for now — ready for later
+  const rotation = 0;
+  const dx = x - centerX;
+  const dy = y - centerY;
+  const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+  const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+
+  const corners: { name: "tl" | "tr" | "bl" | "br"; x: number; y: number }[] = [
+    { name: "tl", x: -w / 2 - PAD, y: -h / 2 - PAD },
+    { name: "tr", x:  w / 2 + PAD, y: -h / 2 - PAD },
+    { name: "bl", x: -w / 2 - PAD, y:  h / 2 + PAD },
+    { name: "br", x:  w / 2 + PAD, y:  h / 2 + PAD },
+  ];
+
+  const hitRadius = (8 / scale) * (8 / scale);
+  for (const corner of corners) {
+    const ddx = localX - corner.x;
+    const ddy = localY - corner.y;
+    if (ddx * ddx + ddy * ddy <= hitRadius) {
+      return corner.name;
+    }
+  }
+  return null;
+}
+
+function hitTestRotationHandle(
+  shape: Shape, 
+  x: number,
+  y: number,
+  scale: number,
+): boolean {
+  const left   = Math.min(shape.x, shape.x + shape.width);
+  const top    = Math.min(shape.y, shape.y + shape.height);
+  const right  = Math.max(shape.x, shape.x + shape.width);
+  const bottom = Math.max(shape.y, shape.y + shape.height);
+  const PAD = 6 / scale;
+
+  const centerX = (left + right) / 2;
+  const centerY = (top + bottom) / 2;
+  const hh = (bottom - top) / 2 + PAD;
+
+  const rotation = 0;
+  const dx = x - centerX;
+  const dy = y - centerY;
+  const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+  const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+
+  const handleX = 0;
+  const handleY = -hh - 20 / scale;
+
+  const ddx = localX - handleX;
+  const ddy = localY - handleY;
+  return ddx * ddx + ddy * ddy <= (10 / scale) * (10 / scale);
+}
+
 export {
   getCanvasPoint,
   redraw,
@@ -480,4 +553,6 @@ export {
   isPointNearStroke,
   drawShape,
   drawLine,
+  hitTestCorner,
+  hitTestRotationHandle
 };
