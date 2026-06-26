@@ -90,19 +90,18 @@ export function useSelection(
         .reverse()
         .find((t) => hitTestTextBox(t, x, y, ctx));
 
-      //moving shapes,textbox and lines
+      //!moving shapes,textbox and lines
       if (hitShape) {
         isDragging.current = true;
         dragType.current = "shape";
         dragOffset.current = { x: x - hitShape.x, y: y - hitShape.y };
       }
-
-      if (hitText) {
+      else if (hitText) {
         isDragging.current = true;
         dragType.current = "textbox";
         dragOffset.current = { x: x - hitText.x, y: y - hitText.y };
       }
-      if (hitLine) {
+      else if(hitLine) {
         isDragging.current = true;
         dragType.current = "line";
         lineDragOffset.current = {
@@ -112,6 +111,8 @@ export function useSelection(
           y2: y-hitLine.y2,
         };
       }
+
+      //!resize shapes textbox and lines
 
       const hit = hitShape ?? hitLine ?? hitText;
       selectedId.current = hit?.id ?? null;
@@ -123,7 +124,7 @@ export function useSelection(
       const { x, y } = toCanvas(e.clientX, e.clientY);
 
 
-      //moving elements
+      //!moving elements
       const newX = x - dragOffset.current.x;
       const newY = y - dragOffset.current.y;
       if (dragType.current === "shape") {
@@ -145,8 +146,18 @@ export function useSelection(
             x2: x - lineDragOffset.current.x2,
             y2: y - lineDragOffset.current.y2,
           });
-      }
 
+          socket.emit("element-update",{
+            roomId,
+            id:selectedId.current,
+            changes:{
+                x1: x - lineDragOffset.current.x1,
+            y1: y - lineDragOffset.current.y1,
+            x2: x - lineDragOffset.current.x2,
+            y2: y - lineDragOffset.current.y2,
+            }
+          })
+      }
       socket.emit("element-update", {
         roomId,
         id: selectedId.current,
