@@ -1,17 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import type {
-  BoardImage,
-  Stroke,
-  Point,
-  ActiveStroke,
-  Shape,
-  Line,
-  TextBox,
-} from "../types";
+import type { BoardImage } from "../types";
 import {
   getCanvasPoint,
   getSelectionLineForImage,
-  redraw,
   isRotationHandlerClicked,
   getClickedResizeHandle,
 } from "../canvas";
@@ -23,20 +14,9 @@ export function useImageTransform(
   camera: React.RefObject<any>,
   images: React.RefObject<BoardImage[]>,
   imageCache: React.RefObject<Map<string, HTMLImageElement>>,
-  activeStrokes: React.RefObject<Record<string, ActiveStroke>>,
-  currentStroke: React.RefObject<Point[]>,
-  strokes: React.RefObject<Stroke[]>,
-  userIdRef: React.RefObject<string>,
-  color: string,
   selectedImgIdx: React.RefObject<number>,
   roomId: string,
-  shapesRef?: React.RefObject<Shape[]>,
-  activeShape?: React.RefObject<Shape | null>,
-  linesRef?: React.RefObject<Line[]>,
-  activeLine?: React.RefObject<Line | null>,
-  selectedId?: React.RefObject<string | null>,
-  textBoxesRef?: React.RefObject<TextBox[]>,
-  activeTextBox?: React.RefObject<TextBox | null>,
+  doRedraw: () => void,
 ) {
   const dragOffset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
@@ -45,31 +25,6 @@ export function useImageTransform(
   const resizeHandler = useRef<
     "top-left" | "top-right" | "bottom-left" | "bottom-right" | null
   >(null);
-
-  const doRedraw = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-    redraw(
-      canvas,
-      ctx,
-      camera,
-      images,
-      imageCache,
-      activeStrokes,
-      currentStroke,
-      strokes,
-      userIdRef.current,
-      color,
-      shapesRef,
-      activeShape,
-      linesRef,
-      activeLine,
-      selectedId,
-      textBoxesRef,
-      activeTextBox,
-    );
-  };
 
   useEffect(() => {
     const canvas = canvasRef.current;

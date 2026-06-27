@@ -1,34 +1,14 @@
 import React, { useEffect } from "react";
 
 import { socket } from "../../../../services/socket";
-import type {
-  ActiveStroke,
-  BoardImage,
-  Line,
-  Point,
-  Shape,
-  Stroke,
-  TextBox,
-} from "../types";
-import { redraw } from "../canvas";
+import type { BoardImage, Stroke } from "../types";
 
 export function useSocketBoard(
   roomId: string,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  camera: React.RefObject<any>,
   images: React.RefObject<BoardImage[]>,
-  imageCache: React.RefObject<Map<string, HTMLImageElement>>,
-  activeStrokes: React.RefObject<Record<string, ActiveStroke>>,
-  currentStroke: React.RefObject<Point[]>,
   strokes: React.RefObject<Stroke[]>,
-  userIdRef: React.RefObject<string>,
-  color: string,
-  shapesRef: React.RefObject<Shape[]>,
-  activeShape: React.RefObject<Shape | null>,
-  linesRef?: React.RefObject<Line[]>,
-  activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string | null>,
-    textBoxesRef?: React.RefObject<TextBox[]>,       
-  activeTextBox?: React.RefObject<TextBox | null>,
+  doRedraw: () => void,
 ) {
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -39,72 +19,18 @@ export function useSocketBoard(
     socket.emit("board-state", roomId);
     socket.on("board-state", (savedStrokes: Stroke[]) => {
       strokes.current = savedStrokes;
-   redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,
-          linesRef,
-          activeLine,
-          selectedId,
-          textBoxesRef,
-          activeTextBox
-        );
+      doRedraw();
     });
     socket.on("image-state", (savedImages: BoardImage[]) => {
       images.current.length = 0;
       images.current.push(...savedImages);
-        redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,
-          linesRef,
-          activeLine,
-          selectedId,
-          textBoxesRef,
-          activeTextBox
-        );
+      doRedraw();
     });
 
     //image upload
     socket.on("image-upload", (imageData) => {
       images.current.push(imageData);
-       redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,
-          linesRef,
-          activeLine,
-          selectedId,
-          textBoxesRef,
-          activeTextBox
-        );
+      doRedraw();
     });
 
     return () => {

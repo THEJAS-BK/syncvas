@@ -1,26 +1,11 @@
 import React, { useEffect } from "react";
-import type { ActiveStroke, BoardImage, Line, Point, Shape, Stroke, TextBox } from "../types";
-import { redraw } from "../canvas";
 
 export function useCanvasZoom(
   wrapperRef: React.RefObject<HTMLDivElement | null>,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   camera: React.RefObject<any>,
-  images: React.RefObject<BoardImage[]>,
-  imageCache: React.RefObject<Map<string, HTMLImageElement>>,
-  activeStrokes: React.RefObject<Record<string, ActiveStroke>>,
-  currentStroke: React.RefObject<Point[]>,
-  strokes: React.RefObject<Stroke[]>,
-  userIdRef: React.RefObject<string>,
-  color: string,
-  onCameraChange?: () => void,
-  shapesRef?: React.RefObject<Shape[]>,
-  activeShape?: React.RefObject<Shape | null>,
-  linesRef?: React.RefObject<Line[]>,
-activeLine?: React.RefObject<Line | null>,
-  selectedId?: React.RefObject<string | null>,
-    textBoxesRef?: React.RefObject<TextBox[]>,       
-  activeTextBox?: React.RefObject<TextBox | null>,
+  onCameraChange: () => void,
+  doRedraw:()=>void
 ) {
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -51,25 +36,7 @@ activeLine?: React.RefObject<Line | null>,
         camera.current.y -= e.deltaY;
       }
 
-      redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,
-          linesRef,
-          activeLine,
-          selectedId,
-          textBoxesRef,
-          activeTextBox
-        );
+     doRedraw();
 
       onCameraChange?.();
     };

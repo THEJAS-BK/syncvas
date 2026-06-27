@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "../../../services/socket";
 import { useNavigate, useParams } from "react-router-dom";
-const COLORS = ["#ff6b6b", "#4ecdc4", "#f9ca24", "#6c5ce7", "#55efc4"];
+const COLORS = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
 //helper function
 import { redraw } from "./canvas";
 //types
@@ -27,6 +27,10 @@ import { useShapes } from "./hooks/useShape";
 import { useLines } from "./hooks/useLines";
 import { useSelection } from "./hooks/useSelection";
 import { useDeleteElement } from "./hooks/useDeleteElement";
+
+//leftSide tools
+import { useToolSettings } from "../../../context/ToolBarLeftContext";
+
 export default function MultiCursor({
   images,
   floatChatInterface,
@@ -78,27 +82,51 @@ export default function MultiCursor({
 
   const [, forceUpdate] = useState(0);
   const triggerUpdate = () => forceUpdate((n) => n + 1);
+
+  //edit stroke color
+  const { strokeColor, setStrokeColor } = useToolSettings();
+  useEffect(() => {
+    setStrokeColor(color);
+  }, []);
+
+  const doRedraw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    redraw(
+      canvas,
+      ctx,
+      camera,
+      images,
+      imageCache,
+      activeStrokes,
+      currentStroke,
+      strokes,
+      userIdRef.current,
+      strokeColor,
+      shapesRef,
+      activeShape,
+      linesRef,
+      activeLine,
+      selectedId,
+      textBoxesRef,
+      activeTextBox,
+    );
+  };
+
   useSelection(
     roomId ?? "",
     canvasRef,
     camera,
-    images,
-    imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
     shapesRef,
-    activeShape,
     linesRef,
-    activeLine,
     selectedId,
-    userIdRef,
-    color,
+    strokeColor,
     activeTool,
     textBoxesRef,
     activeTextBox,
     triggerUpdate,
-    editingExistingRef,
+    doRedraw
   );
   const {
     placeTextBox,
@@ -109,24 +137,12 @@ export default function MultiCursor({
     deleteTextBox,
   } = useTextBox(
     roomId ?? "",
-    canvasRef,
     camera,
-    images,
-    imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
-    shapesRef,
-    activeShape,
     userIdRef.current,
-    color,
-    filled,
-    activeTool,
-    linesRef,
-    activeLine,
-    selectedId,
+    strokeColor,
     textBoxesRef,
     activeTextBox,
+    doRedraw,
   );
   const hasTextElements =
     activeTextBox !== null || textBoxesRef.current.length > 0;
@@ -151,169 +167,66 @@ export default function MultiCursor({
     roomId ?? "",
     canvasRef,
     camera,
-    images,
-    imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
     shapesRef,
     activeShape,
     userIdRef,
-    color,
     filled,
     activeTool,
-    linesRef,
-    activeLine,
-    selectedId,
-    textBoxesRef,
-    activeTextBox,
+    strokeColor,
+    doRedraw,
   );
-  useHandTool(
-    canvasRef,
-    camera,
-    images,
-    imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
-    shapesRef,
-    activeShape,
-    linesRef,
-    activeLine,
-    selectedId,
-    textBoxesRef,
-    activeTextBox,
-    userIdRef,
-    color,
-    activeTool,
-  );
-  useSocketBoard(
-    roomId ?? "",
-    canvasRef,
-    camera,
-    images,
-    imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
-    userIdRef,
-    color,
-    shapesRef,
-    activeShape,
-    linesRef,
-    activeLine,
-    selectedId,
-    textBoxesRef,
-    activeTextBox,
-  );
+  useHandTool(canvasRef, camera, activeTool, doRedraw);
+  useSocketBoard(roomId ?? "", canvasRef, images, strokes, doRedraw);
   useSocketDraw(
     roomId ?? "",
     canvasRef,
     camera,
-    images,
-    imageCache,
     activeStrokes,
     currentStroke,
     strokes,
     userIdRef,
-    color,
     isDrawing,
     setCursorPos,
     selectedImgIdx,
     eraserRef,
-    shapesRef,
-    activeShape,
     activeTool,
-    linesRef,
-    activeLine,
-    selectedId,
-    textBoxesRef,
-    activeTextBox,
+    strokeColor,
+    doRedraw,
   );
-  useCanvasZoom(
-    wrapperRef,
+  useCanvasZoom(wrapperRef, canvasRef, camera, handleCameraChange, doRedraw);
+
+  //image transformations
+  useImageTransform(
     canvasRef,
     camera,
     images,
     imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
-    userIdRef,
-    color,
-    handleCameraChange,
-    shapesRef,
-    activeShape,
-    linesRef,
-    activeLine,
-    selectedId,
-    textBoxesRef,
-    activeTextBox,
+    selectedImgIdx,
+    roomId ?? "",
+    doRedraw,
   );
-
-  //image transformations
-  // useImageTransform(
-  //   canvasRef,
-  //   camera,
-  //   images,
-  //   imageCache,
-  //   activeStrokes,
-  //   currentStroke,
-  //   strokes,
-  //   userIdRef,
-  //   color,
-  //   selectedImgIdx,
-  //   roomId ?? "",
-  //   shapesRef,
-  //   activeShape,
-  //   linesRef,
-  //   activeLine,
-  //   selectedId,
-  //   textBoxesRef,
-  //   activeTextBox,
-  // );
 
   useLines(
     roomId ?? "",
     canvasRef,
     camera,
-    images,
-    imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
-    shapesRef,
-    activeShape,
     linesRef,
     activeLine,
     userIdRef,
-    color,
     activeTool,
-    selectedId,
-    textBoxesRef,
-    activeTextBox,
+    strokeColor,
+    doRedraw,
   );
 
   useDeleteElement(
     roomId ?? "",
     canvasRef,
     camera,
-    images,
-    imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
     shapesRef,
-    activeShape,
-    userIdRef,
-    color,
-    filled,
     activeTool,
     linesRef,
-    activeLine,
-    selectedId,
     textBoxesRef,
-    activeTextBox,
+    doRedraw,
   );
 
   useEffect(() => {
@@ -340,29 +253,7 @@ export default function MultiCursor({
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    redraw(
-      canvas,
-      ctx,
-      camera,
-      images,
-      imageCache,
-      activeStrokes,
-      currentStroke,
-      strokes,
-      userIdRef.current,
-      color,
-      shapesRef,
-      activeShape,
-      linesRef,
-      activeLine,
-      selectedId,
-      textBoxesRef,
-      activeTextBox,
-    );
+    doRedraw();
   }, [imageUpdate]);
 
   return (
@@ -480,7 +371,7 @@ export default function MultiCursor({
                   currentStroke,
                   strokes,
                   userIdRef.current,
-                  color,
+                  strokeColor,
                   shapesRef,
                   activeShape,
                   linesRef,
@@ -504,7 +395,7 @@ export default function MultiCursor({
                   currentStroke,
                   strokes,
                   userIdRef.current,
-                  color,
+                  strokeColor,
                   () => setPanTick((t) => t + 1),
                   shapesRef,
                   activeShape,

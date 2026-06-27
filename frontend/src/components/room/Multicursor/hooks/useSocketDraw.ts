@@ -1,64 +1,36 @@
 import React, { useEffect, useRef } from "react";
 
 import { socket } from "../../../../services/socket";
-import type { ActiveStroke, BoardImage, Line, Point, Shape, Stroke, TextBox } from "../types";
+import type { ActiveStroke, Point, Stroke } from "../types";
 
-import { getCanvasPoint, redraw, isPointNearStroke } from "../canvas";
+import { getCanvasPoint, isPointNearStroke } from "../canvas";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 export function useSocketDraw(
   roomId: string,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   camera: React.RefObject<any>,
-  images: React.RefObject<BoardImage[]>,
-  imageCache: React.RefObject<Map<string, HTMLImageElement>>,
   activeStrokes: React.RefObject<Record<string, ActiveStroke>>,
   currentStroke: React.RefObject<Point[]>,
   strokes: React.RefObject<Stroke[]>,
   userIdRef: React.RefObject<string>,
-  color: string,
   isDrawing: React.RefObject<boolean>,
   setCursorPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>,
   selectedImgIdx: React.RefObject<number>,
-  eraserRef: React.MutableRefObject<boolean>,
-  shapesRef?: React.RefObject<Shape[]>,
-  activeShape?: React.RefObject<Shape | null>,
-  activeTool?: string | null,
-  linesRef?: React.RefObject<Line[]>,
-activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string | null>,
-    textBoxesRef?: React.RefObject<TextBox[]>,       
-  activeTextBox?: React.RefObject<TextBox | null>,
+  eraserRef: React.RefObject<boolean>,
+  activeTool: string | null,
+  strokeColor: string,
+  doRedraw: () => void,
 ) {
   const isEraserSelected = useRef(false);
 
   useEffect(() => {
- 
     //handle drawing
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    
-   const doRedraw=()=>{
-        redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,
-          linesRef,
-          activeLine,
-          selectedId,
-          textBoxesRef,
-          activeTextBox
-        );
-    }
+
     const startDrawing = (e: MouseEvent) => {
       if (eraserRef.current === true) {
         isEraserSelected.current = true;
@@ -66,18 +38,22 @@ activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string 
       }
       if (selectedImgIdx.current !== -1) return;
       if (activeTool == "pen") {
-        isDrawing.current = true;  
+        isDrawing.current = true;
       }
-      if(activeTool=="square"){
-        isDrawing.current=false;
+      if (activeTool == "square") {
+        isDrawing.current = false;
         return;
       }
-   
+
       const { x, y } = getCanvasPoint(e, canvas, camera);
       currentStroke.current = [{ x, y }];
 
-      socket.emit("stroke-start", { userId: userIdRef.current, roomId, color });
-    doRedraw()
+      socket.emit("stroke-start", {
+        userId: userIdRef.current,
+        roomId,
+        strokeColor,
+      });
+      doRedraw();
     };
 
     const draw = (e: MouseEvent) => {
@@ -100,7 +76,7 @@ activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string 
         point: { x, y },
       });
 
-  doRedraw()
+      doRedraw();
     };
 
     //stop drawing
@@ -110,7 +86,7 @@ activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string 
         const completedStrokes: Stroke = {
           points: [...currentStroke.current],
           userId: userIdRef.current,
-          color,
+          color: strokeColor,
         };
 
         strokes.current.push(completedStrokes);
@@ -123,13 +99,13 @@ activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string 
       currentStroke.current = [];
       isDrawing.current = false;
 
-     doRedraw()
+      doRedraw();
     };
 
     //received data from the backend
-    socket.on("stroke-start", ({ userId, color }) => {
+    socket.on("stroke-start", ({ userId, strokeColor }) => {
       activeStrokes.current[userId] = {
-        color,
+        color: strokeColor,
         points: [],
       };
     });
@@ -143,7 +119,7 @@ activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string 
       }
       activeStrokes.current[userId].points.push(point);
 
-   doRedraw()
+      doRedraw();
     });
 
     socket.on("stroke-end", ({ userId }) => {
@@ -159,13 +135,13 @@ activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string 
 
       delete activeStrokes.current[userId];
 
-   doRedraw()
+      doRedraw();
     });
     socket.on("stroke-delete", (point: Point) => {
       strokes.current = strokes.current.filter(
         (stroke) => !isPointNearStroke(point, stroke),
       );
-      doRedraw()
+      doRedraw();
     });
 
     const eraseAtPoint = (point: Point) => {
@@ -175,7 +151,7 @@ activeLine?: React.RefObject<Line | null>,  selectedId?: React.RefObject<string 
       );
       if (strokes.current.length !== before) {
         socket.emit("stroke-delete", { point: point, roomId });
-        doRedraw()
+        doRedraw();
       }
     };
 

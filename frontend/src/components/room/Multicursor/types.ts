@@ -6,6 +6,8 @@ type Point = {
 type Stroke = {
   userId: string;
   color: string;
+  width?:number;
+  opacity?:number;
   points: Point[];
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ColorGrid from "./ColorGrid";
-import type { fabClasses } from "@mui/material";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 export default function ColorSwatches({
   activeTool,
@@ -11,20 +11,18 @@ export default function ColorSwatches({
   const toggle = (panel: string) => {
     setColorGrid((prev) => (prev === panel ? null : panel));
   };
+  const { strokeColor, setStrokeColor,
+      fillColor, setFillColor,
+      strokeWidth, setStrokeWidth,
+      opacity, setOpacity,} =useToolSettings();
 
-  const [selectedColor, setSelectedColor] = useState<string>("bg-red-500");
+const strokeColors = [
+  "#1f2937", 
+  "#f87171", 
+  "#22c55e", 
+  "#3b82f6", 
 
-  const strokeColors = [
-    "bg-gray-300",
-    "bg-red-400",
-    "bg-green-500",
-    "bg-blue-500",
-    "bg-amber-600",
-  ];
-
-  const [selectedBackgroundColor, setSelectedBackgroundColor] =
-    useState<string>();
-
+  "#d97706", ];
   const backgroundColors = [
     "bg-transparent",
     "bg-red-900",
@@ -40,12 +38,13 @@ export default function ColorSwatches({
         {strokeColors.map((color) => (
           <div
             key={color}
-            className={`w-6 h-6 rounded cursor-pointer ${color} ${
-              selectedColor === color
+            style={{backgroundColor:color}}
+            className={`w-6 h-6 rounded cursor-pointer ${
+              strokeColor === color
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
-            onClick={() => setSelectedColor(color)}
+            onClick={() => setStrokeColor(color)}
           />
         ))}
        <div className="flex gap-1">
@@ -70,11 +69,11 @@ export default function ColorSwatches({
               <div
                 key={color}
                 className={`w-6 h-6 rounded cursor-pointer ${color} ${
-                  selectedBackgroundColor === color
+                  fillColor === color
                     ? "border-2 border-purple-500"
                     : "border border-transparent"
                 }`}
-                onClick={() => setSelectedBackgroundColor(color)}
+                onClick={() => setFillColor(color)}
               />
             ))}
            <div className="flex gap-1">

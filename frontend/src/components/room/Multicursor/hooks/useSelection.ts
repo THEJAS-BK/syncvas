@@ -1,15 +1,11 @@
 import { useEffect, useRef } from "react";
-import type { MutableRefObject, RefObject } from "react";
+import type {  RefObject } from "react";
 import type {
   Shape,
   Line,
   TextBox,
-  BoardImage,
-  ActiveStroke,
-  Point,
-  Stroke,
 } from "../types";
-import { hitTestTextBoxRotationHandle, redraw } from "../canvas";
+import { hitTestTextBoxRotationHandle } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
 import { hitTestCorner, hitTestRotationHandle } from "../canvas";
@@ -17,24 +13,16 @@ import { hitTestCorner, hitTestRotationHandle } from "../canvas";
 export function useSelection(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  camera: MutableRefObject<{ x: number; y: number; scale: number }>,
-  images: RefObject<BoardImage[]>,
-  imageCache: RefObject<Map<string, HTMLImageElement>>,
-  activeStrokes: RefObject<Record<string, ActiveStroke>>,
-  currentStroke: RefObject<Point[]>,
-  strokes: RefObject<Stroke[]>,
+  camera: RefObject<{ x: number; y: number; scale: number }>,
   shapesRef: RefObject<Shape[]>,
-  activeShape: RefObject<Shape | null>,
   linesRef: RefObject<Line[]>,
-  activeLine: RefObject<Line | null>,
   selectedId: React.RefObject<string | null>,
-  userIdRef: React.RefObject<string | null>,
   color: string,
   activeTool: string | null,
   textBoxesRef: React.RefObject<TextBox[]>,
   activeTextBox: React.RefObject<TextBox | null>,
   onEditTextBox: () => void,
-  editingExistingRef: React.RefObject<boolean>,
+  doRedraw:()=>void
 ) {
   const isDragging = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -55,31 +43,6 @@ export function useSelection(
 
   //isRotation
   const isRotating = useRef(false);
-
-  const doRedraw = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-    redraw(
-      canvas,
-      ctx,
-      camera,
-      images,
-      imageCache,
-      activeStrokes,
-      currentStroke,
-      strokes,
-      userIdRef.current!,
-      color,
-      shapesRef,
-      activeShape,
-      linesRef,
-      activeLine,
-      selectedId,
-      textBoxesRef,
-      activeTextBox,
-    );
-  };
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -6,6 +6,8 @@ let activeRooms: Record<string, Set<string>> = {};
 type Stroke = {
   userId: string;
   color: string;
+  width:number;
+  opacity:number;
   points: { x: number; y: number }[];
 };
 
@@ -30,7 +32,7 @@ type CanvasElement =
       fontSize: number;
       color: string;
       userId: string;
-      rotation?:number
+      rotation?:number  
     }
   | {
       id: string;

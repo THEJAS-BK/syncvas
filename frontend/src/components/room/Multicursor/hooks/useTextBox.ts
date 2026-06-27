@@ -1,62 +1,22 @@
 import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
-import type { MutableRefObject, RefObject } from "react";
+import type {  RefObject } from "react";
 import type {
   TextBox,
   CanvasElement,
-  BoardImage,
-  Point,
-  Stroke,
-  Shape,
-  Line,
-  ActiveStroke,
+
 } from "../types";
-import { redraw } from "../canvas";
 export function useTextBox(
   roomId: string,
-  canvasRef: RefObject<HTMLCanvasElement | null>,
-  camera: MutableRefObject<{ x: number; y: number; scale: number }>,
-  images: RefObject<BoardImage[]>,
-  imageCache: RefObject<Map<string, HTMLImageElement>>,
-  activeStrokes: RefObject<Record<string, ActiveStroke>>,
-  currentStroke: RefObject<Point[]>,
-  strokes: RefObject<Stroke[]>,
-  shapesRef: RefObject<Shape[]>,
-  activeShape: RefObject<Shape | null>,
+
+  camera: RefObject<{ x: number; y: number; scale: number }>,
+
   userId: string,
   color: string,
-  filled: boolean,
-  activeTool: string | null,
-linesRef: React.RefObject<Line[]>,
-activeLine: React.RefObject<Line | null>,
-selectedId: React.RefObject<string | null>,
 textBoxesRef: React.RefObject<TextBox[]>,
 activeTextBox: React.RefObject<TextBox | null>,
+doRedraw:()=>void
 ) {
-  const doRedraw = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-    redraw(
-      canvas,
-      ctx,
-      camera,
-      images,
-      imageCache,
-      activeStrokes,
-      currentStroke,
-      strokes,
-      userId,
-      color,
-      shapesRef,
-      activeShape,
-      linesRef,
-      activeLine,
-      selectedId,
-      textBoxesRef,
-      activeTextBox!,
-    );
-  };
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;
     const cx = camera.current?.x ?? 0;

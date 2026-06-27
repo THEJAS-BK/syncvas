@@ -1,63 +1,20 @@
 import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
-import type { RefObject, MutableRefObject } from "react";
-import type {
-  Line,
-  Shape,
-  CanvasElement,
-  BoardImage,
-  ActiveStroke,
-  Point,
-  Stroke,
-  TextBox,
-} from "../types";
-import { redraw } from "../canvas";
+import type { RefObject } from "react";
+import type { Line, CanvasElement } from "../types";
 
 export function useLines(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  camera: MutableRefObject<{ x: number; y: number; scale: number }>,
-  images: RefObject<BoardImage[]>,
-  imageCache: RefObject<Map<string, HTMLImageElement>>,
-  activeStrokes: RefObject<Record<string, ActiveStroke>>,
-  currentStroke: RefObject<Point[]>,
-  strokes: RefObject<Stroke[]>,
-  shapesRef: RefObject<Shape[]>,
-  activeShape: RefObject<Shape | null>,
+  camera: RefObject<{ x: number; y: number; scale: number }>,
   linesRef: RefObject<Line[]>,
   activeLine: RefObject<Line | null>,
   userIdRef: React.RefObject<string>,
-  color: string,
-  activeTool: string | null,  selectedId?: React.RefObject<string | null>,
-    textBoxesRef?: React.RefObject<TextBox[]>,       
-  activeTextBox?: React.RefObject<TextBox | null>,
+  activeTool: string | null,
+  strokeColor: string,
+  doRedraw: () => void,
 ) {
   const isDragging = useRef(false);
-
-  const doRedraw = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-    redraw(
-          canvas,
-          ctx,
-          camera,
-          images,
-          imageCache,
-          activeStrokes,
-          currentStroke,
-          strokes,
-          userIdRef.current,
-          color,
-          shapesRef,
-          activeShape,
-          linesRef,
-          activeLine,
-          selectedId,
-          textBoxesRef,
-          activeTextBox
-        );
-  };
 
   const toCanvas = (clientX: number, clientY: number) => ({
     x: (clientX - camera.current.x) / camera.current.scale,
@@ -81,12 +38,12 @@ export function useLines(
         y1: y,
         x2: x,
         y2: y,
-        color,
+        color: strokeColor,
         userId: userIdRef.current,
       };
       const line = activeLine.current;
       socket.emit("element-add", { roomId, element: line });
-      doRedraw()
+      doRedraw();
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -102,7 +59,7 @@ export function useLines(
       socket.emit("element-update", {
         roomId,
         id: line.id,
-        changes: {x1:line.x1, x2: line.x2,y1:line.y1, y2: line.y2 },
+        changes: { x1: line.x1, x2: line.x2, y1: line.y1, y2: line.y2 },
       });
       requestAnimationFrame(doRedraw);
     };
@@ -117,7 +74,7 @@ export function useLines(
       const dx = line.x2 - line.x1;
       const dy = line.y2 - line.y1;
       if (dx * dx + dy * dy < 25) {
-         socket.emit("element-delete", { roomId, id: line.id }); 
+        socket.emit("element-delete", { roomId, id: line.id });
         doRedraw();
         return;
       }
@@ -135,7 +92,7 @@ export function useLines(
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, color]);
+  }, [activeTool, strokeColor]);
 
   // ---- socket listeners ----
   useEffect(() => {

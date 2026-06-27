@@ -1,17 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
-import type { RefObject, MutableRefObject } from "react";
-import type {
-  Shape,
-  CanvasElement,
-  BoardImage,
-  ActiveStroke,
-  Point,
-  Stroke,
-  Line,
-  TextBox,
-} from "../types";
-import { redraw } from "../canvas";
+import type { RefObject } from "react";
+import type { Shape, CanvasElement } from "../types";
 
 // maps the active tool name to the shape type stored on the element
 const TOOL_TO_SHAPE: Record<string, "square" | "circle" | "diamond"> = {
@@ -23,49 +13,16 @@ const TOOL_TO_SHAPE: Record<string, "square" | "circle" | "diamond"> = {
 export function useShapes(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  camera: MutableRefObject<{ x: number; y: number; scale: number }>,
-  images: RefObject<BoardImage[]>,
-  imageCache: RefObject<Map<string, HTMLImageElement>>,
-  activeStrokes: RefObject<Record<string, ActiveStroke>>,
-  currentStroke: RefObject<Point[]>,
-  strokes: RefObject<Stroke[]>,
+  camera: RefObject<{ x: number; y: number; scale: number }>,
   shapesRef: RefObject<Shape[]>,
   activeShape: RefObject<Shape | null>,
-  userIdRef: MutableRefObject<string>,
-  color: string,
+  userIdRef: RefObject<string>,
   filled: boolean,
   activeTool: string | null,
-  linesRef?: React.RefObject<Line[]>,
-  activeLine?: React.RefObject<Line | null>,
-  selectedId?: React.RefObject<string | null>,
-  textBoxesRef?: React.RefObject<TextBox[]>,
-  activeTextBox?: React.RefObject<TextBox | null>,
+  color: string,
+  doRedraw: () => void,
 ) {
   const isDragging = useRef(false);
-  const doRedraw = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-    redraw(
-      canvas,
-      ctx,
-      camera,
-      images,
-      imageCache,
-      activeStrokes,
-      currentStroke,
-      strokes,
-      userIdRef.current,
-      color,
-      shapesRef,
-      activeShape,
-      linesRef,
-      activeLine,
-      selectedId,
-      textBoxesRef,
-      activeTextBox,
-    );
-  };
 
   const toCanvas = (clientX: number, clientY: number) => ({
     x: (clientX - camera.current.x) / camera.current.scale,
@@ -93,6 +50,7 @@ export function useShapes(
         height: 0,
         color,
         filled,
+        rotation:0,
         userId: userIdRef.current,
       };
 

@@ -1,42 +1,17 @@
-import React, {
-  useEffect,
-  useRef,
-  type MutableRefObject,
-  type RefObject,
-} from "react";
-import type {
-  ActiveStroke,
-  BoardImage,
-  Line,
-  Point,
-  Shape,
-  Stroke,
-  TextBox,
-} from "../types";
+import React, { useEffect, useRef, type RefObject } from "react";
+import type { Line, Shape, TextBox } from "../types";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
-import { redraw } from "../canvas";
 
 export function useDeleteElement(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  camera: MutableRefObject<{ x: number; y: number; scale: number }>,
-  images: RefObject<BoardImage[]>,
-  imageCache: RefObject<Map<string, HTMLImageElement>>,
-  activeStrokes: RefObject<Record<string, ActiveStroke>>,
-  currentStroke: RefObject<Point[]>,
-  strokes: RefObject<Stroke[]>,
+  camera: RefObject<{ x: number; y: number; scale: number }>,
   shapesRef: RefObject<Shape[]>,
-  activeShape: RefObject<Shape | null>,
-  userIdRef: MutableRefObject<string>,
-  color: string,
-  filled: boolean,
   activeTool: string | null,
   linesRef: React.RefObject<Line[]>,
-  activeLine: React.RefObject<Line | null>,
-  selectedId: React.RefObject<string | null>,
   textBoxesRef: React.RefObject<TextBox[]>,
-  activeTextBox: React.RefObject<TextBox | null>,
+  doRedraw: () => void,
 ) {
   const toCanvas = (clientX: number, clientY: number) => ({
     x: (clientX - camera.current.x) / camera.current.scale,
@@ -87,25 +62,7 @@ export function useDeleteElement(
           (t) => t.id !== hitText.id,
         );
       }
-       redraw(
-      canvas,
-      ctx,
-      camera,
-      images,
-      imageCache,
-      activeStrokes,
-      currentStroke,
-      strokes,
-      userIdRef.current,
-      color,
-      shapesRef,
-      activeShape,
-      linesRef,
-      activeLine,
-      selectedId,
-      textBoxesRef,
-      activeTextBox,
-    );
+      doRedraw();
       socket.emit("element-delete", { roomId, id });
     };
 
