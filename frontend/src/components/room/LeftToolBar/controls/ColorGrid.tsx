@@ -1,30 +1,32 @@
 import { Pipette } from "lucide-react";
 import { useState } from "react";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 export default function ColorGrid({
   isMostUsedColorsNeeded,
 }: {
   isMostUsedColorsNeeded: boolean;
 }) {
-  const [selectedColor, setSelectedColor] = useState<string>("bg-red-500");
 
-  const strokeColors = [
-    "bg-yellow-400",
-    "bg-lime-500",
-    "bg-emerald-500",
-    "bg-sky-500",
-    "bg-indigo-500",
-    "bg-violet-600",
-    "bg-fuchsia-500",
-    "bg-rose-500",
-    "bg-stone-500",
-    "bg-slate-600",
-    "bg-zinc-600",
-    "bg-neutral-600",
-    "bg-orange-700",
-    "bg-red-700",
-    "bg-green-700",
-    "bg-blue-700",
-  ];
+ const strokeColors = [
+  "#facc15", // yellow-400
+  "#84cc16", // lime-500
+  "#10b981", // emerald-500
+  "#0ea5e9", // sky-500
+  "#6366f1", // indigo-500
+  "#7c3aed", // violet-600
+  "#d946ef", // fuchsia-500
+  "#f43f5e", // rose-500
+  "#78716c", // stone-500
+  "#475569", // slate-600
+  "#52525b", // zinc-600
+  "#525252", // neutral-600
+  "#c2410c", // orange-700
+  "#b91c1c", // red-700
+  "#15803d", // green-700
+  "#1d4ed8", // blue-700
+];
+
+  const {strokeColor,setStrokeColor}=useToolSettings();
 
   return (
     <div
@@ -36,7 +38,7 @@ export default function ColorGrid({
           <span className="mb-2 text-[12px]  text-white ">
             most Used custom colors
           </span>
-          <div className="w-8 h-8 bg-red-500"></div>
+          <div style={{backgroundColor:strokeColor}} className="w-6 h-6"></div>
         </>
       )}
 
@@ -45,23 +47,24 @@ export default function ColorGrid({
         {strokeColors.map((color) => (
           <div
             key={color}
-            className={`w-8 h-8 rounded cursor-pointer ${color} ${
-              selectedColor === color
+            style={{backgroundColor:color}}
+            className={`w-6 h-6 rounded cursor-pointer ${
+              strokeColor === color
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
-            onClick={() => setSelectedColor(color)}
+            onClick={() => setStrokeColor(color)}
           />
         ))}
       </div>
 
       <span className="mb-1 text-[12px]  text-white mt-4">Shades</span>
       <div className="grid grid-cols-5 gap-1 w-fit">
-        <div className="w-8 h-8 bg-red-500"></div>
-        <div className="w-8 h-8 bg-blue-500"></div>
-        <div className="w-8 h-8 bg-green-500"></div>
-        <div className="w-8 h-8 bg-yellow-500"></div>
-        <div className="w-8 h-8 bg-purple-500"></div>
+        <div className="w-6 h-6 bg-red-500"></div>
+        <div className="w-6 h-6 bg-blue-500"></div>
+        <div className="w-6 h-6 bg-green-500"></div>
+        <div className="w-6 h-6 bg-yellow-500"></div>
+        <div className="w-6 h-6 bg-purple-500"></div>
       </div>
 
       <span className="mb-1 text-[12px]  text-white mt-4">Hex Code</span>

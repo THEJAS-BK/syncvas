@@ -1,5 +1,6 @@
 import { Minus } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 export default function StrokeWidth() {
   const [selectedIcon, setSelectedIcon] = useState<string>("thin");

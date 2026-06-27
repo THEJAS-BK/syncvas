@@ -1,5 +1,6 @@
 import { Square, SquareDashedKanban, SquareMenu } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 export default function FillToggle() {
   const [selectedIcon, setSelectedIcon] = useState<string>("hachure");

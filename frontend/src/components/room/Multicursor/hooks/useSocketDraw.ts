@@ -75,7 +75,6 @@ export function useSocketDraw(
         roomId,
         point: { x, y },
       });
-
       doRedraw();
     };
 

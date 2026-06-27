@@ -23,13 +23,13 @@ export default function ColorSwatches({
   } = useToolSettings();
 
   const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
-  const backgroundColors = [
-    "bg-transparent",
-    "bg-red-900",
-    "bg-green-900",
-    "bg-blue-900",
-    "bg-yellow-950",
-  ];
+const backgroundColors = [
+  "transparent", // bg-transparent
+  "#7f1d1d",     // red-900
+  "#14532d",     // green-900
+  "#1e3a8a",     // blue-900
+  "#422006",     // yellow-950
+];
 
   return (
     <div className=" flex flex-col z-20">
@@ -45,12 +45,13 @@ export default function ColorSwatches({
                 : "border border-transparent"
             }`}
             onClick={() => setStrokeColor(color)}
-          />
+          />  
         ))}
         <div className="flex gap-1">
           <div className="w-px h-7 bg-gray-600 align-center"></div>
           <div
-            className="w-7 h-7 ml-px  bg-purple-500 static rounded hover:scale-115"
+          style={{backgroundColor:strokeColor}}
+            className="w-7 h-7 ml-px static rounded hover:scale-115"
             onClick={() => toggle("strokes")}
           >
             {colorGrid === "strokes" && (
@@ -66,7 +67,8 @@ export default function ColorSwatches({
             {backgroundColors.map((color) => (
               <div
                 key={color}
-                className={`w-6 h-6 rounded cursor-pointer ${color} ${
+                 style={{ backgroundColor: color }}
+                className={`w-6 h-6 rounded cursor-pointer${
                   fillColor === color
                     ? "border-2 border-purple-500"
                     : "border border-transparent"
@@ -77,7 +79,8 @@ export default function ColorSwatches({
             <div className="flex gap-1">
               <div className="w-px h-7 bg-gray-600 align-center"></div>
               <div
-                className="w-7 h-7 ml-px rounded bg-purple-500 static hover:scale-115"
+                  style={{backgroundColor:fillColor}}
+                className="w-7 h-7 ml-px rounded  static hover:scale-115"
                 onClick={() => toggle("background")}
               >
                 {colorGrid === "background" && (
