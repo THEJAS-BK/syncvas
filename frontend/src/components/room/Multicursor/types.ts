@@ -55,6 +55,8 @@ interface Line {
   y1: number;
   x2: number;
   y2: number;
+  cpx?: number;
+  cpy?: number;
   color: string;
   userId: string;
 }

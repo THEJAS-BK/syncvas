@@ -48,6 +48,9 @@ export function useSelection(
   const resizeCorner = useRef<"tl" | "tr" | "bl" | "br" | null>(null);
   const resizeOrigin = useRef({ x: 0, y: 0 }); // the fixed opposite corner
 
+  //resize code for lines
+  const lineEndpoint = useRef<"p1" | "p2" | "mid" | null>(null);
+
   const doRedraw = () => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -124,6 +127,49 @@ export function useSelection(
             return;
           }
         }
+        const selectedLine = linesRef.current.find(
+          (l) => l.id === selectedId.current,
+        );
+        if (selectedLine) {
+          const tolerance = 8 / camera.current.scale;
+          const distP1 = Math.hypot(x - selectedLine.x1, y - selectedLine.y1);
+          const distP2 = Math.hypot(x - selectedLine.x2, y - selectedLine.y2);
+
+          if (distP1 <= tolerance) {
+            lineEndpoint.current = "p1";
+            isResizing.current = true;
+            return;
+          }
+          if (distP2 <= tolerance) {
+            lineEndpoint.current = "p2";
+            isResizing.current = true;
+            return;
+          }
+
+          const midX =
+            selectedLine.cpx !== undefined
+              ? 0.25 * selectedLine.x1 +
+                0.5 * selectedLine.cpx +
+                0.25 * selectedLine.x2
+              : (selectedLine.x1 + selectedLine.x2) / 2;
+          const midY =
+            selectedLine.cpy !== undefined
+              ? 0.25 * selectedLine.y1 +
+                0.5 * selectedLine.cpy +
+                0.25 * selectedLine.y2
+              : (selectedLine.y1 + selectedLine.y2) / 2;
+
+          const distMid = Math.hypot(x - midX, y - midY);
+          if (distMid <= tolerance) {
+            lineEndpoint.current = "mid";
+            isResizing.current = true;
+            if (selectedLine.cpx === undefined) {
+              selectedLine.cpx = midX;
+              selectedLine.cpy = midY;
+            }
+            return;
+          }
+        }
       }
 
       // reverse so topmost (last drawn) wins
@@ -165,11 +211,45 @@ export function useSelection(
     };
 
     const onMouseMove = (e: MouseEvent) => {
-     if (!isDragging.current && !isResizing.current) return;
+      if (!isDragging.current && !isResizing.current) return;
       if (!selectedId.current) return;
       const { x, y } = toCanvas(e.clientX, e.clientY);
 
       //!resize shapes,textbox and lines
+      //lines
+      if (isResizing.current && lineEndpoint.current) {
+        const line = linesRef.current.find((l) => l.id === selectedId.current);
+        if (!line) return;
+
+        if (lineEndpoint.current === "p1") {
+          line.x1 = x;
+          line.y1 = y;
+          socket.emit("element-update", {
+            roomId,
+            id: line.id,
+            changes: { x1: x, y1: y },
+          });
+        } else if (lineEndpoint.current === "p2") {
+          line.x2 = x;
+          line.y2 = y;
+          socket.emit("element-update", {
+            roomId,
+            id: line.id,
+            changes: { x2: x, y2: y },
+          });
+        } else if (lineEndpoint.current === "mid") {
+          line.cpx = 2 * x - 0.5 * (line.x1 + line.x2);
+          line.cpy = 2 * y - 0.5 * (line.y1 + line.y2);
+          socket.emit("element-update", {
+            roomId,
+            id: line.id,
+            changes: { cpx: line.cpx, cpy: line.cpy },
+          });
+        }
+        doRedraw();
+        return;
+      }
+
       if (isResizing.current && selectedId.current) {
         const shape = shapesRef.current.find(
           (s) => s.id === selectedId.current,
@@ -277,6 +357,7 @@ export function useSelection(
       if (isResizing.current) {
         isResizing.current = false;
         resizeCorner.current = null;
+        lineEndpoint.current = null;
         doRedraw();
         return;
       }

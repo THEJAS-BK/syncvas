@@ -33,20 +33,27 @@ function hitTestShape(shape: Shape, x: number, y: number): boolean {
 }
 
 function hitTestLine(line: Line, x: number, y: number, scale: number): boolean {
+  const tolerance = 6 / scale;
+
+  if (line.cpx !== undefined && line.cpy !== undefined) {
+    // sample points along the quadratic bezier
+    for (let t = 0; t <= 1; t += 0.05) {
+      const bx = (1-t)*(1-t)*line.x1 + 2*(1-t)*t*line.cpx + t*t*line.x2;
+      const by = (1-t)*(1-t)*line.y1 + 2*(1-t)*t*line.cpy + t*t*line.y2;
+      if (Math.hypot(x - bx, y - by) < tolerance) return true;
+    }
+    return false;
+  }
+
+  // straight line — existing logic
   const dx = line.x2 - line.x1;
   const dy = line.y2 - line.y1;
   const lenSq = dx * dx + dy * dy;
   if (lenSq === 0) return false;
-
-  const t = Math.max(
-    0,
-    Math.min(1, ((x - line.x1) * dx + (y - line.y1) * dy) / lenSq),
-  );
+  const t = Math.max(0, Math.min(1, ((x - line.x1) * dx + (y - line.y1) * dy) / lenSq));
   const closestX = line.x1 + t * dx;
   const closestY = line.y1 + t * dy;
-
-  // tolerance of 6px in screen space → divide by scale to get canvas space
-  return Math.hypot(x - closestX, y - closestY) < 6 / scale;
+  return Math.hypot(x - closestX, y - closestY) < tolerance;
 }
 
 function hitTestTextBox(

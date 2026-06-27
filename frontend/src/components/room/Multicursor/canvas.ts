@@ -251,6 +251,8 @@ const redraw = (
       ctx.strokeStyle = "blue";
       ctx.lineWidth = 2 / scale;
       ctx.setLineDash([]);
+
+      // endpoint handles
       for (const pt of [
         { x: selectedLine.x1, y: selectedLine.y1 },
         { x: selectedLine.x2, y: selectedLine.y2 },
@@ -261,6 +263,26 @@ const redraw = (
         ctx.fill();
         ctx.stroke();
       }
+
+      // center handle — sits on the curve at t=0.5
+      const handleX =
+        selectedLine.cpx !== undefined
+          ? 0.25 * selectedLine.x1 +
+            0.5 * selectedLine.cpx +
+            0.25 * selectedLine.x2
+          : (selectedLine.x1 + selectedLine.x2) / 2;
+      const handleY =
+        selectedLine.cpy !== undefined
+          ? 0.25 * selectedLine.y1 +
+            0.5 * selectedLine.cpy +
+            0.25 * selectedLine.y2
+          : (selectedLine.y1 + selectedLine.y2) / 2;
+      ctx.beginPath();
+      ctx.arc(handleX, handleY, 5 / scale, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.stroke();
+
       ctx.restore();
     }
 
@@ -450,11 +472,20 @@ function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(line.x1, line.y1);
-  ctx.lineTo(line.x2, line.y2);
+
+  if (line.cpx !== undefined && line.cpy !== undefined) {
+    ctx.quadraticCurveTo(line.cpx, line.cpy, line.x2, line.y2);
+  } else {
+    ctx.lineTo(line.x2, line.y2);
+  }
   ctx.stroke();
 
   if (line.lineType === "arrow") {
-    const angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
+    const angle =
+      line.cpx !== undefined && line.cpy !== undefined
+        ? Math.atan2(line.y2 - line.cpy, line.x2 - line.cpx)
+        : Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
+
     const headLength = 12;
     ctx.beginPath();
     ctx.moveTo(line.x2, line.y2);
@@ -477,10 +508,9 @@ function hitTestCorner(
   y: number,
   scale: number,
 ): "tl" | "tr" | "bl" | "br" | null {
-  console.log("hitTestCorner called", x, y, scale);
-  const left   = Math.min(shape.x, shape.x + shape.width);
-  const top    = Math.min(shape.y, shape.y + shape.height);
-  const right  = Math.max(shape.x, shape.x + shape.width);
+  const left = Math.min(shape.x, shape.x + shape.width);
+  const top = Math.min(shape.y, shape.y + shape.height);
+  const right = Math.max(shape.x, shape.x + shape.width);
   const bottom = Math.max(shape.y, shape.y + shape.height);
   const w = right - left;
   const h = bottom - top;
@@ -498,9 +528,9 @@ function hitTestCorner(
 
   const corners: { name: "tl" | "tr" | "bl" | "br"; x: number; y: number }[] = [
     { name: "tl", x: -w / 2 - PAD, y: -h / 2 - PAD },
-    { name: "tr", x:  w / 2 + PAD, y: -h / 2 - PAD },
-    { name: "bl", x: -w / 2 - PAD, y:  h / 2 + PAD },
-    { name: "br", x:  w / 2 + PAD, y:  h / 2 + PAD },
+    { name: "tr", x: w / 2 + PAD, y: -h / 2 - PAD },
+    { name: "bl", x: -w / 2 - PAD, y: h / 2 + PAD },
+    { name: "br", x: w / 2 + PAD, y: h / 2 + PAD },
   ];
 
   const hitRadius = (8 / scale) * (8 / scale);
@@ -515,14 +545,14 @@ function hitTestCorner(
 }
 
 function hitTestRotationHandle(
-  shape: Shape, 
+  shape: Shape,
   x: number,
   y: number,
   scale: number,
 ): boolean {
-  const left   = Math.min(shape.x, shape.x + shape.width);
-  const top    = Math.min(shape.y, shape.y + shape.height);
-  const right  = Math.max(shape.x, shape.x + shape.width);
+  const left = Math.min(shape.x, shape.x + shape.width);
+  const top = Math.min(shape.y, shape.y + shape.height);
+  const right = Math.max(shape.x, shape.x + shape.width);
   const bottom = Math.max(shape.y, shape.y + shape.height);
   const PAD = 6 / scale;
 
@@ -554,5 +584,5 @@ export {
   drawShape,
   drawLine,
   hitTestCorner,
-  hitTestRotationHandle
+  hitTestRotationHandle,
 };
