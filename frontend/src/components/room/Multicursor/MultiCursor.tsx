@@ -74,10 +74,12 @@ export default function MultiCursor({
   const textBoxesRef = useRef<TextBox[]>([]);
   const activeTextBox = useRef<TextBox | null>(null);
 
+  const editingExistingRef = useRef(false);
+
   const [, forceUpdate] = useState(0);
   const triggerUpdate = () => forceUpdate((n) => n + 1);
   useSelection(
-    roomId??"",
+    roomId ?? "",
     canvasRef,
     camera,
     images,
@@ -95,6 +97,8 @@ export default function MultiCursor({
     activeTool,
     textBoxesRef,
     activeTextBox,
+    triggerUpdate,
+    editingExistingRef,
   );
   const {
     placeTextBox,
@@ -164,25 +168,25 @@ export default function MultiCursor({
     textBoxesRef,
     activeTextBox,
   );
-useHandTool(
-  canvasRef,
-  camera,
-  images,
-  imageCache,
-  activeStrokes,
-  currentStroke,
-  strokes,
-  shapesRef,
-  activeShape,
-  linesRef,
-  activeLine,
-  selectedId,
-  textBoxesRef,
-  activeTextBox,
-  userIdRef,
-  color,
-  activeTool,
-);
+  useHandTool(
+    canvasRef,
+    camera,
+    images,
+    imageCache,
+    activeStrokes,
+    currentStroke,
+    strokes,
+    shapesRef,
+    activeShape,
+    linesRef,
+    activeLine,
+    selectedId,
+    textBoxesRef,
+    activeTextBox,
+    userIdRef,
+    color,
+    activeTool,
+  );
   useSocketBoard(
     roomId ?? "",
     canvasRef,
@@ -248,26 +252,26 @@ useHandTool(
   );
 
   //image transformations
-  useImageTransform(
-    canvasRef,
-    camera,
-    images,
-    imageCache,
-    activeStrokes,
-    currentStroke,
-    strokes,
-    userIdRef,
-    color,
-    selectedImgIdx,
-    roomId ?? "",
-    shapesRef,
-    activeShape,
-    linesRef,
-    activeLine,
-    selectedId,
-    textBoxesRef,
-    activeTextBox,
-  );
+  // useImageTransform(
+  //   canvasRef,
+  //   camera,
+  //   images,
+  //   imageCache,
+  //   activeStrokes,
+  //   currentStroke,
+  //   strokes,
+  //   userIdRef,
+  //   color,
+  //   selectedImgIdx,
+  //   roomId ?? "",
+  //   shapesRef,
+  //   activeShape,
+  //   linesRef,
+  //   activeLine,
+  //   selectedId,
+  //   textBoxesRef,
+  //   activeTextBox,
+  // );
 
   useLines(
     roomId ?? "",
@@ -380,6 +384,7 @@ useHandTool(
           overscrollBehavior: "none",
           overflow: "hidden",
         }}
+        defaultValue={activeTextBox.current?.text ?? ""}
         onClick={handleCanvasClick}
       />
 
@@ -434,6 +439,7 @@ useHandTool(
               background: "transparent",
             }}
             onInput={(e) => {
+              activeTextBox.current!.text = e.currentTarget.value;
               const el = e.currentTarget;
               const measure = measureRef.current!;
               const scale = camera.current.scale;
@@ -511,7 +517,14 @@ useHandTool(
               }
             }}
             onBlur={(e) => {
-              finalizeTextBox(e.target.value);
+              const isEdit =
+                !!activeTextBox.current &&
+                textBoxesRef.current.some(
+                  (t) => t.id === activeTextBox.current?.id,
+                ) === false &&
+                editingExistingRef.current;
+              finalizeTextBox(e.target.value, editingExistingRef.current);
+              editingExistingRef.current = false;
               triggerUpdate();
             }}
             onKeyDown={(e) => {

@@ -9,7 +9,7 @@ import type {
   Point,
   Stroke,
 } from "../types";
-import { redraw } from "../canvas";
+import { hitTestTextBoxRotationHandle, redraw } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
 import { hitTestCorner, hitTestRotationHandle } from "../canvas";
@@ -32,7 +32,9 @@ export function useSelection(
   color: string,
   activeTool: string | null,
   textBoxesRef: React.RefObject<TextBox[]>,
-  activeTextBox?: React.RefObject<TextBox | null>,
+  activeTextBox: React.RefObject<TextBox | null>,
+  onEditTextBox: () => void,
+  editingExistingRef: React.RefObject<boolean>,
 ) {
   const isDragging = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -91,6 +93,24 @@ export function useSelection(
 
       //!resize shapes textbox and lines
       if (selectedId.current) {
+        const selectedText = textBoxesRef.current.find(
+          (t) => t.id === selectedId.current,
+        );
+        if (selectedText && ctx) {
+          if (
+            hitTestTextBoxRotationHandle(
+              selectedText,
+              x,
+              y,
+              ctx,
+              camera.current.scale,
+            )
+          ) {
+            isRotating.current = true;
+            dragType.current = "textbox";
+            return;
+          }
+        }
         //rotate
         const selectedShape = shapesRef.current.find(
           (s) => s.id === selectedId.current,
@@ -241,8 +261,32 @@ export function useSelection(
       if (!selectedId.current) return;
       const { x, y } = toCanvas(e.clientX, e.clientY);
 
-      //rotate
+      //!rotate
       if (isRotating.current && selectedId.current) {
+        if (dragType.current === "textbox") {
+          const tb = textBoxesRef.current.find(
+            (t) => t.id === selectedId.current,
+          );
+          if (!tb) return;
+          const ctx = canvasRef.current?.getContext("2d");
+          if (!ctx) return;
+
+          ctx.font = `normal ${tb.fontSize}px monospace`;
+          const lines = tb.text.split("\n");
+          const width = Math.max(...lines.map((l) => ctx.measureText(l).width));
+          const height = lines.length * tb.fontSize * 1.4;
+          const centerX = tb.x + width / 2;
+          const centerY = tb.y + height / 2;
+
+          tb.rotation = Math.atan2(y - centerY, x - centerX) + Math.PI / 2;
+          socket.emit("element-update", {
+            roomId,
+            id: tb.id,
+            changes: { rotation: tb.rotation },
+          });
+          doRedraw();
+          return;
+        }
         const shape = shapesRef.current.find(
           (s) => s.id === selectedId.current,
         );
@@ -444,13 +488,43 @@ export function useSelection(
       doRedraw();
     };
 
+    //edit textbox
+    const onDblClick = (e: MouseEvent) => {
+      if (activeTool !== "mouse") return;
+      const { x, y } = toCanvas(e.clientX, e.clientY);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const hitText = [...(textBoxesRef?.current ?? [])]
+        .reverse()
+        .find((t) => hitTestTextBox(t, x, y, ctx));
+
+      if (hitText) {
+        textBoxesRef.current = textBoxesRef.current.filter(
+          (t) => t.id !== hitText.id,
+        );
+        activeTextBox.current = { ...hitText };
+        onEditTextBox?.();
+        doRedraw();
+        setTimeout(() => {
+          const textarea = document.querySelector("textarea");
+          if (textarea) {
+            textarea.value = hitText.text;
+            textarea.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        }, 0);
+      }
+    };
+
     canvas.addEventListener("mousedown", onMouseDown);
     canvas.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
+    canvas.addEventListener("dblclick", onDblClick);
     return () => {
       canvas.removeEventListener("mousedown", onMouseDown);
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+      canvas.removeEventListener("dblclick", onDblClick);
     };
   }, [activeTool, color]);
 }

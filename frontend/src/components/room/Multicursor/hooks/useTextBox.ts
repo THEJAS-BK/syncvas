@@ -77,31 +77,36 @@ activeTextBox: React.RefObject<TextBox | null>,
     doRedraw();
   };
 
-  const finalizeTextBox = (text: string) => {
-    if (!activeTextBox?.current) return;
-    if (!text.trim()) {
-      activeTextBox.current = null;
-      doRedraw();
-      return;
-    }
-
-    const box: TextBox = {
-      id: activeTextBox.current.id,
-      type: "textbox",
-      x: activeTextBox.current.x,
-      y: activeTextBox.current.y,
-      fontSize: activeTextBox.current.fontSize,
-      color: activeTextBox.current.color,
-      userId: activeTextBox.current.userId,
-      text,
-    };
-
-    if (!textBoxesRef?.current) return;
-    textBoxesRef.current = [...textBoxesRef.current, box];
+const finalizeTextBox = (text: string, isEdit = false) => {
+  if (!activeTextBox?.current) return;
+  if (!text.trim()) {
     activeTextBox.current = null;
-    socket.emit("element-add", { roomId, element: box });
     doRedraw();
+    return;
+  }
+
+  const box: TextBox = {
+    id: activeTextBox.current.id,
+    type: "textbox",
+    x: activeTextBox.current.x,
+    y: activeTextBox.current.y,
+    fontSize: activeTextBox.current.fontSize,
+    color: activeTextBox.current.color,
+    userId: activeTextBox.current.userId,
+    rotation: activeTextBox.current.rotation,
+    text,
   };
+
+  textBoxesRef.current = [...textBoxesRef.current, box];
+  activeTextBox.current = null;
+
+  if (isEdit) {
+    socket.emit("element-update", { roomId, id: box.id, changes: { text } });
+  } else {
+    socket.emit("element-add", { roomId, element: box });
+  }
+  doRedraw();
+};
 
   const cancelTextBox = () => {
     activeTextBox!.current = null;

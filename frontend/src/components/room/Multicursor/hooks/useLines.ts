@@ -86,6 +86,7 @@ export function useLines(
       };
       const line = activeLine.current;
       socket.emit("element-add", { roomId, element: line });
+      doRedraw()
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -116,6 +117,7 @@ export function useLines(
       const dx = line.x2 - line.x1;
       const dy = line.y2 - line.y1;
       if (dx * dx + dy * dy < 25) {
+         socket.emit("element-delete", { roomId, id: line.id }); 
         doRedraw();
         return;
       }

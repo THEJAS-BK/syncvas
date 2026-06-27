@@ -33,6 +33,7 @@ interface TextBox {
   fontSize: number;
   color: string;
   userId: string;
+  rotation?:number
 }
 
 interface Shape {

@@ -152,25 +152,41 @@ const redraw = (
     ctx.stroke();
   }
 
-  for (const tb of allTextBoxes) {
-    ctx.save();
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = "source-over";
-    ctx.textRendering = "geometricPrecision";
+ for (const tb of allTextBoxes) {
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  
+  const lines = tb.text.split("\n");
+  const lineHeight = tb.fontSize * 1.4;
+  const width = Math.max(...lines.map(l => {
     ctx.font = `normal ${tb.fontSize}px monospace`;
-    ctx.fillStyle = tb.color;
-    const lineHeight = tb.fontSize * 1.4;
-    tb.text.split("\n").forEach((line: any, i: any) => {
-      ctx.fillText(line, tb.x, tb.y + tb.fontSize + i * lineHeight);
-    });
-    ctx.restore();
-  }
+    return ctx.measureText(l).width;
+  }));
+  const height = lines.length * lineHeight;
+  
+  // rotate around textbox center
+  const cx = tb.x + width / 2;
+  const cy = tb.y + height / 2;
+  ctx.translate(cx, cy);
+  ctx.rotate(tb.rotation || 0);
+  ctx.translate(-cx, -cy);
+
+  ctx.font = `normal ${tb.fontSize}px monospace`;
+  ctx.fillStyle = tb.color;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, tb.x, tb.y + tb.fontSize + i * lineHeight);
+  });
+
+  ctx.restore();
+}
 
   //selection
   // ---- selection indicators ----
   if (selectedId?.current) {
     const id = selectedId.current;
     const scale = camera.current.scale;
+    
 
     const drawSelectionBox = (
       left: number,
@@ -290,7 +306,7 @@ const redraw = (
     if (selectedText) {
       ctx.font = `${selectedText.fontSize}px monospace`;
       const lines = selectedText.text.split("\n");
-      const lineHeight = selectedText.fontSize * 1.2;
+      const lineHeight = selectedText.fontSize * 1.4;
       const width = Math.max(...lines.map((l) => ctx.measureText(l).width));
       const height = lines.length * lineHeight;
       drawSelectionBox(
@@ -298,6 +314,7 @@ const redraw = (
         selectedText.y,
         selectedText.x + width,
         selectedText.y + height,
+            selectedText.rotation || 0, 
       );
     }
   }
@@ -591,6 +608,34 @@ function hitTestRotationHandle(
   const ddy = localY - handleY;
   return ddx * ddx + ddy * ddy <= (10 / scale) * (10 / scale);
 }
+function hitTestTextBoxRotationHandle(
+  tb: TextBox,
+  x: number,
+  y: number,
+  ctx: CanvasRenderingContext2D,
+  scale: number,
+): boolean {
+  ctx.font = `normal ${tb.fontSize}px monospace`;
+  const lines = tb.text.split("\n");
+  const lineHeight = tb.fontSize * 1.4;
+  const width = Math.max(...lines.map(l => ctx.measureText(l).width));
+  const height = lines.length * lineHeight;
+  const PAD = 6 / scale;
+
+  const centerX = tb.x + width / 2;
+  const centerY = tb.y + height / 2;
+  const rotation = tb.rotation || 0;
+  const hh = height / 2 + PAD;
+
+  const dx = x - centerX;
+  const dy = y - centerY;
+  const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+  const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+
+  const ddx = localX - 0;
+  const ddy = localY - (-hh - 20 / scale);
+  return ddx * ddx + ddy * ddy <= (10 / scale) * (10 / scale);
+}
 
 export {
   getCanvasPoint,
@@ -603,4 +648,5 @@ export {
   drawLine,
   hitTestCorner,
   hitTestRotationHandle,
+  hitTestTextBoxRotationHandle
 };

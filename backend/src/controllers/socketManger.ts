@@ -30,6 +30,7 @@ type CanvasElement =
       fontSize: number;
       color: string;
       userId: string;
+      rotation?:number
     }
   | {
       id: string;
