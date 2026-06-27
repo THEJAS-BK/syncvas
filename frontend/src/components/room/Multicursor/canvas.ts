@@ -242,7 +242,7 @@ const redraw = (
         selectedShape.y,
         selectedShape.y + selectedShape.height,
       );
-      drawSelectionBox(left, top, right, bottom);
+      drawSelectionBox(left, top, right, bottom, selectedShape.rotation || 0);
     }
 
     const selectedLine = linesRef?.current?.find((l) => l.id === id);
@@ -433,39 +433,58 @@ const isPointNearStroke = (
 };
 
 function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
+  const left = Math.min(shape.x, shape.x + shape.width);
+  const top = Math.min(shape.y, shape.y + shape.height);
+  const right = Math.max(shape.x, shape.x + shape.width);
+  const bottom = Math.max(shape.y, shape.y + shape.height);
+  const cx = (left + right) / 2;
+  const cy = (top + bottom) / 2;
+  const w = right - left;
+  const h = bottom - top;
+  const rotation = shape.rotation || 0;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation);
   ctx.strokeStyle = shape.color;
-  ctx.fillStyle = shape.color;
   ctx.lineWidth = 2;
 
-  if (shape.shapeType === "square") {
-    if (shape.filled) {
-      ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
-    } else {
-      ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+  switch (shape.shapeType) {
+    case "square":
+      if (shape.filled) {
+        ctx.fillStyle = shape.color;
+        ctx.fillRect(-w / 2, -h / 2, w, h);
+      }
+      ctx.strokeRect(-w / 2, -h / 2, w, h);
+      break;
+
+    case "circle":
+      ctx.beginPath();
+      ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, Math.PI * 2);
+      if (shape.filled) {
+        ctx.fillStyle = shape.color;
+        ctx.fill();
+      }
+      ctx.stroke();
+      break;
+
+    case "diamond": {
+      ctx.beginPath();
+      ctx.moveTo(0, -h / 2);
+      ctx.lineTo(w / 2, 0);
+      ctx.lineTo(0, h / 2);
+      ctx.lineTo(-w / 2, 0);
+      ctx.closePath();
+      if (shape.filled) {
+        ctx.fillStyle = shape.color;
+        ctx.fill();
+      }
+      ctx.stroke();
+      break;
     }
-  } else if (shape.shapeType === "circle") {
-    const cx = shape.x + shape.width / 2;
-    const cy = shape.y + shape.height / 2;
-    const rx = Math.abs(shape.width / 2);
-    const ry = Math.abs(shape.height / 2);
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    if (shape.filled) ctx.fill();
-    else ctx.stroke();
-  } else if (shape.shapeType === "diamond") {
-    const cx = shape.x + shape.width / 2;
-    const cy = shape.y + shape.height / 2;
-    const halfW = shape.width / 2;
-    const halfH = shape.height / 2;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - halfH); // top
-    ctx.lineTo(cx + halfW, cy); // right
-    ctx.lineTo(cx, cy + halfH); // bottom
-    ctx.lineTo(cx - halfW, cy); // left
-    ctx.closePath();
-    if (shape.filled) ctx.fill();
-    else ctx.stroke();
   }
+
+  ctx.restore();
 }
 function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   ctx.strokeStyle = line.color;
@@ -519,8 +538,7 @@ function hitTestCorner(
   const centerX = (left + right) / 2;
   const centerY = (top + bottom) / 2;
 
-  // rotation is 0 for now — ready for later
-  const rotation = 0;
+  const rotation = shape.rotation || 0; // ← use actual rotation
   const dx = x - centerX;
   const dy = y - centerY;
   const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
@@ -558,9 +576,9 @@ function hitTestRotationHandle(
 
   const centerX = (left + right) / 2;
   const centerY = (top + bottom) / 2;
+  const rotation = shape.rotation || 0;
   const hh = (bottom - top) / 2 + PAD;
 
-  const rotation = 0;
   const dx = x - centerX;
   const dy = y - centerY;
   const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);

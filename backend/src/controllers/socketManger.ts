@@ -42,8 +42,8 @@ type CanvasElement =
       color: string;
       filled: boolean;
       userId: string;
-    }|
-     {
+    }
+  | {
       id: string;
       type: "line";
       lineType: "arrow" | "straight";
@@ -51,6 +51,8 @@ type CanvasElement =
       y1: number;
       x2: number;
       y2: number;
+      cpx?: number;
+      cpy?: number;
       color: string;
       userId: string;
     };

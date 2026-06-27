@@ -46,10 +46,13 @@ export function useSelection(
   //resize code
   const isResizing = useRef(false);
   const resizeCorner = useRef<"tl" | "tr" | "bl" | "br" | null>(null);
-  const resizeOrigin = useRef({ x: 0, y: 0 }); // the fixed opposite corner
+  const resizeOrigin = useRef({ x: 0, y: 0 });
 
   //resize code for lines
   const lineEndpoint = useRef<"p1" | "p2" | "mid" | null>(null);
+
+  //isRotation
+  const isRotating = useRef(false);
 
   const doRedraw = () => {
     const canvas = canvasRef.current;
@@ -88,10 +91,18 @@ export function useSelection(
 
       //!resize shapes textbox and lines
       if (selectedId.current) {
+        //rotate
         const selectedShape = shapesRef.current.find(
           (s) => s.id === selectedId.current,
         );
         if (selectedShape) {
+          if (
+            hitTestRotationHandle(selectedShape, x, y, camera.current.scale)
+          ) {
+            isRotating.current = true;
+            return;
+          }
+
           //resize
           const corner = hitTestCorner(
             selectedShape,
@@ -119,10 +130,25 @@ export function useSelection(
               selectedShape.y,
               selectedShape.y + selectedShape.height,
             );
+            const w = right - left;
+            const h = bottom - top;
+            const centerX = (left + right) / 2;
+            const centerY = (top + bottom) / 2;
+            const rotation = selectedShape.rotation || 0;
+
+            // opposite corner in local space
+            const localOx = corner.includes("l") ? w / 2 : -w / 2;
+            const localOy = corner.includes("t") ? h / 2 : -h / 2;
+
+            // rotate back to world space
+            const worldOx =
+              localOx * Math.cos(rotation) - localOy * Math.sin(rotation);
+            const worldOy =
+              localOx * Math.sin(rotation) + localOy * Math.cos(rotation);
 
             resizeOrigin.current = {
-              x: corner.includes("l") ? right : left,
-              y: corner.includes("t") ? bottom : top,
+              x: centerX + worldOx,
+              y: centerY + worldOy,
             };
             return;
           }
@@ -211,10 +237,35 @@ export function useSelection(
     };
 
     const onMouseMove = (e: MouseEvent) => {
-      if (!isDragging.current && !isResizing.current) return;
       if (!selectedId.current) return;
       const { x, y } = toCanvas(e.clientX, e.clientY);
 
+      //rotate
+      if (isRotating.current && selectedId.current) {
+        const shape = shapesRef.current.find(
+          (s) => s.id === selectedId.current,
+        );
+        if (!shape) return;
+
+        const left = Math.min(shape.x, shape.x + shape.width);
+        const top = Math.min(shape.y, shape.y + shape.height);
+        const right = Math.max(shape.x, shape.x + shape.width);
+        const bottom = Math.max(shape.y, shape.y + shape.height);
+        const centerX = (left + right) / 2;
+        const centerY = (top + bottom) / 2;
+
+        shape.rotation = Math.atan2(y - centerY, x - centerX) + Math.PI / 2;
+
+        socket.emit("element-update", {
+          roomId,
+          id: shape.id,
+          changes: { rotation: shape.rotation },
+        });
+        doRedraw();
+        return;
+      }
+
+      if (!isDragging.current && !isResizing.current) return;
       //!resize shapes,textbox and lines
       //lines
       if (isResizing.current && lineEndpoint.current) {
@@ -256,34 +307,53 @@ export function useSelection(
         );
         if (!shape) return;
 
-        const ox = resizeOrigin.current.x;
-        const oy = resizeOrigin.current.y;
+        const left = Math.min(shape.x, shape.x + shape.width);
+        const top = Math.min(shape.y, shape.y + shape.height);
+        const right = Math.max(shape.x, shape.x + shape.width);
+        const bottom = Math.max(shape.y, shape.y + shape.height);
+        const w = right - left;
+        const h = bottom - top;
+
+        const centerX = (left + right) / 2;
+        const centerY = (top + bottom) / 2;
+        const rotation = shape.rotation || 0;
+
+        // convert mouse to local frame
+        const dx = x - centerX;
+        const dy = y - centerY;
+        const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+        const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+
+        // local point relative to shape origin
+        const localPointX = localX + w / 2;
+        const localPointY = localY + h / 2;
+
         const minSize = 10;
 
         switch (resizeCorner.current) {
           case "br":
-            shape.width = Math.max(minSize, x - ox);
-            shape.height = Math.max(minSize, y - oy);
+            shape.width = Math.max(minSize, localPointX);
+            shape.height = Math.max(minSize, localPointY);
             break;
           case "bl": {
-            const newWidth = Math.max(minSize, ox - x);
-            shape.x = ox - newWidth;
+            const newWidth = Math.max(minSize, w - localPointX);
+            shape.x = centerX - w / 2 + (w - newWidth);
             shape.width = newWidth;
-            shape.height = Math.max(minSize, y - oy);
+            shape.height = Math.max(minSize, localPointY);
             break;
           }
           case "tr": {
-            const newHeight = Math.max(minSize, oy - y);
-            shape.y = oy - newHeight;
+            const newHeight = Math.max(minSize, h - localPointY);
+            shape.y = centerY - h / 2 + (h - newHeight);
             shape.height = newHeight;
-            shape.width = Math.max(minSize, x - ox);
+            shape.width = Math.max(minSize, localPointX);
             break;
           }
           case "tl": {
-            const newWidth = Math.max(minSize, ox - x);
-            const newHeight = Math.max(minSize, oy - y);
-            shape.x = ox - newWidth;
-            shape.y = oy - newHeight;
+            const newWidth = Math.max(minSize, w - localPointX);
+            const newHeight = Math.max(minSize, h - localPointY);
+            shape.x = centerX - w / 2 + (w - newWidth);
+            shape.y = centerY - h / 2 + (h - newHeight);
             shape.width = newWidth;
             shape.height = newHeight;
             break;
@@ -361,6 +431,12 @@ export function useSelection(
         doRedraw();
         return;
       }
+      if (isRotating.current) {
+        isRotating.current = false;
+        doRedraw();
+        return;
+      }
+
       if (!isDragging.current || !selectedId.current) return;
       isDragging.current = false;
       dragType.current = null;
