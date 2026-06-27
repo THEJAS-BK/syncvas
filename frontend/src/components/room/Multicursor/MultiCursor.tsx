@@ -20,6 +20,7 @@ import { useCanvasZoom } from "./hooks/useCanvasZoom";
 import { useImageTransform } from "./hooks/useImageTransform";
 import { getCursorStyle } from "./tools/CustomCursor";
 import { useTextBox } from "./hooks/useTextBox";
+import { useHandTool } from "./hooks/useHandTool";
 //tools
 import { autoPanIfNeeded } from "./tools/autoPanTextBox";
 import { useShapes } from "./hooks/useShape";
@@ -163,7 +164,25 @@ export default function MultiCursor({
     textBoxesRef,
     activeTextBox,
   );
-
+useHandTool(
+  canvasRef,
+  camera,
+  images,
+  imageCache,
+  activeStrokes,
+  currentStroke,
+  strokes,
+  shapesRef,
+  activeShape,
+  linesRef,
+  activeLine,
+  selectedId,
+  textBoxesRef,
+  activeTextBox,
+  userIdRef,
+  color,
+  activeTool,
+);
   useSocketBoard(
     roomId ?? "",
     canvasRef,
