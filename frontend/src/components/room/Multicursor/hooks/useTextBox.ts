@@ -99,9 +99,6 @@ activeTextBox: React.RefObject<TextBox | null>,
     if (!textBoxesRef?.current) return;
     textBoxesRef.current = [...textBoxesRef.current, box];
     activeTextBox.current = null;
-
-    console.log("finalizing with color:", box.color);
-
     socket.emit("element-add", { roomId, element: box });
     doRedraw();
   };

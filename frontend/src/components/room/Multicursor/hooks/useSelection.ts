@@ -215,6 +215,7 @@ export function useSelection(
       if (hitShape) {
         isDragging.current = true;
         dragType.current = "shape";
+        canvas.style.cursor = "move";
         dragOffset.current = { x: x - hitShape.x, y: y - hitShape.y };
       } else if (hitText) {
         isDragging.current = true;

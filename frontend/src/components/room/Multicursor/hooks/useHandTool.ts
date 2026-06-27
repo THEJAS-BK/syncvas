@@ -40,7 +40,7 @@ export function useHandTool(
       if (activeTool !== "hand") return;
       isPanning.current = true;
       lastPos.current = { x: e.clientX, y: e.clientY };
-      canvas.style.cursor = "grabbing";
+      canvas.style.cursor = "hand";
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -50,12 +50,12 @@ export function useHandTool(
       camera.current.x += dx;
       camera.current.y += dy;
       lastPos.current = { x: e.clientX, y: e.clientY };
+      canvas.style.cursor = "grab";
       doRedraw();
     };
 
     const onMouseUp = () => {
       isPanning.current = false;
-      canvas.style.cursor = "grab";
     };
 
     canvas.addEventListener("mousedown", onMouseDown);

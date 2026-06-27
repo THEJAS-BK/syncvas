@@ -8,6 +8,8 @@ const getCursorStyle = (tool: string | null) => {
       return "text";
     case "pan":
       return "grab";
+    case "hand":
+      return "hand";
     default:
       return "default";
   }
