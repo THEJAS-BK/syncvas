@@ -46,5 +46,5 @@ export function useCanvasZoom(
     return () => {
       wrapper.removeEventListener("wheel", handleWheel);
     };
-  }, [onCameraChange]);
+  }, [onCameraChange,doRedraw]);
 }

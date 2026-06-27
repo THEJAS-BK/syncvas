@@ -19,7 +19,7 @@ type ToolSettings = {
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
 
 export function ToolSettingsProvider({ children }: { children: React.ReactNode }) {
-  const [strokeColor, setStrokeColor] = useState("#ffffff");
+  const [strokeColor, setStrokeColor] = useState("");
   const [fillColor, setFillColor] = useState("transparent");
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [opacity, setOpacity] = useState(1);

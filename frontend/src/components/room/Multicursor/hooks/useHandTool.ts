@@ -45,5 +45,5 @@ export function useHandTool(
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool]);
+  }, [activeTool,doRedraw]);
 }

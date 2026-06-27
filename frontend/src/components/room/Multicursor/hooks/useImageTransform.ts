@@ -222,5 +222,5 @@ export function useImageTransform(
       canvas.removeEventListener("mouseup", stopMoveImage);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
+  }, [doRedraw]);
 }

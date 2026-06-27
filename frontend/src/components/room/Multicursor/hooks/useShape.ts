@@ -101,7 +101,7 @@ export function useShapes(
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, color, filled]);
+  }, [activeTool, color, filled,doRedraw]);
 
   // ---- socket listeners ----
   useEffect(() => {
@@ -147,7 +147,7 @@ export function useShapes(
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, []);
+  }, [doRedraw]);
 
   const deleteShape = (id: string) => {
     shapesRef.current = shapesRef.current.filter((s) => s.id !== id);

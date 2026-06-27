@@ -89,7 +89,7 @@ export default function MultiCursor({
     setStrokeColor(color);
   }, []);
 
-  const doRedraw = () => {
+  const doRedraw = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
@@ -112,7 +112,7 @@ export default function MultiCursor({
       textBoxesRef,
       activeTextBox,
     );
-  };
+  },[strokeColor]);
 
   useSelection(
     roomId ?? "",

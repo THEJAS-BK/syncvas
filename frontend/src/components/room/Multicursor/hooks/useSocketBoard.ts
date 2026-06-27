@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 
 import { socket } from "../../../../services/socket";
 import type { BoardImage, Stroke } from "../types";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 export function useSocketBoard(
   roomId: string,
@@ -15,6 +16,8 @@ export function useSocketBoard(
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    
+
     //setup board start
     socket.emit("board-state", roomId);
     socket.on("board-state", (savedStrokes: Stroke[]) => {
@@ -38,5 +41,5 @@ export function useSocketBoard(
       socket.off("image-state");
       socket.off("image-upload");
     };
-  }, []);
+  }, [doRedraw]);
 }

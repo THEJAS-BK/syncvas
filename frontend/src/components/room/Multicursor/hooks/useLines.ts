@@ -92,7 +92,7 @@ export function useLines(
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, strokeColor]);
+  }, [activeTool, strokeColor,doRedraw]);
 
   // ---- socket listeners ----
   useEffect(() => {
@@ -136,7 +136,7 @@ export function useLines(
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, []);
+  }, [doRedraw]);
 
   const deleteLine = (id: string) => {
     linesRef.current = linesRef.current.filter((l) => l.id !== id);

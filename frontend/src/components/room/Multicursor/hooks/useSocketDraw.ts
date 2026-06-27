@@ -167,5 +167,5 @@ export function useSocketDraw(
       canvas.removeEventListener("mousemove", draw);
       window.removeEventListener("mouseup", stopDrawing);
     };
-  }, [activeTool]);
+  }, [activeTool,doRedraw]);
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { socket } from "../../../../services/socket";
 import type {  RefObject } from "react";
 import type {
@@ -139,7 +139,7 @@ const finalizeTextBox = (text: string, isEdit = false) => {
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, []);
+  }, [,doRedraw]);
 
   return {
     placeTextBox,

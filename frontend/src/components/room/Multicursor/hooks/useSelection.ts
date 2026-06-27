@@ -489,5 +489,5 @@ export function useSelection(
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("dblclick", onDblClick);
     };
-  }, [activeTool, color]);
+  }, [activeTool, color,doRedraw]);
 }
