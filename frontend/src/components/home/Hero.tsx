@@ -19,7 +19,7 @@ import dasboard_hero from "../../utils/images/dashboard_hero.png";
 function connectSocket(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (socket.connected) return resolve();
-     socket.connect();
+    socket.connect();
     socket.once("connect", resolve);
     socket.once("connect_error", reject);
   });
@@ -37,8 +37,8 @@ export default function Hero() {
 
   const handleCreateRoom = async () => {
     try {
-    await connectSocket(); 
-    setLoading("creating room");
+      connectSocket();
+      setLoading("creating room");
       const tryCreate = () => {
         const roomId = generateRoomId();
         socket.emit("create-room", roomId, (res: CreateRoomResponse) => {
@@ -87,7 +87,6 @@ export default function Hero() {
 
   return (
     <>
-     
       {showConfirm && (
         <form
           onSubmit={handleJoinRoom}
@@ -114,14 +113,13 @@ export default function Hero() {
         </form>
       )}
 
-
-    {loading && (
+      {loading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex flex-col items-center justify-center gap-4">
           <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin" />
           <p className="text-white text-lg font-medium">{loading}</p>
         </div>
-      )}     
-    {Toast.open && (
+      )}
+      {Toast.open && (
         <div
           className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg z-99 cursor-pointer"
           onClick={() => setToast({ open: false, message: "" })}
@@ -152,11 +150,7 @@ export default function Hero() {
             /> */}
           </div>
         </div>
-
-       
       </div>
-
-     
     </>
   );
 }
