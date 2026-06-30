@@ -23,7 +23,7 @@ app.use(express.json({ limit: "40kb" }));
 app.use(urlencoded({ extended: true, limit: "40kb" }));
 
 //controllers
-import { setSocketConnection } from "./controllers/socketManger";
+import { setSocketConnection } from "./controllers/sockets";
 
 //routes
 import userRoutes from "./routes/auth.routes";
