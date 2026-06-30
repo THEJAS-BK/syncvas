@@ -6,7 +6,6 @@ export default function LayerControls() {
 
   function handleClick(action: string) {
     setActive(action);
-
     setTimeout(() => {
       setActive("");
     }, 100);

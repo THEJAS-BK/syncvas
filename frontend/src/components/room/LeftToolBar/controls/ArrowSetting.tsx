@@ -6,32 +6,30 @@ import {
   ArrowRightFromLine,
   MoveRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 export default function ArrowSetting({ activeTool }: { activeTool: string }) {
-  const [sloppiness, setSloppiness] = useState<string>("architect");
-  const [arrowType, setArrowType] = useState<string>("solid");
-  const [arrowheads, setArrowheads] = useState<string>("");
+  const { sloppines, setSloppines, arrowType, setArrowType, arrowHead, setArrowHead } = useToolSettings();
   return (
     <div>
       <div className="mt-2">
         <span className="mb-2 text-sm  text-gray-300 ">Sloppiness</span>
         <div className="flex space-x-2">
           <div
-            onClick={() => setSloppiness("architect")}
-            className={`icon-background ${sloppiness === "architect" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            onClick={() => setSloppines("architect")}
+            className={`icon-background ${sloppines === "architect" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             <LineSquiggle className="icon" />
           </div>
           <div
-            onClick={() => setSloppiness("artist")}
-            className={`icon-background ${sloppiness === "artist" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            onClick={() => setSloppines("artist")}
+            className={`icon-background ${sloppines === "artist" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             <LineSquiggle className="icon" />
           </div>
           <div
-            onClick={() => setSloppiness("catoonist")}
-            className={`icon-background ${sloppiness === "catoonist" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            onClick={() => setSloppines("catoonist")}
+            className={`icon-background ${sloppines === "catoonist" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             <LineSquiggle className="icon" />
           </div>
@@ -69,14 +67,14 @@ export default function ArrowSetting({ activeTool }: { activeTool: string }) {
           <span className="mb-2 text-sm  text-gray-300 ">Arrowheads</span>
           <div className="flex space-x-2">
             <div
-              onClick={() => setArrowheads("none")}
-              className={`icon-background ${arrowheads === "none" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+              onClick={() => setArrowHead("none")}
+              className={`icon-background ${arrowHead === "none" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
             >
               <ArrowRightFromLine className="icon" />
             </div>
             <div
-              onClick={() => setArrowheads("classic")}
-              className={`icon-background ${arrowheads === "classic" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+              onClick={() => setArrowHead("classic")}
+              className={`icon-background ${arrowHead === "classic" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
             >
               <MoveRight className="icon" />
             </div>

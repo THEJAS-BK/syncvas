@@ -1,5 +1,4 @@
 import {
-  ArrowUpToLine,
   CaseUpper,
   Code,
   TypeOutline,
@@ -9,11 +8,9 @@ import {
   Pencil,
 } from "lucide-react";
 import { useState } from "react";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 export default function FontSetting() {
-  const [fontFamily, setFontFamily] = useState<string>("hand-draw");
-  const [fontSize, setFontSize] = useState<string>("small");
-  const [textAlign, setTextAlign] = useState<string>("left");
-
+  const { fontFamily, setFontFamily, fontSize, setFontSize, textAlign, setTextAlign } = useToolSettings();
   return (
     <div>
       <div>

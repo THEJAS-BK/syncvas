@@ -1,8 +1,8 @@
 import {SquareDashedTopSolid,SquareDashed} from "lucide-react"
-import { useState } from "react"
+import { useToolSettings } from "../../../../context/ToolBarLeftContext"
 
 export default function EdgeSetting() {
-  const [edge,setEdge]=useState<string>("sharp")
+  const { edge, setEdge } = useToolSettings();
   return (
     <div className="mt-2">
       <p className="mb-2 text-sm text-gray-300 ">Edges</p>
