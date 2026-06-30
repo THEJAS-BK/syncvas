@@ -1,10 +1,6 @@
 import { useEffect, useRef } from "react";
-import type {  RefObject } from "react";
-import type {
-  Shape,
-  Line,
-  TextBox,
-} from "../types";
+import type { RefObject } from "react";
+import type { Shape, Line, TextBox } from "../types";
 import { hitTestTextBoxRotationHandle } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
@@ -22,7 +18,7 @@ export function useSelection(
   textBoxesRef: React.RefObject<TextBox[]>,
   activeTextBox: React.RefObject<TextBox | null>,
   onEditTextBox: () => void,
-  doRedraw:()=>void
+  doRedraw: () => void,
 ) {
   const isDragging = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -47,6 +43,24 @@ export function useSelection(
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    let eleTodelete: any;
+    const handleElementDelete = (e:KeyboardEvent) => {
+      if(!eleTodelete) return
+      if(e.key === "Delete"||e.key==="Backspace") {
+        if(eleTodelete.type==="shape"){
+          shapesRef.current=shapesRef.current.filter((shape)=>shape.id!=eleTodelete.id)
+        }else if(eleTodelete.type==="line"){
+          linesRef.current=linesRef.current.filter((line)=>line.id!=eleTodelete.id)
+        }
+        socket.emit("element-delete", {
+          roomId,
+          id: eleTodelete.id,
+        });
+
+        doRedraw();
+      }
+    };
 
     const onMouseDown = (e: MouseEvent) => {
       if (activeTool !== "mouse") return;
@@ -193,6 +207,9 @@ export function useSelection(
       const hitText = [...(textBoxesRef?.current ?? [])]
         .reverse()
         .find((t) => hitTestTextBox(t, x, y, ctx));
+
+      //!deleting using backspace and delete
+      eleTodelete = hitLine || hitShape || hitText;
 
       //!moving shapes,textbox and lines
       if (hitShape) {
@@ -483,11 +500,13 @@ export function useSelection(
     canvas.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     canvas.addEventListener("dblclick", onDblClick);
+    window.addEventListener("keydown", handleElementDelete);
     return () => {
       canvas.removeEventListener("mousedown", onMouseDown);
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("dblclick", onDblClick);
+      window.removeEventListener("keydown", handleElementDelete);
     };
-  }, [activeTool, color,doRedraw]);
+  }, [activeTool, color, doRedraw]);
 }
