@@ -16,12 +16,43 @@ import { socket } from "../../services/socket";
 import { generateRoomId } from "../../utils/RoomId";
 import dasboard_hero from "../../utils/images/dashboard_hero.png";
 
-function connectSocket(): Promise<void> {
+function connectSocket(maxAttempts = 5): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (socket.connected) return resolve();
-    socket.connect();
-    socket.once("connect", resolve);
-    socket.once("connect_error", reject);
+    let attempt = 0;
+
+    const tryConnect = () => {
+      attempt++;
+
+      const onConnect = () => {
+        cleanup();
+        resolve();
+      };
+      const onError = (err: Error) => {
+        cleanup();
+        if (attempt >= maxAttempts) {
+          reject(err);
+          return;
+        }
+        // backoff: 1s, 2s, 3s... before retrying
+        setTimeout(tryConnect, attempt * 1000);
+      };
+      const cleanup = () => {
+        socket.off("connect", onConnect);
+        socket.off("connect_error", onError);
+      };
+
+      socket.once("connect", onConnect);
+      socket.once("connect_error", onError);
+
+      if (!socket.connected) socket.connect();
+    };
+
+    if (socket.connected) {
+      resolve();
+      return;
+    }
+
+    tryConnect();
   });
 }
 
@@ -37,7 +68,7 @@ export default function Hero() {
 
   const handleCreateRoom = async () => {
     try {
-      connectSocket();
+      await connectSocket();
       setLoading("creating room");
       const tryCreate = () => {
         const roomId = generateRoomId();

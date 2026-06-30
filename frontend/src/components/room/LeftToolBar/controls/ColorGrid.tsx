@@ -1,33 +1,61 @@
 import { Pipette } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+
+import { colorShades } from "../tools/colors";
 export default function ColorGrid({
   isMostUsedColorsNeeded,
 }: {
   isMostUsedColorsNeeded: boolean;
 }) {
+  const { strokeColor, setStrokeColor, shadeIdx, setShadeIdx } =
+    useToolSettings();
+  const [colorList, setColorList] = useState<{ char: string; color: string }[]>(
+    [],
+  );
+  const [selectedChar, setSelectedChar] = useState<string>("");
 
- const strokeColors = [
-  "#facc15", // yellow-400
-  "#84cc16", // lime-500
-  "#10b981", // emerald-500
-  "#0ea5e9", // sky-500
-  "#6366f1", // indigo-500
-  "#7c3aed", // violet-600
-  "#d946ef", // fuchsia-500
-  "#f43f5e", // rose-500
-  "#78716c", // stone-500
-  "#475569", // slate-600
-  "#52525b", // zinc-600
-  "#525252", // neutral-600
-  "#c2410c", // orange-700
-  "#b91c1c", // red-700
-  "#15803d", // green-700
-  "#1d4ed8", // blue-700
-];
+  useEffect(() => {
+    const handleQuickColorChange = (e: KeyboardEvent) => {
 
-  const {strokeColor,setStrokeColor}=useToolSettings();
+    const shadeCodeMap: Record<string, number> = {
+      Digit1: 0,
+      Digit2: 1,
+      Digit3: 2,
+      Digit4: 3,
+      Digit5: 4,
+    };
 
+    if (e.shiftKey && shadeCodeMap[e.code] !== undefined) {
+      const index = shadeCodeMap[e.code];
+      setShadeIdx(index);
+
+      const shade = colorShades[selectedChar]?.[index];
+      if (shade) setStrokeColor(shade);
+      return
+    }
+
+      const match = colorList.find((c) => c.char === e.key);
+      if (!match) return;
+      setStrokeColor(match.color);
+      setSelectedChar(match.char);
+    };
+
+    window.addEventListener("keydown", handleQuickColorChange);
+    return () => {
+      window.removeEventListener("keydown", handleQuickColorChange);
+    };
+  }, [setStrokeColor, selectedChar]);
+
+  useEffect(() => {
+    const temp = Object.entries(colorShades).map(([char, shades]) => ({
+      char,
+      color: shades[shadeIdx],
+    }));
+    setColorList(temp);
+  }, [setShadeIdx]);
+
+  const currentShade = colorShades[selectedChar] ?? [];
   return (
     <div
       className={`absolute text-white left-[110%] w-[210px] top-5 flex flex-col justify-center rounded-2xl bg-[#1f1f2b] shadow-xl p-5 z-20`}
@@ -38,33 +66,54 @@ export default function ColorGrid({
           <span className="mb-2 text-[12px]  text-white ">
             most Used custom colors
           </span>
-          <div style={{backgroundColor:strokeColor}} className="w-6 h-6"></div>
+          <div
+            style={{ backgroundColor: strokeColor }}
+            className="w-6 h-6"
+          ></div>
         </>
       )}
 
       <span className="mb-1 text-[12px]  text-white mt-4">Colors</span>
       <div className="grid grid-cols-5 gap-1 w-fit">
-        {strokeColors.map((color) => (
+        {colorList.map((stroke) => (
           <div
-            key={color}
-            style={{backgroundColor:color}}
-            className={`w-6 h-6 rounded cursor-pointer ${
-              strokeColor === color
+            key={stroke.color}
+            style={{ backgroundColor: stroke.color }}
+            className={`w-7 h-7 rounded cursor-pointer ${
+              strokeColor === stroke.color
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
-            onClick={() => setStrokeColor(color)}
-          />
+            onClick={() => {
+              setStrokeColor(stroke.color);
+              setSelectedChar(stroke.char);
+            }}
+          >
+            <span className="text-sm flex items-end mt-2 ml-0.5">
+              {stroke.char}
+            </span>
+          </div>
         ))}
       </div>
 
       <span className="mb-1 text-[12px]  text-white mt-4">Shades</span>
       <div className="grid grid-cols-5 gap-1 w-fit">
-        <div className="w-6 h-6 bg-red-500"></div>
-        <div className="w-6 h-6 bg-blue-500"></div>
-        <div className="w-6 h-6 bg-green-500"></div>
-        <div className="w-6 h-6 bg-yellow-500"></div>
-        <div className="w-6 h-6 bg-purple-500"></div>
+        {currentShade.map((color, idx) => (
+          <div
+            key={idx}
+            style={{ backgroundColor: color }}
+            className={`w-6 h-6 ${
+              strokeColor === color
+                ? "border-2 border-purple-500"
+                : "border border-transparent"
+            }`}
+               onClick={() => {
+              setShadeIdx(idx);
+              setStrokeColor(color);
+            }}
+          />
+          
+        ))}
       </div>
 
       <span className="mb-1 text-[12px]  text-white mt-4">Hex Code</span>
