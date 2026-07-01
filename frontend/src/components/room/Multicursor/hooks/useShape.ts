@@ -147,7 +147,7 @@ export function useShapes(
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, [doRedraw]);
+  }, [doRedraw,activeTool]);
 
   const deleteShape = (id: string) => {
     shapesRef.current = shapesRef.current.filter((s) => s.id !== id);

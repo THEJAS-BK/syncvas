@@ -17,12 +17,11 @@ export function useSocketDraw(
   isDrawing: React.RefObject<boolean>,
   setCursorPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>,
   selectedImgIdx: React.RefObject<number>,
-  eraserRef: React.RefObject<boolean>,
   activeTool: string | null,
   strokeColor: string,
   doRedraw: () => void,
 ) {
-  const isEraserSelected = useRef(false);
+
 
   useEffect(() => {
     //handle drawing
@@ -32,10 +31,6 @@ export function useSocketDraw(
     if (!ctx) return;
 
     const startDrawing = (e: MouseEvent) => {
-      if (eraserRef.current === true) {
-        isEraserSelected.current = true;
-        return;
-      }
       if (selectedImgIdx.current !== -1) return;
       if (activeTool == "pen") {
         isDrawing.current = true;
@@ -61,11 +56,6 @@ export function useSocketDraw(
         x: e.clientX,
         y: e.clientY,
       });
-      if (eraserRef.current === true && isEraserSelected.current) {
-        const point = getCanvasPoint(e, canvas, camera);
-        eraseAtPoint(point);
-        return;
-      }
       if (!isDrawing.current) return;
       const { x, y } = getCanvasPoint(e, canvas, camera);
       currentStroke.current.push({ x, y });
@@ -80,7 +70,6 @@ export function useSocketDraw(
 
     //stop drawing
     const stopDrawing = () => {
-      isEraserSelected.current = false;
       if (currentStroke.current.length > 0) {
         const completedStrokes: Stroke = {
           points: [...currentStroke.current],
@@ -143,16 +132,7 @@ export function useSocketDraw(
       doRedraw();
     });
 
-    const eraseAtPoint = (point: Point) => {
-      const before = strokes.current.length;
-      strokes.current = strokes.current.filter(
-        (stroke) => !isPointNearStroke(point, stroke),
-      );
-      if (strokes.current.length !== before) {
-        socket.emit("stroke-delete", { point: point, roomId });
-        doRedraw();
-      }
-    };
+
 
     canvas.addEventListener("mousedown", startDrawing);
     canvas.addEventListener("mousemove", draw);

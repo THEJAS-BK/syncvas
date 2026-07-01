@@ -56,8 +56,8 @@ export default function Tools({
         </button>
         <button
           onClick={() => {
-            setEraserMode(!eraserMode);
-            eraserRef.current = !eraserRef.current;
+            setEraserMode(true);
+            eraserRef.current = true;
             setActiveTool("eraser");
           }}
           className={activeTool === "eraser" ? "tool-btn-active" : "tool-btn"}

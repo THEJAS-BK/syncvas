@@ -16,7 +16,7 @@ import Tools from "../components/room/Tools.tsx";
 import ToolBarContainer from "../components/room/LeftToolBar/ToolBarContainer.tsx";
 
 type BoardImage = {
-  id: string; // add this
+  id: string; 
   image: string;
   x: number;
   y: number;

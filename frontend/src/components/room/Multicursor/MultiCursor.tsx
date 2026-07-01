@@ -30,6 +30,7 @@ import { useDeleteElement } from "./hooks/useDeleteElement";
 
 //leftSide tools
 import { useToolSettings } from "../../../context/ToolBarLeftContext";
+import { useEraser } from "./hooks/useEraser";
 
 export default function MultiCursor({
   images,
@@ -112,7 +113,7 @@ export default function MultiCursor({
       textBoxesRef,
       activeTextBox,
     );
-  },[strokeColor]);
+  }, [strokeColor]);
 
   useSelection(
     roomId ?? "",
@@ -126,7 +127,7 @@ export default function MultiCursor({
     textBoxesRef,
     activeTextBox,
     triggerUpdate,
-    doRedraw
+    doRedraw,
   );
   const {
     placeTextBox,
@@ -188,11 +189,12 @@ export default function MultiCursor({
     isDrawing,
     setCursorPos,
     selectedImgIdx,
-    eraserRef,
     activeTool,
     strokeColor,
     doRedraw,
   );
+
+  useEraser(roomId ?? "", canvasRef, camera, strokes, activeTool, doRedraw);
   useCanvasZoom(wrapperRef, canvasRef, camera, handleCameraChange, doRedraw);
 
   //image transformations

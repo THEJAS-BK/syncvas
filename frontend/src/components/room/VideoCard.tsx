@@ -39,7 +39,7 @@ export default function VideoCard({
       ref={ref}
       autoPlay
       playsInline
-      className={` ${isCursorOpen ? "w-[47%] h-38" : "w-50 h-50"} border rounded-lg object-cover`}
+      className={` border rounded-lg object-cover`}
     />
   );
 }
