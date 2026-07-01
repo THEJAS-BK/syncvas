@@ -35,11 +35,10 @@ export default function VideoCard({
   }, [stream]);
 
   return (
-    <video
+     <video
       ref={ref}
       autoPlay
       playsInline
-      className={` border rounded-lg object-cover`}
     />
   );
 }

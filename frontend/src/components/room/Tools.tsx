@@ -1,12 +1,9 @@
 //lucide react components
 import { Circle, Diamond, Minus, MoveRight, Pencil, Square, TypeOutline } from "lucide-react";
 import { Image, Eraser, MousePointer, Hand } from "lucide-react";
-import { useState, type SetStateAction } from "react";
+import {  type SetStateAction } from "react";
 
 interface ToolsProps {
-  eraserMode: boolean;
-  setEraserMode: React.Dispatch<React.SetStateAction<boolean>>;
-  eraserRef: React.RefObject<boolean>;
   openCursor: boolean;
   setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>;
   floatChatInterface: boolean;
@@ -16,9 +13,6 @@ interface ToolsProps {
 }
 
 export default function Tools({
-  eraserMode,
-  setEraserMode,
-  eraserRef,
   openCursor,
   setOpenCursor,
   floatChatInterface,
@@ -56,8 +50,6 @@ export default function Tools({
         </button>
         <button
           onClick={() => {
-            setEraserMode(true);
-            eraserRef.current = true;
             setActiveTool("eraser");
           }}
           className={activeTool === "eraser" ? "tool-btn-active" : "tool-btn"}

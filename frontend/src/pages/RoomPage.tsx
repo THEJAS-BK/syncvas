@@ -27,11 +27,10 @@ type BoardImage = {
 
 export default function RoomPage() {
   const { roomId } = useParams();
-  const [openCursor, setOpenCursor] = useState(true);
+  const [openCursor, setOpenCursor] = useState(false);
   const [floatChatInterface, setFloatChatInterface] = useState(true);
   const images = useRef<BoardImage[]>([]);
-  const [eraserMode, setEraserMode] = useState(false);
-  const eraserRef = useRef(false);
+
   //redraw
   const [redrawVersion, setRedrawVersion] = useState(0);
 
@@ -85,9 +84,6 @@ export default function RoomPage() {
             {/*center tools menu*/}
             <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
               <Tools
-                eraserMode={eraserMode}
-                setEraserMode={setEraserMode}
-                eraserRef={eraserRef}
                 openCursor={openCursor}
                 setOpenCursor={setOpenCursor}
                 floatChatInterface={floatChatInterface}
@@ -99,6 +95,7 @@ export default function RoomPage() {
             {/* cursor interface not open*/}
             {!openCursor && (
               <MainContent
+              setFloatChatInterface={setFloatChatInterface}
                 floatChatInterface={floatChatInterface}
                 roomId={roomId}
               />
@@ -106,9 +103,7 @@ export default function RoomPage() {
             {openCursor && (
               <MultiCursor
                 imageUpdate={redrawVersion}
-                eraserRef={eraserRef}
                 images={images}
-                floatChatInterface={floatChatInterface}
                 activeTool={activeTool}
               />
             )}
