@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { socket } from "../../../services/socket";
 import { useNavigate, useParams } from "react-router-dom";
 const COLORS = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
@@ -31,19 +31,14 @@ import { useDeleteElement } from "./hooks/useDeleteElement";
 //leftSide tools
 import { useToolSettings } from "../../../context/ToolBarLeftContext";
 import { useEraser } from "./hooks/useEraser";
+import { useEditorState } from "../../../context/EditerStateContext";
 
 export default function MultiCursor({
   images,
-  floatChatInterface,
   imageUpdate,
-  eraserRef,
-  activeTool,
 }: {
   images: React.RefObject<BoardImage[]>;
-  floatChatInterface: boolean;
   imageUpdate: number;
-  eraserRef: React.MutableRefObject<boolean>;
-  activeTool: string | null;
 }) {
   const camera = useRef({ x: 0, y: 0, scale: 1 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -90,6 +85,8 @@ export default function MultiCursor({
     setStrokeColor(color);
   }, []);
 
+  const {activeTool,setIsEditMode}=useEditorState();
+
   const doRedraw = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -128,6 +125,7 @@ export default function MultiCursor({
     activeTextBox,
     triggerUpdate,
     doRedraw,
+    setIsEditMode
   );
   const {
     placeTextBox,

@@ -1,11 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import ColorGrid from "./ColorGrid";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+import type { TextBox,Line,Shape } from "../../Multicursor/types";
 
 export default function ColorSwatches({
   activeTool,
+  isEditMode
 }: {
   activeTool: string | null;
+  isEditMode: Dispatch<SetStateAction<Line|TextBox|Shape|null>>;
 }) {
   const [colorGrid, setColorGrid] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);

@@ -3,24 +3,22 @@ import { Circle, Diamond, Minus, MoveRight, Pencil, Square, TypeOutline } from "
 import { Image, Eraser, MousePointer, Hand } from "lucide-react";
 import {  type SetStateAction } from "react";
 
+import { useEditorState } from "../../context/EditerStateContext";
+
 interface ToolsProps {
   openCursor: boolean;
   setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>;
   floatChatInterface: boolean;
   setFloatChatInterface: React.Dispatch<React.SetStateAction<boolean>>;
-  activeTool: string | null;
-  setActiveTool:React.Dispatch<SetStateAction<string|null>>
 }
-
 export default function Tools({
   openCursor,
   setOpenCursor,
   floatChatInterface,
   setFloatChatInterface,
-  activeTool,
-  setActiveTool
 }: ToolsProps) {
   ;
+  const {activeTool,setActiveTool}=useEditorState()
   return (
     <>
       <div className="flex gap-4 shadow-lg">

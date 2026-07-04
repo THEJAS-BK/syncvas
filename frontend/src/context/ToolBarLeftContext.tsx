@@ -1,61 +1,61 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, type SetStateAction , type Dispatch} from "react";
 
 type ToolSettings = {
   //color
   strokeColor: string;
-  setStrokeColor: (c: string) => void;
+  setStrokeColor: Dispatch<SetStateAction<string >>;
 
   //background color
   fillColor: string;
-  setFillColor: (c: string) => void;
+  setFillColor: Dispatch<SetStateAction<string >>;
 
   //fill shape type
   shapeFillType: string;
-  setShapeFillType: (c: string) => void;
+  setShapeFillType: Dispatch<SetStateAction<string >>;
 
   //strokes
   strokeWidth: number;
-  setStrokeWidth: (w: number) => void;
+  setStrokeWidth: Dispatch<SetStateAction<number >>;
 
   //comman
   opacity: number;
-  setOpacity: (o: number) => void;
+  setOpacity: Dispatch<SetStateAction<number >>;
 
   //shade
   shadeIdx: number;
-  setShadeIdx: (s: number) => void;
+  setShadeIdx: Dispatch<SetStateAction<number >>;
 
   //font family
   fontFamily: string;
-  setFontFamily: (f: string) => void;
+  setFontFamily: Dispatch<SetStateAction<string >>;
 
   //font size
   fontSize: string;
-  setFontSize: (s: string) => void;
+  setFontSize: Dispatch<SetStateAction<string >>;
 
   //textAlign
   textAlign: string;
-  setTextAlign: (a: string) => void;
+  setTextAlign: Dispatch<SetStateAction<string >>;
 
   //strokeStyle
   strokeStyle: string;
-  setStrokeStyle: (s: string) => void;
+  setStrokeStyle: Dispatch<SetStateAction<string >>;
 
   //sloppines
   sloppines: string;
-  setSloppines: (s: string) => void;
+  setSloppines: Dispatch<SetStateAction<string >>;
 
   //arrow types
   arrowType: string;
-  setArrowType: (s: string) => void;
+  setArrowType: Dispatch<SetStateAction<string >>;
 
   //arrow head
   arrowHead: string;
-  setArrowHead: (s: string) => void;
+  setArrowHead: Dispatch<SetStateAction<string >>;
 
   //edge
   edge: string;
-  setEdge: (s: string) => void;
+  setEdge: Dispatch<SetStateAction<string >>;
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);

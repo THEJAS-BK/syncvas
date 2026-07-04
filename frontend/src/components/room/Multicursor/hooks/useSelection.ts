@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { RefObject } from "react";
+import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { Shape, Line, TextBox } from "../types";
 import { hitTestTextBoxRotationHandle } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
@@ -19,6 +19,7 @@ export function useSelection(
   activeTextBox: React.RefObject<TextBox | null>,
   onEditTextBox: () => void,
   doRedraw: () => void,
+  setIsEditMode:Dispatch<SetStateAction<Line|Shape|TextBox|null>>
 ) {
   const isDragging = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -233,6 +234,10 @@ export function useSelection(
       }
 
       const hit = hitShape ?? hitLine ?? hitText;
+
+      //!edit mode
+      if(!hit) return;
+      setIsEditMode(hit)
       selectedId.current = hit?.id ?? null;
       doRedraw();
     };
