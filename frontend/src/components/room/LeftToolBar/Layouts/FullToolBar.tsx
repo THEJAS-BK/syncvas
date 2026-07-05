@@ -1,4 +1,4 @@
-import React, { type Dispatch, type SetStateAction } from "react";
+import React from "react";
 import FillToggle from "../controls/FillToggle";
 import ColorSwatches from "../controls/ColorSwatches";
 import StrokeWidth from "../controls/StrokeWidth";
@@ -8,39 +8,35 @@ import FontSetting from "../controls/FontSetting";
 import StrokeStyle from "../controls/StrokeStyle";
 import ArrowSetting from "../controls/ArrowSetting";
 import EdgeSetting from "../controls/EdgeSetting";
-import { LineSquiggle } from "lucide-react";
-import type { Shape } from "@mui/material/styles";
-import type { Line, TextBox } from "../../Multicursor/types";
+
   export default function FullToolBar({
-    isEditMode,
-    activeTool,
+    displayTool,
   }: {
-    activeTool: string | null,
-    isEditMode:Dispatch<SetStateAction<Line|TextBox|Shape|null>>
+    displayTool: string | null,
   }) {
     const tools = ["pen", "text", "arrow", "line", "square", "diamond", "circle"];
     return (
       <div
-        className={`toolbar-scroll absolute text-white left-3 top-15 flex flex-col rounded-2xl bg-[#1f1f2b] shadow-xl ${tools.includes(activeTool ?? "")||tools.includes(isEditMode ?? "") ? "p-3" : "hidden"} z-20`}
+        className={`toolbar-scroll absolute text-white left-3 top-15 flex flex-col rounded-2xl bg-[#1f1f2b] shadow-xl ${tools.includes(displayTool ?? "") ? "p-3" : "hidden"} z-20`}
       >
-        {(activeTool === "pen") && (
+        {(displayTool === "pen") && (
           <>
-            <ColorSwatches activeTool={"pen"} isEditMode={isEditMode} />
+            <ColorSwatches activeTool={"pen"}  />
             <FillToggle />
             <StrokeWidth />
             <OpacitySlider />
             <LayerControls />
           </>
         )}
-        {(activeTool === "text" )&& (
+        {(displayTool === "text") && (
           <>
-            <ColorSwatches activeTool={"text"} isEditMode={isEditMode} />
+            <ColorSwatches activeTool={"text"}  />
             <FontSetting />
             <OpacitySlider />
             <LayerControls />
           </>
         )}
-        {(activeTool === "arrow"  )&& (
+        {(displayTool === "arrow") && (
           <>
             <ColorSwatches activeTool={"arrow"} />
             <StrokeWidth />
@@ -50,7 +46,7 @@ import type { Line, TextBox } from "../../Multicursor/types";
             <LayerControls />
           </>
         )}
-        {(activeTool === "line" ) && (
+        {(displayTool === "line") && (
           <>
             <ColorSwatches activeTool={"line"} />
             <FillToggle />
@@ -61,7 +57,7 @@ import type { Line, TextBox } from "../../Multicursor/types";
             <LayerControls />
           </>
         )}
-        {(activeTool === "square"  )&& (
+        {(displayTool === "square") && (
           <>
             <ColorSwatches activeTool={"square"} />
             <FillToggle />
@@ -73,7 +69,7 @@ import type { Line, TextBox } from "../../Multicursor/types";
             <LayerControls />
           </>
         )}
-        {(activeTool === "diamond"  )&& (
+        {(displayTool === "diamond") && (
           <>
             <ColorSwatches activeTool={"diamond"} />
             <FillToggle />
@@ -85,7 +81,7 @@ import type { Line, TextBox } from "../../Multicursor/types";
             <LayerControls />
           </>
         )}
-        {(activeTool === "circle"  )&& (
+        {(displayTool === "circle"  )&& (
           <>
             <ColorSwatches activeTool={"circle"} />
             <FillToggle />

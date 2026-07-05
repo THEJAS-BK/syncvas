@@ -1,74 +1,60 @@
-import { createContext, useContext, useState, type SetStateAction , type Dispatch} from "react";
+import { createContext, useContext, useState, type SetStateAction, type Dispatch } from "react";
+import { useEditorState } from "./EditerStateContext";
 
 type ToolSettings = {
-  //color
   strokeColor: string;
-  setStrokeColor: Dispatch<SetStateAction<string >>;
+  setStrokeColor: (value: string) => void;
 
-  //background color
   fillColor: string;
-  setFillColor: Dispatch<SetStateAction<string >>;
+  setFillColor: (value: string) => void;
 
-  //fill shape type
   shapeFillType: string;
-  setShapeFillType: Dispatch<SetStateAction<string >>;
+  setShapeFillType: Dispatch<SetStateAction<string>>;
 
-  //strokes
   strokeWidth: number;
-  setStrokeWidth: Dispatch<SetStateAction<number >>;
+  setStrokeWidth: (value: number) => void;
 
-  //comman
   opacity: number;
-  setOpacity: Dispatch<SetStateAction<number >>;
+  setOpacity: (value: number) => void;
 
-  //shade
   shadeIdx: number;
-  setShadeIdx: Dispatch<SetStateAction<number >>;
+  setShadeIdx: Dispatch<SetStateAction<number>>;
 
-  //font family
   fontFamily: string;
-  setFontFamily: Dispatch<SetStateAction<string >>;
+  setFontFamily: Dispatch<SetStateAction<string>>;
 
-  //font size
   fontSize: string;
-  setFontSize: Dispatch<SetStateAction<string >>;
+  setFontSize: Dispatch<SetStateAction<string>>;
 
-  //textAlign
   textAlign: string;
-  setTextAlign: Dispatch<SetStateAction<string >>;
+  setTextAlign: Dispatch<SetStateAction<string>>;
 
-  //strokeStyle
   strokeStyle: string;
-  setStrokeStyle: Dispatch<SetStateAction<string >>;
+  setStrokeStyle: Dispatch<SetStateAction<string>>;
 
-  //sloppines
   sloppines: string;
-  setSloppines: Dispatch<SetStateAction<string >>;
+  setSloppines: Dispatch<SetStateAction<string>>;
 
-  //arrow types
   arrowType: string;
-  setArrowType: Dispatch<SetStateAction<string >>;
+  setArrowType: Dispatch<SetStateAction<string>>;
 
-  //arrow head
   arrowHead: string;
-  setArrowHead: Dispatch<SetStateAction<string >>;
+  setArrowHead: Dispatch<SetStateAction<string>>;
 
-  //edge
   edge: string;
-  setEdge: Dispatch<SetStateAction<string >>;
+  setEdge: Dispatch<SetStateAction<string>>;
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
 
-export function ToolSettingsProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [strokeColor, setStrokeColor] = useState("");
-  const [fillColor, setFillColor] = useState("transparent");
-  const [strokeWidth, setStrokeWidth] = useState(2);
-  const [opacity, setOpacity] = useState(1);
+export function ToolSettingsProvider({ children }: { children: React.ReactNode }) {
+  const { selectedElement, updateSelectedElement } = useEditorState();
+  const isEditMode = selectedElement != null;
+
+  const [strokeColorRaw, setStrokeColorRaw] = useState("");
+  const [fillColorRaw, setFillColorRaw] = useState("transparent");
+  const [strokeWidthRaw, setStrokeWidthRaw] = useState(2);
+  const [opacityRaw, setOpacityRaw] = useState(1);
   const [shadeIdx, setShadeIdx] = useState(4);
   const [shapeFillType, setShapeFillType] = useState("hachure");
   const [fontFamily, setFontFamily] = useState("hand-draw");
@@ -80,37 +66,44 @@ export function ToolSettingsProvider({
   const [arrowHead, setArrowHead] = useState("none");
   const [edge, setEdge] = useState("sharp");
 
+  const strokeColor = isEditMode ? (selectedElement as any).color : strokeColorRaw;
+  const fillColor = isEditMode ? (selectedElement as any).fillColor : fillColorRaw;
+  const strokeWidth = isEditMode ? (selectedElement as any).strokeWidth : strokeWidthRaw;
+  const opacity = isEditMode ? (selectedElement as any).opacity : opacityRaw;
+
+  const setStrokeColor = (c: string) => {
+    isEditMode ? updateSelectedElement({ color: c } as any) : setStrokeColorRaw(c);
+  };
+
+  const setFillColor = (c: string) => {
+    isEditMode ? updateSelectedElement({ fillColor: c } as any) : setFillColorRaw(c);
+  };
+
+  const setStrokeWidth = (w: number) => {
+    isEditMode ? updateSelectedElement({ strokeWidth: w } as any) : setStrokeWidthRaw(w);
+  };
+
+  const setOpacity = (o: number) => {
+    isEditMode ? updateSelectedElement({ opacity: o } as any) : setOpacityRaw(o);
+  };
+
   return (
     <ToolBarLeftContext.Provider
       value={{
-        strokeColor,
-        setStrokeColor,
-        fillColor,
-        setFillColor,
-        strokeWidth,
-        setStrokeWidth,
-        opacity,
-        setOpacity,
-        shadeIdx,
-        setShadeIdx,
-        shapeFillType,
-        setShapeFillType,
-        fontFamily,
-        setFontFamily,
-        fontSize,
-        setFontSize,
-        textAlign,
-        setTextAlign,
-        strokeStyle,
-        setStrokeStyle,
-        sloppines,
-        setSloppines,
-        arrowType,
-        setArrowType,
-        arrowHead,
-        setArrowHead,
-        edge,
-        setEdge,
+        strokeColor, setStrokeColor,
+        fillColor, setFillColor,
+        strokeWidth, setStrokeWidth,
+        opacity, setOpacity,
+        shadeIdx, setShadeIdx,
+        shapeFillType, setShapeFillType,
+        fontFamily, setFontFamily,
+        fontSize, setFontSize,
+        textAlign, setTextAlign,
+        strokeStyle, setStrokeStyle,
+        sloppines, setSloppines,
+        arrowType, setArrowType,
+        arrowHead, setArrowHead,
+        edge, setEdge,
       }}
     >
       {children}
@@ -120,7 +113,6 @@ export function ToolSettingsProvider({
 
 export function useToolSettings() {
   const ctx = useContext(ToolBarLeftContext);
-  if (!ctx)
-    throw new Error("useToolSettings must be used inside ToolSettingsProvider");
+  if (!ctx) throw new Error("useToolSettings must be used inside ToolSettingsProvider");
   return ctx;
 }

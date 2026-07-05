@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { socket } from "../../../services/socket";
 import { useNavigate, useParams } from "react-router-dom";
 const COLORS = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
@@ -21,6 +28,7 @@ import { useImageTransform } from "./hooks/useImageTransform";
 import { getCursorStyle } from "./tools/CustomCursor";
 import { useTextBox } from "./hooks/useTextBox";
 import { useHandTool } from "./hooks/useHandTool";
+import { useEditMode } from "./hooks/useEditMode";
 //tools
 import { autoPanIfNeeded } from "./tools/autoPanTextBox";
 import { useShapes } from "./hooks/useShape";
@@ -84,8 +92,7 @@ export default function MultiCursor({
   useEffect(() => {
     setStrokeColor(color);
   }, []);
-
-  const {activeTool,setIsEditMode}=useEditorState();
+  const { activeTool } = useEditorState();
 
   const doRedraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -112,6 +119,8 @@ export default function MultiCursor({
     );
   }, [strokeColor]);
 
+  useEditMode(shapesRef, linesRef, textBoxesRef, camera, canvasRef, doRedraw);
+
   useSelection(
     roomId ?? "",
     canvasRef,
@@ -125,7 +134,6 @@ export default function MultiCursor({
     activeTextBox,
     triggerUpdate,
     doRedraw,
-    setIsEditMode
   );
   const {
     placeTextBox,

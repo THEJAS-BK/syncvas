@@ -1,14 +1,13 @@
-import React, { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ColorGrid from "./ColorGrid";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
-import type { TextBox,Line,Shape } from "../../Multicursor/types";
+import { useEditorState } from "../../../../context/EditerStateContext";
 
 export default function ColorSwatches({
   activeTool,
-  isEditMode
+
 }: {
   activeTool: string | null;
-  isEditMode: Dispatch<SetStateAction<Line|TextBox|Shape|null>>;
 }) {
   const [colorGrid, setColorGrid] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,6 +36,8 @@ export default function ColorSwatches({
     setFillColor,
   } = useToolSettings();
 
+  const {setEditColor,editcolor} = useEditorState();
+
   const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
   const backgroundColors = [
     "transparent",
@@ -49,17 +50,20 @@ export default function ColorSwatches({
   return (
     <div ref={containerRef} className="flex flex-col z-20">
       <span className="mb-2 text-sm text-gray-300">Strokes</span>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1"> 
         {strokeColors.map((color) => (
           <div
             key={color}
             style={{ backgroundColor: color }}
             className={`w-6 h-6 rounded cursor-pointer ${
-              strokeColor === color
+              (strokeColor === color)
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
-            onClick={() => setStrokeColor(color)}
+            onClick={() => {
+              setStrokeColor(color);
+              setEditColor(color);
+            }}
           />
         ))}
         <div className="flex gap-1">

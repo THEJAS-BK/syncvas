@@ -5,6 +5,7 @@ import { hitTestTextBoxRotationHandle } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
 import { hitTestCorner, hitTestRotationHandle } from "../canvas";
+import { useEditorState } from "../../../../context/EditerStateContext";
 
 export function useSelection(
   roomId: string,
@@ -19,7 +20,6 @@ export function useSelection(
   activeTextBox: React.RefObject<TextBox | null>,
   onEditTextBox: () => void,
   doRedraw: () => void,
-  setIsEditMode:Dispatch<SetStateAction<Line|Shape|TextBox|null>>
 ) {
   const isDragging = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -234,10 +234,8 @@ export function useSelection(
       }
 
       const hit = hitShape ?? hitLine ?? hitText;
-
       //!edit mode
       if(!hit) return;
-      setIsEditMode(hit)
       selectedId.current = hit?.id ?? null;
       doRedraw();
     };
