@@ -28,7 +28,6 @@ import { useImageTransform } from "./hooks/useImageTransform";
 import { getCursorStyle } from "./tools/CustomCursor";
 import { useTextBox } from "./hooks/useTextBox";
 import { useHandTool } from "./hooks/useHandTool";
-import { useEditMode } from "./hooks/useEditMode";
 //tools
 import { autoPanIfNeeded } from "./tools/autoPanTextBox";
 import { useShapes } from "./hooks/useShape";
@@ -39,7 +38,6 @@ import { useDeleteElement } from "./hooks/useDeleteElement";
 //leftSide tools
 import { useToolSettings } from "../../../context/ToolBarLeftContext";
 import { useEraser } from "./hooks/useEraser";
-import { useEditorState } from "../../../context/EditerStateContext";
 
 export default function MultiCursor({
   images,
@@ -92,7 +90,7 @@ export default function MultiCursor({
   useEffect(() => {
     setStrokeColor(color);
   }, []);
-  const { activeTool } = useEditorState();
+  const { activeTool } = useToolSettings();
 
   const doRedraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -119,7 +117,6 @@ export default function MultiCursor({
     );
   }, [strokeColor]);
 
-  useEditMode(shapesRef, linesRef, textBoxesRef, camera, canvasRef, doRedraw);
 
   useSelection(
     roomId ?? "",

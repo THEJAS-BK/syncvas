@@ -2,8 +2,9 @@
 import { Circle, Diamond, Minus, MoveRight, Pencil, Square, TypeOutline } from "lucide-react";
 import { Image, Eraser, MousePointer, Hand } from "lucide-react";
 import {  type SetStateAction } from "react";
+import { useToolSettings } from "../../context/ToolBarLeftContext";
 
-import { useEditorState } from "../../context/EditerStateContext";
+
 
 interface ToolsProps {
   openCursor: boolean;
@@ -17,8 +18,8 @@ export default function Tools({
   floatChatInterface,
   setFloatChatInterface,
 }: ToolsProps) {
-  ;
-  const {activeTool,setActiveTool}=useEditorState()
+  const {activeTool,setActiveTool}=useToolSettings()
+
   return (
     <>
       <div className="flex gap-4 shadow-lg">

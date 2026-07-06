@@ -42,11 +42,15 @@ type ToolSettings = {
 
   edge: string;
   setEdge: Dispatch<SetStateAction<string>>;
+
+  activeTool:string|null,
+  setActiveTool: Dispatch<SetStateAction<string|null>>;
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
 
 export function ToolSettingsProvider({ children }: { children: React.ReactNode }) {
+    const [activeTool, setActiveTool] = useState<string | null>(null);
 
   const [strokeColor, setStrokeColor] = useState("");
   const [fillColor, setFillColor] = useState("transparent");
@@ -67,6 +71,7 @@ export function ToolSettingsProvider({ children }: { children: React.ReactNode }
   return (
     <ToolBarLeftContext.Provider
       value={{
+        activeTool,setActiveTool,
         strokeColor, setStrokeColor,
         fillColor, setFillColor,
         strokeWidth, setStrokeWidth,

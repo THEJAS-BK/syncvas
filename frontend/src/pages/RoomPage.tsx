@@ -14,7 +14,6 @@ import { TableOfContents } from "lucide-react";
 
 import Tools from "../components/room/Tools.tsx";
 import ToolBarContainer from "../components/room/LeftToolBar/ToolBarContainer.tsx";
-import { EditorStateProvider } from "../context/EditerStateContext.tsx";
 
 type BoardImage = {
   id: string;
@@ -53,7 +52,6 @@ export default function RoomPage() {
       />
 
       <WebRtcProvider roomId={roomId}>
-        <EditorStateProvider>
           <ToolSettingsProvider>
             <div className="h-screen flex flex-col overflow-hidden">
               {!openCursor && <RoomNavbar />}
@@ -115,7 +113,6 @@ export default function RoomPage() {
               </main>
             </div>
           </ToolSettingsProvider>
-        </EditorStateProvider>
       </WebRtcProvider>
     </>
   );

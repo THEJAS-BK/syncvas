@@ -5,7 +5,6 @@ import { hitTestTextBoxRotationHandle } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
 import { hitTestCorner, hitTestRotationHandle } from "../canvas";
-import { useEditorState } from "../../../../context/EditerStateContext";
 
 export function useSelection(
   roomId: string,

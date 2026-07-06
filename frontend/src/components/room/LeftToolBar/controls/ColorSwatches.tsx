@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import ColorGrid from "./ColorGrid";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
-import { useEditorState } from "../../../../context/EditerStateContext";
 
 export default function ColorSwatches({
   activeTool,
@@ -36,7 +35,6 @@ export default function ColorSwatches({
     setFillColor,
   } = useToolSettings();
 
-  const {setEditColor,editcolor} = useEditorState();
 
   const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
   const backgroundColors = [
@@ -62,7 +60,6 @@ export default function ColorSwatches({
             }`}
             onClick={() => {
               setStrokeColor(color);
-              setEditColor(color);
             }}
           />
         ))}

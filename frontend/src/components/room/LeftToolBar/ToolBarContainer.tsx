@@ -1,11 +1,12 @@
 import FullToolBar from './Layouts/FullToolBar'
 import CompactToolBar from './Layouts/CompactToolBar'
 import "./ToolBarContainer.css"
-import { useEditorState } from '../../../context/EditerStateContext';
+import { useToolSettings } from '../../../context/ToolBarLeftContext';
+
 
 export default function ToolBarContainer() {
-  const { activeTool, editModeTool } = useEditorState();
-  const displayTool = editModeTool ?? activeTool;
+  const { activeTool } = useToolSettings();
+  const displayTool = activeTool;
 
   return (
     <div>
