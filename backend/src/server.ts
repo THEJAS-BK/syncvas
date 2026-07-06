@@ -9,7 +9,7 @@ dotenv.config();
 //mongo setup
 main().then(() => console.log("MongoDB connected"));
 async function main(): Promise<void> {
-  await mongoose.connect(process.env.MONGODB_URI!);
+  await mongoose.connect(process.env.MONGODB_URL!);
 }
 
 //uses

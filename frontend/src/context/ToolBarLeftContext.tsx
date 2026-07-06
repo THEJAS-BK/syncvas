@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, type SetStateAction, type Dispatch } from "react";
-import { useEditorState } from "./EditerStateContext";
 
 type ToolSettings = {
   strokeColor: string;
@@ -48,13 +47,11 @@ type ToolSettings = {
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
 
 export function ToolSettingsProvider({ children }: { children: React.ReactNode }) {
-  const { selectedElement, updateSelectedElement } = useEditorState();
-  const isEditMode = selectedElement != null;
 
-  const [strokeColorRaw, setStrokeColorRaw] = useState("");
-  const [fillColorRaw, setFillColorRaw] = useState("transparent");
-  const [strokeWidthRaw, setStrokeWidthRaw] = useState(2);
-  const [opacityRaw, setOpacityRaw] = useState(1);
+  const [strokeColor, setStrokeColor] = useState("");
+  const [fillColor, setFillColor] = useState("transparent");
+  const [strokeWidth, setStrokeWidth] = useState(2);
+  const [opacity, setOpacity] = useState(1);
   const [shadeIdx, setShadeIdx] = useState(4);
   const [shapeFillType, setShapeFillType] = useState("hachure");
   const [fontFamily, setFontFamily] = useState("hand-draw");
@@ -66,26 +63,6 @@ export function ToolSettingsProvider({ children }: { children: React.ReactNode }
   const [arrowHead, setArrowHead] = useState("none");
   const [edge, setEdge] = useState("sharp");
 
-  const strokeColor = isEditMode ? (selectedElement as any).color : strokeColorRaw;
-  const fillColor = isEditMode ? (selectedElement as any).fillColor : fillColorRaw;
-  const strokeWidth = isEditMode ? (selectedElement as any).strokeWidth : strokeWidthRaw;
-  const opacity = isEditMode ? (selectedElement as any).opacity : opacityRaw;
-
-  const setStrokeColor = (c: string) => {
-    isEditMode ? updateSelectedElement({ color: c } as any) : setStrokeColorRaw(c);
-  };
-
-  const setFillColor = (c: string) => {
-    isEditMode ? updateSelectedElement({ fillColor: c } as any) : setFillColorRaw(c);
-  };
-
-  const setStrokeWidth = (w: number) => {
-    isEditMode ? updateSelectedElement({ strokeWidth: w } as any) : setStrokeWidthRaw(w);
-  };
-
-  const setOpacity = (o: number) => {
-    isEditMode ? updateSelectedElement({ opacity: o } as any) : setOpacityRaw(o);
-  };
 
   return (
     <ToolBarLeftContext.Provider
