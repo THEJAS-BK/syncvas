@@ -498,17 +498,31 @@ export function useSelection(
       }
     };
 
+    const handleClick=()=>{
+      if(activeTool !== "mouse") {
+        isDragging.current=false;
+        isRotating.current=false;
+        activeTextBox.current = null;
+        lineEndpoint.current = null;
+        dragType.current = null;
+        selectedId.current=null;
+        doRedraw();
+      }
+    }
+
     canvas.addEventListener("mousedown", onMouseDown);
     canvas.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     canvas.addEventListener("dblclick", onDblClick);
     window.addEventListener("keydown", handleElementDelete);
+    window.addEventListener("click",handleClick)
     return () => {
       canvas.removeEventListener("mousedown", onMouseDown);
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("dblclick", onDblClick);
       window.removeEventListener("keydown", handleElementDelete);
+      window.removeEventListener("click",handleClick)
     };
   }, [activeTool, color, doRedraw]);
 }
