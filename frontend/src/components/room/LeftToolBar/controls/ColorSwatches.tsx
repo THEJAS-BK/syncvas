@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import ColorGrid from "./ColorGrid";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
-import { Shapes } from "lucide-react";
-import { socket } from "../../../../services/socket";
 
+import { useEditElements } from "../../Multicursor/hooks/useEditElements";
 export default function ColorSwatches({
   activeTool,
-
 }: {
   activeTool: string | null;
 }) {
@@ -36,14 +34,9 @@ export default function ColorSwatches({
     fillColor,
     setFillColor,
     selectedEle,
-    shapesRef,
-    linesRef,
-    textBoxesRef,
-    doRedrawRef,
-    roomId
   } = useToolSettings();
 
-
+  const {handleEditShapeColor}=useEditElements();
   const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
   const backgroundColors = [
     "transparent",
@@ -52,22 +45,6 @@ export default function ColorSwatches({
     "#1e3a8a",
     "#422006",
   ];
-
-
-  const handleEditShapeColor=(color:string)=>{
-    if(!selectedEle)return;
-
-    if(selectedEle.type==="shape"){
-      const shape=shapesRef.current.find(sh=>selectedEle.id===sh.id);
-      if(!shape)return;
-      shape.color=color;
-
-      doRedrawRef.current?.()
-      socket.emit("element-update",{roomId,id:shape.id,changes:{color:color}})
-
-    }
-  }
-
   return (
     <div ref={containerRef} className="flex flex-col z-20">
       <span className="mb-2 text-sm text-gray-300">Strokes</span>
@@ -83,8 +60,7 @@ export default function ColorSwatches({
             }`}
             onClick={() => {
               setStrokeColor(color);
-              selectedEle?handleEditShapeColor(color):"";
-
+               if (selectedEle) handleEditShapeColor(color);
             }}
           />
         ))}
