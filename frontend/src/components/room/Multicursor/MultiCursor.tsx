@@ -75,7 +75,7 @@ export default function MultiCursor({
   const linesRef = useRef<Line[]>([]);
   const activeLine = useRef<Line | null>(null);
 
-  const selectedId = useRef<string | null>(null);
+ 
 
   const textBoxesRef = useRef<TextBox[]>([]);
   const activeTextBox = useRef<TextBox | null>(null);
@@ -90,7 +90,7 @@ export default function MultiCursor({
   useEffect(() => {
     setStrokeColor(color);
   }, []);
-  const { activeTool } = useToolSettings();
+  const { activeTool,selectedId } = useToolSettings();
 
   const doRedraw = useCallback(() => {
     const canvas = canvasRef.current;

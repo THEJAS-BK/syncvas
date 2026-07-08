@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, type SetStateAction, type Dispatch } from "react";
-
+import { createContext, useContext, useState, type SetStateAction, type Dispatch,type RefObject } from "react";
+import type { Line, Shape, TextBox } from "../components/room/Multicursor/types";
+import { useRef } from "react";
 type ToolSettings = {
   strokeColor: string;
   setStrokeColor: (value: string) => void;
@@ -45,6 +46,11 @@ type ToolSettings = {
 
   activeTool:string|null,
   setActiveTool: Dispatch<SetStateAction<string|null>>;
+
+  selectedEle:Shape|Line|TextBox|null
+  setSelectedEle:Dispatch<SetStateAction<Shape | Line | TextBox | null>>
+
+  selectedId:RefObject<string|null>
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
@@ -67,6 +73,10 @@ export function ToolSettingsProvider({ children }: { children: React.ReactNode }
   const [arrowHead, setArrowHead] = useState("none");
   const [edge, setEdge] = useState("sharp");
 
+   const [selectedEle,setSelectedEle]=useState<Shape | Line | TextBox | null>(null);
+  
+   const selectedId = useRef<string | null>(null)
+
 
   return (
     <ToolBarLeftContext.Provider
@@ -86,6 +96,8 @@ export function ToolSettingsProvider({ children }: { children: React.ReactNode }
         arrowType, setArrowType,
         arrowHead, setArrowHead,
         edge, setEdge,
+        selectedEle,setSelectedEle,
+        selectedId
       }}
     >
       {children}

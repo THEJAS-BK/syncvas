@@ -1,11 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { Shape, Line, TextBox } from "../types";
 import { hitTestTextBoxRotationHandle } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
 import { hitTestCorner, hitTestRotationHandle } from "../canvas";
-
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 export function useSelection(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -40,18 +40,25 @@ export function useSelection(
   //isRotation
   const isRotating = useRef(false);
 
+  //edit mode
+  const { selectedEle, setSelectedEle } = useToolSettings();
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     let eleTodelete: any;
-    const handleElementDelete = (e:KeyboardEvent) => {
-      if(!eleTodelete) return
-      if(e.key === "Delete"||e.key==="Backspace") {
-        if(eleTodelete.type==="shape"){
-          shapesRef.current=shapesRef.current.filter((shape)=>shape.id!=eleTodelete.id)
-        }else if(eleTodelete.type==="line"){
-          linesRef.current=linesRef.current.filter((line)=>line.id!=eleTodelete.id)
+    const handleElementDelete = (e: KeyboardEvent) => {
+      if (!eleTodelete) return;
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (eleTodelete.type === "shape") {
+          shapesRef.current = shapesRef.current.filter(
+            (shape) => shape.id != eleTodelete.id,
+          );
+        } else if (eleTodelete.type === "line") {
+          linesRef.current = linesRef.current.filter(
+            (line) => line.id != eleTodelete.id,
+          );
         }
         socket.emit("element-delete", {
           roomId,
@@ -234,7 +241,7 @@ export function useSelection(
 
       const hit = hitShape ?? hitLine ?? hitText;
       //!edit mode
-      if(!hit) return;
+      if (!hit) return;
       selectedId.current = hit?.id ?? null;
       doRedraw();
     };
@@ -498,26 +505,79 @@ export function useSelection(
       }
     };
 
-    const handleClick=()=>{
-      if(activeTool !== "mouse") {
-        selectedId.current=null;
-        doRedraw();
-      }
-    }
+    const handleClick = (e: MouseEvent) => {
 
+            if(e.target !==canvasRef.current) return;
+      if (activeTool !== "mouse") {
+        selectedId.current = null;
+        doRedraw();
+        return;
+      }
+      else {
+        const canvas = canvasRef.current;
+        const { x, y } = toCanvas(e.clientX, e.clientY);
+        const ctx = canvas?.getContext("2d");
+        if (!ctx) return;
+        // reverse so topmost (last drawn) wins
+        const hitShape = [...shapesRef.current]
+        .reverse()
+        .find((s) => hitTestShape(s, x, y));
+        
+        const hitLine = [...linesRef.current]
+        .reverse()
+        .find((l) => hitTestLine(l, x, y, camera.current.scale));
+        
+        const hitText = [...(textBoxesRef?.current ?? [])]
+          .reverse()
+          .find((t) => hitTestTextBox(t, x, y, ctx));
+          
+        setSelectedEle(hitShape || hitLine || hitText || null);
+      }
+
+    };
+    
     canvas.addEventListener("mousedown", onMouseDown);
     canvas.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     canvas.addEventListener("dblclick", onDblClick);
     window.addEventListener("keydown", handleElementDelete);
-    window.addEventListener("click",handleClick)
+    window.addEventListener("click", handleClick);
     return () => {
       canvas.removeEventListener("mousedown", onMouseDown);
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("dblclick", onDblClick);
       window.removeEventListener("keydown", handleElementDelete);
-      window.removeEventListener("click",handleClick)
+      window.removeEventListener("click", handleClick);
     };
   }, [activeTool, color, doRedraw]);
+
+  const {strokeColor,setStrokeColor}=useToolSettings();
+
+  //edit mode
+  useEffect(() => {
+    if (selectedEle === null) {
+      selectedId.current = null;
+      doRedraw();
+      return;
+    }
+
+    const handleClick = () => {
+      if (activeTool !== "mouse") {
+        setSelectedEle(null)
+        selectedId.current=null;
+        return;
+      }  
+    };
+
+    if(activeTool==="mouse"){
+      setStrokeColor(selectedEle.color)
+    }
+
+    window.addEventListener("click", handleClick);
+    return () => {
+      window.removeEventListener("click", handleClick);
+    };
+  }, [selectedEle,activeTool]);
 }
+  
