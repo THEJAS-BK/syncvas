@@ -62,23 +62,13 @@ export default function MultiCursor({
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
   const { roomId } = useParams();
+
   const navigate = useNavigate();
 
   const measureRef = useRef<HTMLSpanElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [panTick, setPanTick] = useState(0);
-  const shapesRef = useRef<Shape[]>([]);
-  const activeShape = useRef<Shape | null>(null);
-
   const [filled, setFilled] = useState(false);
-
-  const linesRef = useRef<Line[]>([]);
-  const activeLine = useRef<Line | null>(null);
-
- 
-
-  const textBoxesRef = useRef<TextBox[]>([]);
-  const activeTextBox = useRef<TextBox | null>(null);
 
   const editingExistingRef = useRef(false);
 
@@ -91,6 +81,18 @@ export default function MultiCursor({
     setStrokeColor(color);
   }, []);
   const { activeTool,selectedId } = useToolSettings();
+
+  //shapes,textBoxes and lines
+  const {shapesRef,activeShape,
+        textBoxesRef,activeTextBox,
+        linesRef,activeLine,doRedrawRef,setRoomId}=useToolSettings();
+    
+        useEffect(()=>{
+         if(roomId) {
+          setRoomId(roomId)
+         }
+        },[roomId])
+
 
   const doRedraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -116,6 +118,10 @@ export default function MultiCursor({
       activeTextBox,
     );
   }, [strokeColor]);
+
+  useEffect(() => {
+  doRedrawRef.current = doRedraw;
+}, [doRedraw]);
 
 
   useSelection(

@@ -1,5 +1,16 @@
-import { createContext, useContext, useState, type SetStateAction, type Dispatch,type RefObject } from "react";
-import type { Line, Shape, TextBox } from "../components/room/Multicursor/types";
+import {
+  createContext,
+  useContext,
+  useState,
+  type SetStateAction,
+  type Dispatch,
+  type RefObject,
+} from "react";
+import type {
+  Line,
+  Shape,
+  TextBox,
+} from "../components/room/Multicursor/types";
 import { useRef } from "react";
 type ToolSettings = {
   strokeColor: string;
@@ -44,19 +55,38 @@ type ToolSettings = {
   edge: string;
   setEdge: Dispatch<SetStateAction<string>>;
 
-  activeTool:string|null,
-  setActiveTool: Dispatch<SetStateAction<string|null>>;
+  activeTool: string | null;
+  setActiveTool: Dispatch<SetStateAction<string | null>>;
 
-  selectedEle:Shape|Line|TextBox|null
-  setSelectedEle:Dispatch<SetStateAction<Shape | Line | TextBox | null>>
+  selectedEle: Shape | Line | TextBox | null;
+  setSelectedEle: Dispatch<SetStateAction<Shape | Line | TextBox | null>>;
 
-  selectedId:RefObject<string|null>
+  selectedId: RefObject<string | null>;
+
+  linesRef: RefObject<Line[]>;
+  activeLine: RefObject<Line | null>;
+
+  textBoxesRef: RefObject<TextBox[]>;
+  activeTextBox: RefObject<TextBox | null>;
+
+  shapesRef: RefObject<Shape[]>;
+  activeShape: RefObject<Shape | null>;
+
+  //do redraw ref
+  doRedrawRef: RefObject<(() => void) | null>;
+
+  roomId:string|null
+  setRoomId:Dispatch<SetStateAction<string>>
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
 
-export function ToolSettingsProvider({ children }: { children: React.ReactNode }) {
-    const [activeTool, setActiveTool] = useState<string | null>(null);
+export function ToolSettingsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [activeTool, setActiveTool] = useState<string | null>(null);
 
   const [strokeColor, setStrokeColor] = useState("");
   const [fillColor, setFillColor] = useState("transparent");
@@ -73,31 +103,67 @@ export function ToolSettingsProvider({ children }: { children: React.ReactNode }
   const [arrowHead, setArrowHead] = useState("none");
   const [edge, setEdge] = useState("sharp");
 
-   const [selectedEle,setSelectedEle]=useState<Shape | Line | TextBox | null>(null);
-  
-   const selectedId = useRef<string | null>(null)
+  const [selectedEle, setSelectedEle] = useState<Shape | Line | TextBox | null>(
+    null,
+  );
 
+  const selectedId = useRef<string | null>(null);
+
+  const shapesRef = useRef<Shape[]>([]);
+  const activeShape = useRef<Shape | null>(null);
+  const textBoxesRef = useRef<TextBox[]>([]);
+  const activeTextBox = useRef<TextBox | null>(null);
+  const linesRef = useRef<Line[]>([]);
+  const activeLine = useRef<Line | null>(null);
+
+  const doRedrawRef = useRef<(() => void) | null>(null);
+  const [roomId,setRoomId]=useState<string>("")
 
   return (
     <ToolBarLeftContext.Provider
       value={{
-        activeTool,setActiveTool,
-        strokeColor, setStrokeColor,
-        fillColor, setFillColor,
-        strokeWidth, setStrokeWidth,
-        opacity, setOpacity,
-        shadeIdx, setShadeIdx,
-        shapeFillType, setShapeFillType,
-        fontFamily, setFontFamily,
-        fontSize, setFontSize,
-        textAlign, setTextAlign,
-        strokeStyle, setStrokeStyle,
-        sloppines, setSloppines,
-        arrowType, setArrowType,
-        arrowHead, setArrowHead,
-        edge, setEdge,
-        selectedEle,setSelectedEle,
-        selectedId
+        activeTool,
+        setActiveTool,
+        strokeColor,
+        setStrokeColor,
+        fillColor,
+        setFillColor,
+        strokeWidth,
+        setStrokeWidth,
+        opacity,
+        setOpacity,
+        shadeIdx,
+        setShadeIdx,
+        shapeFillType,
+        setShapeFillType,
+        fontFamily,
+        setFontFamily,
+        fontSize,
+        setFontSize,
+        textAlign,
+        setTextAlign,
+        strokeStyle,
+        setStrokeStyle,
+        sloppines,
+        setSloppines,
+        arrowType,
+        setArrowType,
+        arrowHead,
+        setArrowHead,
+        edge,
+        setEdge,
+        selectedEle,
+        setSelectedEle,
+        selectedId,
+        shapesRef,
+        activeShape,
+        textBoxesRef,
+        activeTextBox,
+        linesRef,
+        activeLine,
+        doRedrawRef,
+        roomId,
+        setRoomId
       }}
     >
       {children}
@@ -107,6 +173,7 @@ export function ToolSettingsProvider({ children }: { children: React.ReactNode }
 
 export function useToolSettings() {
   const ctx = useContext(ToolBarLeftContext);
-  if (!ctx) throw new Error("useToolSettings must be used inside ToolSettingsProvider");
+  if (!ctx)
+    throw new Error("useToolSettings must be used inside ToolSettingsProvider");
   return ctx;
 }

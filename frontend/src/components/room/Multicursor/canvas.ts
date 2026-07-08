@@ -8,6 +8,7 @@ import type {
   Line,
   TextBox,
 } from "./types";
+import { ContactRound } from "lucide-react";
 
 const getCanvasPoint = (
   e: MouseEvent,
