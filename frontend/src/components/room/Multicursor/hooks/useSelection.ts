@@ -500,11 +500,6 @@ export function useSelection(
 
     const handleClick=()=>{
       if(activeTool !== "mouse") {
-        isDragging.current=false;
-        isRotating.current=false;
-        activeTextBox.current = null;
-        lineEndpoint.current = null;
-        dragType.current = null;
         selectedId.current=null;
         doRedraw();
       }
