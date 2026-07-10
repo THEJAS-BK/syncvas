@@ -21,7 +21,7 @@ export function useSocketDraw(
   strokeColor: string,
   doRedraw: () => void,
 ) {
-  const { strokeWidth } = useToolSettings();
+  const { strokeWidth,opacity } = useToolSettings();
 
   useEffect(() => {
     //handle drawing
@@ -48,6 +48,7 @@ export function useSocketDraw(
         roomId,
         strokeColor,
         strokeWidth,
+        opacity
       });
       doRedraw();
     };
@@ -76,19 +77,17 @@ export function useSocketDraw(
           points: [...currentStroke.current],
           userId: userIdRef.current,
           color: strokeColor,
-          opacity: 0,
+          opacity,
           strokeWidth,
         };
-
-        console.log(completedStrokes)
 
         strokes.current.push(completedStrokes);
         socket.emit("stroke-end", {
           userId: userIdRef.current,
           roomId,
           strokes: completedStrokes,
-          strokeWidth, // add these two
-          opacity: 0,
+          strokeWidth, 
+          opacity
         });
       }
       currentStroke.current = [];
@@ -163,5 +162,5 @@ export function useSocketDraw(
       canvas.removeEventListener("mousemove", draw);
       window.removeEventListener("mouseup", stopDrawing);
     };
-  }, [activeTool, doRedraw, strokeWidth]);
+  }, [activeTool, doRedraw, strokeWidth,opacity,strokeColor]);
 }

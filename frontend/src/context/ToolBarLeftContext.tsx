@@ -91,7 +91,7 @@ export function ToolSettingsProvider({
   const [strokeColor, setStrokeColor] = useState("");
   const [fillColor, setFillColor] = useState("transparent");
   const [strokeWidth, setStrokeWidth] = useState(2);
-  const [opacity, setOpacity] = useState(1);
+  const [opacity, setOpacity] = useState(100);
   const [shadeIdx, setShadeIdx] = useState(4);
   const [shapeFillType, setShapeFillType] = useState("hachure");
   const [fontFamily, setFontFamily] = useState("hand-draw");

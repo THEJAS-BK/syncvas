@@ -44,7 +44,8 @@ const redraw = (
   selectedId: React.RefObject<string | null>,
   textBoxesRef: React.RefObject<TextBox[]>,
   activeTextBox: React.RefObject<TextBox | null>,
-  strokeWidth:number
+  strokeWidth:number,
+  opacity:number
 
 ) => {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -102,7 +103,8 @@ const redraw = (
           selectedId,
           textBoxesRef,
           activeTextBox,
-          strokeWidth
+          strokeWidth,
+          opacity
         );
       };
 
@@ -129,6 +131,7 @@ const redraw = (
       userId,
       color: activeStroke.color,
       strokeWidth:activeStroke.strokeWidth,
+      opacity: activeStroke.opacity,
       points: activeStroke.points,
     }),
   );
@@ -142,12 +145,14 @@ const redraw = (
 
   const allStrokes = [
     ...strokes.current,
-    { userId, points: currentStroke.current, color,strokeWidth },
+    { userId, points: currentStroke.current, color,strokeWidth,opacity },
     ...allActive,
   ];
 
 for (const stroke of allStrokes) {
   if (stroke.points.length === 0) continue;
+  ctx.save();
+  ctx.globalAlpha = (stroke.opacity ?? 100) / 100;
   ctx.beginPath();
   ctx.strokeStyle = stroke.color;
   ctx.lineWidth = stroke.strokeWidth ?? 4;
@@ -156,6 +161,7 @@ for (const stroke of allStrokes) {
     else ctx.lineTo(p.x, p.y);
   });
   ctx.stroke();
+  ctx.restore();
 }
 
  for (const tb of allTextBoxes) {
