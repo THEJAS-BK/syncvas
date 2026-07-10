@@ -16,10 +16,6 @@ import EdgeSetting from "../controls/EdgeSetting";
   }) {
     const tools = ["pen", "text", "arrow", "line", "square", "diamond", "circle"];
 
-    useEffect(()=>{
-      console.log(displayTool,"this ")
-
-    },[displayTool])
     return (
       <div
         className={`toolbar-scroll absolute text-white left-3 top-15 flex flex-col rounded-2xl bg-[#1f1f2b] shadow-xl ${tools.includes(displayTool ?? "") ? "p-3" : "hidden"} z-20`}

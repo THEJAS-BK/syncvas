@@ -46,26 +46,32 @@ export function useSelection(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    let eleTodelete: any;
-    const handleElementDelete = (e: KeyboardEvent) => {
-      if (!eleTodelete) return;
-      if (e.key === "Delete" || e.key === "Backspace") {
-        if (eleTodelete.type === "shape") {
-          shapesRef.current = shapesRef.current.filter(
-            (shape) => shape.id != eleTodelete.id,
-          );
-        } else if (eleTodelete.type === "line") {
-          linesRef.current = linesRef.current.filter(
-            (line) => line.id != eleTodelete.id,
-          );
-        }
-        socket.emit("element-delete", {
-          roomId,
-          id: eleTodelete.id,
-        });
 
-        doRedraw();
+    const handleElementDelete = (e: KeyboardEvent) => {
+      if (e.key !== "Delete" && e.key !== "Backspace") return;
+      if (activeTool !== "mouse") return;
+
+      // don't hijack backspace while the person is typing in a textarea
+      const target = e.target as HTMLElement;
+      if (target?.tagName === "TEXTAREA" || target?.tagName === "INPUT") return;
+
+      const id = selectedId.current;
+      if (!id) return;
+
+      if (shapesRef.current.some((s) => s.id === id)) {
+        shapesRef.current = shapesRef.current.filter((s) => s.id !== id);
+      } else if (linesRef.current.some((l) => l.id === id)) {
+        linesRef.current = linesRef.current.filter((l) => l.id !== id);
+      } else if (textBoxesRef.current.some((t) => t.id === id)) {
+        textBoxesRef.current = textBoxesRef.current.filter((t) => t.id !== id);
+      } else {
+        return;
       }
+
+      socket.emit("element-delete", { roomId, id });
+      selectedId.current = null;
+      setSelectedEle(null);
+      doRedraw();
     };
 
     const onMouseDown = (e: MouseEvent) => {
@@ -214,8 +220,6 @@ export function useSelection(
         .reverse()
         .find((t) => hitTestTextBox(t, x, y, ctx));
 
-      //!deleting using backspace and delete
-      eleTodelete = hitLine || hitShape || hitText;
 
       //!moving shapes,textbox and lines
       if (hitShape) {
@@ -470,7 +474,7 @@ export function useSelection(
         .find((t) => hitTestTextBox(t, x, y, ctx));
 
       if (hitText) {
-        activeTextBox.current = { ...hitText }; 
+        activeTextBox.current = { ...hitText };
         onEditTextBox?.();
         doRedraw();
         setTimeout(() => {
