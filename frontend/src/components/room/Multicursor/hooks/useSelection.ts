@@ -242,7 +242,7 @@ export function useSelection(
       //!edit mode
       if (!hit) return;
       selectedId.current = hit?.id ?? null;
-      setSelectedEle(hit ?? null); 
+      setSelectedEle(hit ?? null);
       doRedraw();
     };
 
@@ -335,64 +335,45 @@ export function useSelection(
         return;
       }
 
-      if (isResizing.current && selectedId.current) {
+      if (isResizing.current && selectedId.current && resizeCorner.current) {
         const shape = shapesRef.current.find(
           (s) => s.id === selectedId.current,
         );
         if (!shape) return;
 
-        const left = Math.min(shape.x, shape.x + shape.width);
-        const top = Math.min(shape.y, shape.y + shape.height);
-        const right = Math.max(shape.x, shape.x + shape.width);
-        const bottom = Math.max(shape.y, shape.y + shape.height);
-        const w = right - left;
-        const h = bottom - top;
-
-        const centerX = (left + right) / 2;
-        const centerY = (top + bottom) / 2;
         const rotation = shape.rotation || 0;
+        const anchor = resizeOrigin.current; // fixed world-space anchor, set once in onMouseDown
 
-        // convert mouse to local frame
-        const dx = x - centerX;
-        const dy = y - centerY;
-        const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
-        const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+        // vector from the fixed anchor to the current mouse, un-rotated into local space
+        const dx = x - anchor.x;
+        const dy = y - anchor.y;
+        const localDx = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+        const localDy = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
 
-        // local point relative to shape origin
-        const localPointX = localX + w / 2;
-        const localPointY = localY + h / 2;
-
+        const signX = resizeCorner.current.includes("r") ? 1 : -1;
+        const signY = resizeCorner.current.includes("b") ? 1 : -1;
         const minSize = 10;
 
-        switch (resizeCorner.current) {
-          case "br":
-            shape.width = Math.max(minSize, localPointX);
-            shape.height = Math.max(minSize, localPointY);
-            break;
-          case "bl": {
-            const newWidth = Math.max(minSize, w - localPointX);
-            shape.x = centerX - w / 2 + (w - newWidth);
-            shape.width = newWidth;
-            shape.height = Math.max(minSize, localPointY);
-            break;
-          }
-          case "tr": {
-            const newHeight = Math.max(minSize, h - localPointY);
-            shape.y = centerY - h / 2 + (h - newHeight);
-            shape.height = newHeight;
-            shape.width = Math.max(minSize, localPointX);
-            break;
-          }
-          case "tl": {
-            const newWidth = Math.max(minSize, w - localPointX);
-            const newHeight = Math.max(minSize, h - localPointY);
-            shape.x = centerX - w / 2 + (w - newWidth);
-            shape.y = centerY - h / 2 + (h - newHeight);
-            shape.width = newWidth;
-            shape.height = newHeight;
-            break;
-          }
-        }
+        const newWidth = Math.max(minSize, signX * localDx);
+        const newHeight = Math.max(minSize, signY * localDy);
+
+        // anchor's position relative to the new center, in local space
+        const anchorLocalX = -signX * (newWidth / 2);
+        const anchorLocalY = -signY * (newHeight / 2);
+
+        // rotate that back to world space to find where the new center must be
+        const offsetX =
+          anchorLocalX * Math.cos(rotation) - anchorLocalY * Math.sin(rotation);
+        const offsetY =
+          anchorLocalX * Math.sin(rotation) + anchorLocalY * Math.cos(rotation);
+
+        const newCenterX = anchor.x - offsetX;
+        const newCenterY = anchor.y - offsetY;
+
+        shape.width = newWidth;
+        shape.height = newHeight;
+        shape.x = newCenterX - newWidth / 2;
+        shape.y = newCenterY - newHeight / 2;
 
         socket.emit("element-update", {
           roomId,
@@ -458,7 +439,7 @@ export function useSelection(
     };
 
     const onMouseUp = () => {
-      if(activeTool!=="mouse") return;
+      if (activeTool !== "mouse") return;
       if (isResizing.current) {
         isResizing.current = false;
         resizeCorner.current = null;
@@ -505,7 +486,6 @@ export function useSelection(
         }, 0);
       }
     };
-
 
     canvas.addEventListener("mousedown", onMouseDown);
     canvas.addEventListener("mousemove", onMouseMove);
