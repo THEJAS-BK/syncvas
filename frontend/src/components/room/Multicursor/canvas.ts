@@ -37,13 +37,15 @@ const redraw = (
   strokes: React.RefObject<Stroke[]>,
   userId: string,
   color: string,
-  shapesRef?: React.RefObject<Shape[]>,
-  activeShape?: React.RefObject<Shape | null>,
-  linesRef?: React.RefObject<Line[]>,
-  activeLine?: React.RefObject<Line | null>,
-  selectedId?: React.RefObject<string | null>,
-  textBoxesRef?: React.RefObject<TextBox[]>,
-  activeTextBox?: React.RefObject<TextBox | null>,
+  shapesRef: React.RefObject<Shape[]>,
+  activeShape: React.RefObject<Shape | null>,
+  linesRef: React.RefObject<Line[]>,
+  activeLine: React.RefObject<Line | null>,
+  selectedId: React.RefObject<string | null>,
+  textBoxesRef: React.RefObject<TextBox[]>,
+  activeTextBox: React.RefObject<TextBox | null>,
+  strokeWidth:number
+
 ) => {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -100,6 +102,7 @@ const redraw = (
           selectedId,
           textBoxesRef,
           activeTextBox,
+          strokeWidth
         );
       };
 
@@ -125,6 +128,7 @@ const redraw = (
     ([userId, activeStroke]) => ({
       userId,
       color: activeStroke.color,
+      strokeWidth:activeStroke.strokeWidth,
       points: activeStroke.points,
     }),
   );
@@ -138,57 +142,57 @@ const redraw = (
 
   const allStrokes = [
     ...strokes.current,
-    { userId, points: currentStroke.current, color },
+    { userId, points: currentStroke.current, color,strokeWidth },
     ...allActive,
   ];
 
-  for (const stroke of allStrokes) {
-    if (stroke.points.length === 0) continue;
-    ctx.beginPath();
-    ctx.strokeStyle = stroke.color;
-    stroke.points.forEach((p, i) => {
-      if (i === 0) ctx.moveTo(p.x, p.y);
-      else ctx.lineTo(p.x, p.y);
-    });
-    ctx.stroke();
-  }
+for (const stroke of allStrokes) {
+  if (stroke.points.length === 0) continue;
+  ctx.beginPath();
+  ctx.strokeStyle = stroke.color;
+  ctx.lineWidth = stroke.strokeWidth ?? 4;
+  stroke.points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  });
+  ctx.stroke();
+}
 
-  for (const tb of allTextBoxes) {
-    ctx.save();
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = "source-over";
-
-    const lines = tb.text.split("\n");
-    const lineHeight = tb.fontSize * 1.4;
-    const width = Math.max(
-      ...lines.map((l) => {
-        ctx.font = `normal ${tb.fontSize}px monospace`;
-        return ctx.measureText(l).width;
-      }),
-    );
-    const height = lines.length * lineHeight;
-
-    // rotate around textbox center
-    const cx = tb.x + width / 2;
-    const cy = tb.y + height / 2;
-    ctx.translate(cx, cy);
-    ctx.rotate(tb.rotation || 0);
-    ctx.translate(-cx, -cy);
-
+ for (const tb of allTextBoxes) {
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  
+  const lines = tb.text.split("\n");
+  const lineHeight = tb.fontSize * 1.4;
+  const width = Math.max(...lines.map(l => {
     ctx.font = `normal ${tb.fontSize}px monospace`;
-    ctx.fillStyle = tb.color;
-    lines.forEach((line, i) => {
-      ctx.fillText(line, tb.x, tb.y + tb.fontSize + i * lineHeight);
-    });
+    return ctx.measureText(l).width;
+  }));
+  const height = lines.length * lineHeight;
+  
+  // rotate around textbox center
+  const cx = tb.x + width / 2;
+  const cy = tb.y + height / 2;
+  ctx.translate(cx, cy);
+  ctx.rotate(tb.rotation || 0);
+  ctx.translate(-cx, -cy);
 
-    ctx.restore();
-  }
+  ctx.font = `normal ${tb.fontSize}px monospace`;
+  ctx.fillStyle = tb.color;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, tb.x, tb.y + tb.fontSize + i * lineHeight);
+  });
+
+  ctx.restore();
+}
 
   //selection
   // ---- selection indicators ----
   if (selectedId?.current) {
     const id = selectedId.current;
     const scale = camera.current.scale;
+    
 
     const drawSelectionBox = (
       left: number,
@@ -316,7 +320,7 @@ const redraw = (
         selectedText.y,
         selectedText.x + width,
         selectedText.y + height,
-        selectedText.rotation || 0,
+            selectedText.rotation || 0, 
       );
     }
   }
@@ -620,7 +624,7 @@ function hitTestTextBoxRotationHandle(
   ctx.font = `normal ${tb.fontSize}px monospace`;
   const lines = tb.text.split("\n");
   const lineHeight = tb.fontSize * 1.4;
-  const width = Math.max(...lines.map((l) => ctx.measureText(l).width));
+  const width = Math.max(...lines.map(l => ctx.measureText(l).width));
   const height = lines.length * lineHeight;
   const PAD = 6 / scale;
 
@@ -650,5 +654,5 @@ export {
   drawLine,
   hitTestCorner,
   hitTestRotationHandle,
-  hitTestTextBoxRotationHandle,
+  hitTestTextBoxRotationHandle
 };

@@ -21,7 +21,7 @@ export function useSocketDraw(
   strokeColor: string,
   doRedraw: () => void,
 ) {
-
+  const { strokeWidth } = useToolSettings();
 
   useEffect(() => {
     //handle drawing
@@ -47,6 +47,7 @@ export function useSocketDraw(
         userId: userIdRef.current,
         roomId,
         strokeColor,
+        strokeWidth,
       });
       doRedraw();
     };
@@ -75,13 +76,19 @@ export function useSocketDraw(
           points: [...currentStroke.current],
           userId: userIdRef.current,
           color: strokeColor,
+          opacity: 0,
+          strokeWidth,
         };
+
+        console.log(completedStrokes)
 
         strokes.current.push(completedStrokes);
         socket.emit("stroke-end", {
           userId: userIdRef.current,
           roomId,
           strokes: completedStrokes,
+          strokeWidth, // add these two
+          opacity: 0,
         });
       }
       currentStroke.current = [];
@@ -91,38 +98,50 @@ export function useSocketDraw(
     };
 
     //received data from the backend
-    socket.on("stroke-start", ({ userId, strokeColor }) => {
-      activeStrokes.current[userId] = {
-        color: strokeColor,
-        points: [],
-      };
-    });
-
-    socket.on("stroke-points", ({ userId, point, color: incomingColor }) => {
-      if (!activeStrokes.current[userId]) {
+    socket.on(
+      "stroke-start",
+      ({ userId, strokeColor, strokeWidth, opacity }) => {
         activeStrokes.current[userId] = {
-          color: incomingColor,
+          color: strokeColor,
+          strokeWidth,
+          opacity,
           points: [],
         };
-      }
-      activeStrokes.current[userId].points.push(point);
+      },
+    );
 
-      doRedraw();
-    });
+    socket.on(
+      "stroke-points",
+      ({ userId, point, color: incomingColor, strokeWidth, opacity }) => {
+        if (!activeStrokes.current[userId]) {
+          activeStrokes.current[userId] = {
+            color: incomingColor,
+            strokeWidth,
+            opacity,
+            points: [],
+          };
+        }
+        activeStrokes.current[userId].points.push(point);
 
-    socket.on("stroke-end", ({ userId }) => {
+        doRedraw();
+      },
+    );
+
+    socket.on("stroke-end", ({ userId, strokes: strokeData }) => {
       let activeStroke = activeStrokes.current[userId];
-
       if (!activeStroke) return;
 
+      console.log(strokeData)
+
       strokes.current.push({
-        userId: userId,
+        userId,
         color: activeStroke.color,
+        strokeWidth: strokeData.strokeWidth,
+        opacity: strokeData.opacity,
         points: activeStroke.points,
       });
 
       delete activeStrokes.current[userId];
-
       doRedraw();
     });
     socket.on("stroke-delete", (point: Point) => {
@@ -131,8 +150,6 @@ export function useSocketDraw(
       );
       doRedraw();
     });
-
-
 
     canvas.addEventListener("mousedown", startDrawing);
     canvas.addEventListener("mousemove", draw);
@@ -146,5 +163,5 @@ export function useSocketDraw(
       canvas.removeEventListener("mousemove", draw);
       window.removeEventListener("mouseup", stopDrawing);
     };
-  }, [activeTool,doRedraw]);
+  }, [activeTool, doRedraw, strokeWidth]);
 }

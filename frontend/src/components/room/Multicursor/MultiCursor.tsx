@@ -92,6 +92,7 @@ export default function MultiCursor({
     activeLine,
     doRedrawRef,
     setRoomId,
+    strokeWidth
   } = useToolSettings();
 
   useEffect(() => {
@@ -122,8 +123,9 @@ export default function MultiCursor({
       selectedId,
       textBoxesRef,
       activeTextBox,
+      strokeWidth
     );
-  }, [strokeColor]);
+  }, [strokeColor,strokeWidth]);
 
   useEffect(() => {
     doRedrawRef.current = doRedraw;

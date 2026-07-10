@@ -6,13 +6,15 @@ type Point = {
 type Stroke = {
   userId: string;
   color: string;
-  width?:number;
-  opacity?:number;
+  strokeWidth:number;
+  opacity:number;
   points: Point[];
 };
 
 type ActiveStroke = {
   color: string;
+  strokeWidth:number;
+  opacity:number;
   points: Point[];
 };
 

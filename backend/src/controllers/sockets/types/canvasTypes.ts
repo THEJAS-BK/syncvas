@@ -1,8 +1,8 @@
 type Stroke = {
   userId: string;
   color: string;
-  width: number;
   opacity: number;
+  strokeWidth:number;
   points: { x: number; y: number }[];
 };
 
