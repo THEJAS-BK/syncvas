@@ -459,7 +459,6 @@ export function useSelection(
       doRedraw();
     };
 
-    //edit textbox
     const onDblClick = (e: MouseEvent) => {
       if (activeTool !== "mouse") return;
       const { x, y } = toCanvas(e.clientX, e.clientY);
@@ -471,10 +470,7 @@ export function useSelection(
         .find((t) => hitTestTextBox(t, x, y, ctx));
 
       if (hitText) {
-        textBoxesRef.current = textBoxesRef.current.filter(
-          (t) => t.id !== hitText.id,
-        );
-        activeTextBox.current = { ...hitText };
+        activeTextBox.current = { ...hitText }; 
         onEditTextBox?.();
         doRedraw();
         setTimeout(() => {

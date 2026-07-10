@@ -80,19 +80,25 @@ export default function MultiCursor({
   useEffect(() => {
     setStrokeColor(color);
   }, []);
-  const { activeTool,selectedId } = useToolSettings();
+  const { activeTool, selectedId } = useToolSettings();
 
   //shapes,textBoxes and lines
-  const {shapesRef,activeShape,
-        textBoxesRef,activeTextBox,
-        linesRef,activeLine,doRedrawRef,setRoomId}=useToolSettings();
-    
-        useEffect(()=>{
-         if(roomId) {
-          setRoomId(roomId)
-         }
-        },[roomId])
+  const {
+    shapesRef,
+    activeShape,
+    textBoxesRef,
+    activeTextBox,
+    linesRef,
+    activeLine,
+    doRedrawRef,
+    setRoomId,
+  } = useToolSettings();
 
+  useEffect(() => {
+    if (roomId) {
+      setRoomId(roomId);
+    }
+  }, [roomId]);
 
   const doRedraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -120,9 +126,8 @@ export default function MultiCursor({
   }, [strokeColor]);
 
   useEffect(() => {
-  doRedrawRef.current = doRedraw;
-}, [doRedraw]);
-
+    doRedrawRef.current = doRedraw;
+  }, [doRedraw]);
 
   useSelection(
     roomId ?? "",
@@ -138,14 +143,7 @@ export default function MultiCursor({
     triggerUpdate,
     doRedraw,
   );
-  const {
-    placeTextBox,
-    finalizeTextBox,
-    cancelTextBox,
-    updateTextBox,
-    changeFontSize,
-    deleteTextBox,
-  } = useTextBox(
+  const { placeTextBox, finalizeTextBox, updateTextBoxContent } = useTextBox(
     roomId ?? "",
     camera,
     userIdRef.current,
@@ -341,13 +339,11 @@ export default function MultiCursor({
               background: "transparent",
             }}
             onInput={(e) => {
-              activeTextBox.current!.text = e.currentTarget.value;
               const el = e.currentTarget;
+              updateTextBoxContent(el.value);
+
               const measure = measureRef.current!;
               const scale = camera.current.scale;
-
-              // sync text to ref so canvas redraws it
-              activeTextBox.current!.text = el.value;
 
               const lines = el.value.split("\n");
               const longest = lines.reduce(
@@ -368,72 +364,34 @@ export default function MultiCursor({
               el.style.height = "auto";
               el.style.height = el.scrollHeight + "px";
 
-              // redraw canvas with updated text
-              const canvas = canvasRef.current;
-              const ctx = canvas?.getContext("2d");
-              if (canvas && ctx) {
-                redraw(
-                  canvas,
-                  ctx,
-                  camera,
-                  images,
-                  imageCache,
-                  activeStrokes,
-                  currentStroke,
-                  strokes,
-                  userIdRef.current,
-                  strokeColor,
-                  shapesRef,
-                  activeShape,
-                  linesRef,
-                  activeLine,
-                  selectedId,
-                  textBoxesRef,
-                  activeTextBox,
-                );
-
-                // pan if needed
-                const rect = el.getBoundingClientRect();
-                autoPanIfNeeded(
-                  canvas,
-                  ctx,
-                  camera,
-                  rect.right,
-                  rect.bottom,
-                  images,
-                  imageCache,
-                  activeStrokes,
-                  currentStroke,
-                  strokes,
-                  userIdRef.current,
-                  strokeColor,
-                  () => setPanTick((t) => t + 1),
-                  shapesRef,
-                  activeShape,
-                  linesRef,
-                  activeLine,
-                  selectedId,
-                  textBoxesRef,
-                  activeTextBox,
-                );
-              }
+              const rect = el.getBoundingClientRect();
+              autoPanIfNeeded(
+                canvasRef.current!,
+                canvasRef.current!.getContext("2d")!,
+                camera,
+                rect.right,
+                rect.bottom,
+                images,
+                imageCache,
+                activeStrokes,
+                currentStroke,
+                strokes,
+                userIdRef.current,
+                strokeColor,
+                () => setPanTick((t) => t + 1),
+                shapesRef,
+                activeShape,
+                linesRef,
+                activeLine,
+                selectedId,
+                textBoxesRef,
+                activeTextBox,
+              );
             }}
             onBlur={(e) => {
-              const isEdit =
-                !!activeTextBox.current &&
-                textBoxesRef.current.some(
-                  (t) => t.id === activeTextBox.current?.id,
-                ) === false &&
-                editingExistingRef.current;
-              finalizeTextBox(e.target.value, editingExistingRef.current);
+              finalizeTextBox(e.target.value);
               editingExistingRef.current = false;
               triggerUpdate();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                cancelTextBox();
-                triggerUpdate();
-              }
             }}
           />
         </>
