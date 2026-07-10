@@ -8,7 +8,6 @@ import type {
   Line,
   TextBox,
 } from "./types";
-import { ContactRound } from "lucide-react";
 
 const getCanvasPoint = (
   e: MouseEvent,
@@ -45,7 +44,8 @@ const redraw = (
   textBoxesRef: React.RefObject<TextBox[]>,
   activeTextBox: React.RefObject<TextBox | null>,
   strokeWidth:number,
-  opacity:number
+  opacity:number,
+  fillColor:string
 
 ) => {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -104,7 +104,8 @@ const redraw = (
           textBoxesRef,
           activeTextBox,
           strokeWidth,
-          opacity
+          opacity,
+          fillColor
         );
       };
 

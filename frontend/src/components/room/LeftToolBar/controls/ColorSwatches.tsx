@@ -1,4 +1,4 @@
-import  { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ColorGrid from "./ColorGrid";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
@@ -16,10 +16,13 @@ export default function ColorSwatches({
   };
 
   useEffect(() => {
-    if (!colorGrid) return; 
+    if (!colorGrid) return;
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setColorGrid(null);
       }
     };
@@ -28,15 +31,10 @@ export default function ColorSwatches({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [colorGrid]);
 
-  const {
-    strokeColor,
-    setStrokeColor,
-    fillColor,
-    setFillColor,
-    selectedEle,
-  } = useToolSettings();
+  const { strokeColor, setStrokeColor, fillColor, setFillColor, selectedEle } =
+    useToolSettings();
 
-  const {handleEditShapeColor}=useEditElements();
+  const { handleEditShapeColor } = useEditElements();
   const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
   const backgroundColors = [
     "transparent",
@@ -45,22 +43,37 @@ export default function ColorSwatches({
     "#1e3a8a",
     "#422006",
   ];
+
+  const transparentPattern = {
+    backgroundImage: `
+    linear-gradient(45deg, #1a1a1a 25%, transparent 25%),
+    linear-gradient(-45deg, #1a1a1a 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #1a1a1a 75%),
+    linear-gradient(-45deg, transparent 75%, #1a1a1a 75%)
+  `,
+    backgroundSize: "12px 12px",
+    backgroundPosition: "0 0, 0 6px, 6px -6px, -6px 0px",
+    backgroundColor: "#3a3a3a",
+  };
+  const swatchStyle = (color: string) =>
+    color === "transparent" ? transparentPattern : { backgroundColor: color };
+
   return (
     <div ref={containerRef} className="flex flex-col z-20">
       <span className="mb-2 text-sm text-gray-300">Strokes</span>
-      <div className="flex items-center gap-1"> 
+      <div className="flex items-center gap-1">
         {strokeColors.map((color) => (
           <div
             key={color}
             style={{ backgroundColor: color }}
             className={`w-6 h-6 rounded cursor-pointer ${
-              (strokeColor === color)
+              strokeColor === color
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
             onClick={() => {
               setStrokeColor(color);
-               if (selectedEle) handleEditShapeColor(color);
+              if (selectedEle) handleEditShapeColor(color);
             }}
           />
         ))}
@@ -81,10 +94,10 @@ export default function ColorSwatches({
             {backgroundColors.map((color) => (
               <div
                 key={color}
-                style={{ backgroundColor: color }}
+                style={swatchStyle(color)}
                 className={`w-6 h-6 rounded cursor-pointer ${
                   fillColor === color
-                    ? "border-2 border-purple-500"
+                    ? `border-2 border-purple-500 ${color === "transparent" ? "border-dashed" : ""}`
                     : "border border-transparent"
                 }`}
                 onClick={() => setFillColor(color)}
@@ -93,7 +106,7 @@ export default function ColorSwatches({
             <div className="flex gap-1">
               <div className="w-px h-7 bg-gray-600 align-center"></div>
               <div
-                style={{ backgroundColor: fillColor }}
+                style={swatchStyle(fillColor)}
                 className="w-7 h-7 ml-px rounded static hover:scale-115"
                 onClick={() => toggle("background")}
               ></div>
@@ -103,7 +116,9 @@ export default function ColorSwatches({
       )}
 
       {colorGrid === "strokes" && <ColorGrid isMostUsedColorsNeeded={true} />}
-      {colorGrid === "background" && <ColorGrid isMostUsedColorsNeeded={false} />}
+      {colorGrid === "background" && (
+        <ColorGrid isMostUsedColorsNeeded={false} />
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@ export default function OpacitySlider() {
         type="range"
         min={0}
         max={100}
-        defaultValue={50}
+        defaultValue={100}
         className="
       w-full h-1 rounded-full
       appearance-none cursor-pointer
