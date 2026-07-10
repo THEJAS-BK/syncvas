@@ -20,8 +20,6 @@ export default function ToolBarContainer() {
   }
   // if none match, lastTool.current just keeps whatever it was before
 
-    console.log(lastTool)
-
 
   const displayTool = lastTool.current || activeTool  ;
 

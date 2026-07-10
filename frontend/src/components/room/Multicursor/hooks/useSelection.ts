@@ -42,7 +42,6 @@ export function useSelection(
 
   //edit mode
   const { selectedEle, setSelectedEle } = useToolSettings();
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -243,6 +242,7 @@ export function useSelection(
       //!edit mode
       if (!hit) return;
       selectedId.current = hit?.id ?? null;
+      setSelectedEle(hit ?? null); 
       doRedraw();
     };
 
@@ -458,6 +458,7 @@ export function useSelection(
     };
 
     const onMouseUp = () => {
+      if(activeTool!=="mouse") return;
       if (isResizing.current) {
         isResizing.current = false;
         resizeCorner.current = null;
@@ -505,54 +506,22 @@ export function useSelection(
       }
     };
 
-    const handleClick = (e: MouseEvent) => {
 
-            if(e.target !==canvasRef.current) return;
-      if (activeTool !== "mouse") {
-        selectedId.current = null;
-        doRedraw();
-        return;
-      }
-      else {
-        const canvas = canvasRef.current;
-        const { x, y } = toCanvas(e.clientX, e.clientY);
-        const ctx = canvas?.getContext("2d");
-        if (!ctx) return;
-        // reverse so topmost (last drawn) wins
-        const hitShape = [...shapesRef.current]
-        .reverse()
-        .find((s) => hitTestShape(s, x, y));
-        
-        const hitLine = [...linesRef.current]
-        .reverse()
-        .find((l) => hitTestLine(l, x, y, camera.current.scale));
-        
-        const hitText = [...(textBoxesRef?.current ?? [])]
-          .reverse()
-          .find((t) => hitTestTextBox(t, x, y, ctx));
-          
-        setSelectedEle(hitShape || hitLine || hitText || null);
-      }
-
-    };
-    
     canvas.addEventListener("mousedown", onMouseDown);
     canvas.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     canvas.addEventListener("dblclick", onDblClick);
     window.addEventListener("keydown", handleElementDelete);
-    window.addEventListener("click", handleClick);
     return () => {
       canvas.removeEventListener("mousedown", onMouseDown);
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("dblclick", onDblClick);
       window.removeEventListener("keydown", handleElementDelete);
-      window.removeEventListener("click", handleClick);
     };
   }, [activeTool, color, doRedraw]);
 
-  const {strokeColor,setStrokeColor}=useToolSettings();
+  const { strokeColor, setStrokeColor } = useToolSettings();
 
   //edit mode
   useEffect(() => {
@@ -564,20 +533,19 @@ export function useSelection(
 
     const handleClick = () => {
       if (activeTool !== "mouse") {
-        setSelectedEle(null)
-        selectedId.current=null;
+        setSelectedEle(null);
+        selectedId.current = null;
         return;
-      }  
+      }
     };
 
-    if(activeTool==="mouse"){
-      setStrokeColor(selectedEle.color)
+    if (activeTool === "mouse") {
+      setStrokeColor(selectedEle.color);
     }
 
     window.addEventListener("click", handleClick);
     return () => {
       window.removeEventListener("click", handleClick);
     };
-  }, [selectedEle,activeTool]);
+  }, [selectedEle, activeTool]);
 }
-  

@@ -121,7 +121,6 @@ export function useShapes(
       shapesRef.current = shapesRef.current.map((s) =>
         s.id === id ? { ...s, ...changes } : s,
       );
-      console.log("updates in this",shapesRef);
       doRedraw();
     };
 

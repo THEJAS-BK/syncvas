@@ -8,26 +8,29 @@ function hitTestShape(shape: Shape, x: number, y: number): boolean {
   const right = Math.max(shape.x, shape.x + shape.width);
   const bottom = Math.max(shape.y, shape.y + shape.height);
 
+  const cx = (left + right) / 2;
+  const cy = (top + bottom) / 2;
+  const rotation = shape.rotation || 0;
+
+  const dx = x - cx;
+  const dy = y - cy;
+  const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation) + cx;
+  const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation) + cy;
+
   switch (shape.shapeType) {
     case "square":
-      return x >= left && x <= right && y >= top && y <= bottom;
-
+      return localX >= left && localX <= right && localY >= top && localY <= bottom;
     case "circle": {
-      const cx = (left + right) / 2;
-      const cy = (top + bottom) / 2;
       const rx = (right - left) / 2;
       const ry = (bottom - top) / 2;
       if (rx === 0 || ry === 0) return false;
-      return (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 <= 1;
+      return (localX - cx) ** 2 / rx ** 2 + (localY - cy) ** 2 / ry ** 2 <= 1;
     }
-
     case "diamond": {
-      const cx = (left + right) / 2;
-      const cy = (top + bottom) / 2;
       const rx = (right - left) / 2;
       const ry = (bottom - top) / 2;
       if (rx === 0 || ry === 0) return false;
-      return Math.abs(x - cx) / rx + Math.abs(y - cy) / ry <= 1;
+      return Math.abs(localX - cx) / rx + Math.abs(localY - cy) / ry <= 1;
     }
   }
 }
@@ -67,7 +70,21 @@ function hitTestTextBox(
   const lineHeight = tb.fontSize * 1.2;
   const width = Math.max(...lines.map((l) => ctx.measureText(l).width));
   const height = lines.length * lineHeight;
-  return x >= tb.x && x <= tb.x + width && y >= tb.y && y <= tb.y + height;
+
+  const left = tb.x;
+  const top = tb.y;
+  const right = tb.x + width;
+  const bottom = tb.y + height;
+  const cx = (left + right) / 2;
+  const cy = (top + bottom) / 2;
+  const rotation = tb.rotation || 0;
+
+  const dx = x - cx;
+  const dy = y - cy;
+  const localX = dx * Math.cos(-rotation) - dy * Math.sin(-rotation) + cx;
+  const localY = dx * Math.sin(-rotation) + dy * Math.cos(-rotation) + cy;
+
+  return localX >= left && localX <= right && localY >= top && localY <= bottom;
 }
 
 export {hitTestLine,hitTestShape,hitTestTextBox}
