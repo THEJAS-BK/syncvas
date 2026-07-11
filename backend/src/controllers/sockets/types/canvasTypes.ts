@@ -41,7 +41,7 @@ type CanvasElement =
       userId: string;
       fillColor:string;
       edgeStyle:string;
-      strokeWidth:string
+      strokeWidth:number
     }
   | {
       id: string;

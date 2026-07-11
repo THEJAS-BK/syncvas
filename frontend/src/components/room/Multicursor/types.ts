@@ -53,6 +53,7 @@ interface Shape {
   fillColor:string;
   edgeStyle:string;
   strokeWidth:number;
+  strokeStyle:string;
   userId: string;
 }
 interface Line {

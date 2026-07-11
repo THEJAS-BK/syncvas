@@ -29,7 +29,7 @@ export function useShapes(
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  const {fillColor,edgeStyle,shapeFillType,strokeWidth}=useToolSettings();
+  const {fillColor,edgeStyle,shapeFillType,strokeWidth,strokeStyle}=useToolSettings();
 
   // ---- native mouse listeners on canvas ----
   useEffect(() => {
@@ -55,6 +55,7 @@ export function useShapes(
         fillColor,
         edgeStyle,
         strokeWidth,
+        strokeStyle,
         userId: userIdRef.current,
       };
 
