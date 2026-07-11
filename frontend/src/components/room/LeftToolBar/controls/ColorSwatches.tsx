@@ -88,7 +88,7 @@ export default function ColorSwatches({
         </div>
       </div>
 
-      {activeTool !== "text" && activeTool !== "arrow" && (
+      {activeTool !== "text" && (
         <>
           <p className="mb-2 mt-2 text-sm text-gray-300">Background</p>
           <div className="flex items-center gap-1">
