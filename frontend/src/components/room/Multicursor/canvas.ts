@@ -572,7 +572,20 @@ function drawRoundedPolygon(
 
 function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   ctx.strokeStyle = line.color;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = line.strokeWidth;
+
+  switch (line.lineStyle) {
+    case "dashed":
+      ctx.setLineDash([10, 6]);
+      break;
+    case "dotted":
+      ctx.setLineDash([2, 6]);
+      ctx.lineCap = "round"; // makes dots look like dots, not tiny dashes
+      break;
+    default:
+      ctx.setLineDash([]);
+  }
+
   ctx.beginPath();
   ctx.moveTo(line.x1, line.y1);
 
@@ -590,6 +603,9 @@ function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
         : Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
 
     const headLength = 12;
+
+    ctx.setLineDash([]); // arrowhead always solid, regardless of line style
+
     ctx.beginPath();
     ctx.moveTo(line.x2, line.y2);
     ctx.lineTo(
@@ -602,6 +618,26 @@ function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
       line.y2 - headLength * Math.sin(angle + Math.PI / 6),
     );
     ctx.stroke();
+
+    if (line.arrowHead === "classic") {
+      const startAngle =
+        line.cpx !== undefined && line.cpy !== undefined
+          ? Math.atan2(line.y1 - line.cpy, line.x1 - line.cpx)
+          : Math.atan2(line.y1 - line.y2, line.x1 - line.x2);
+
+      ctx.beginPath();
+      ctx.moveTo(line.x1, line.y1);
+      ctx.lineTo(
+        line.x1 - headLength * Math.cos(startAngle - Math.PI / 6),
+        line.y1 - headLength * Math.sin(startAngle - Math.PI / 6),
+      );
+      ctx.moveTo(line.x1, line.y1);
+      ctx.lineTo(
+        line.x1 - headLength * Math.cos(startAngle + Math.PI / 6),
+        line.y1 - headLength * Math.sin(startAngle + Math.PI / 6),
+      );
+      ctx.stroke();
+    }
   }
 }
 

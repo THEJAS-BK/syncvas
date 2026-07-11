@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
 import type { RefObject } from "react";
 import type { Line, CanvasElement } from "../types";
-
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 export function useLines(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -20,6 +20,9 @@ export function useLines(
     x: (clientX - camera.current.x) / camera.current.scale,
     y: (clientY - camera.current.y) / camera.current.scale,
   });
+
+  const { strokeWidth, strokeStyle, arrowType, arrowHead } =
+    useToolSettings();
 
   // ---- native mouse listeners ----
   useEffect(() => {
@@ -39,6 +42,10 @@ export function useLines(
         x2: x,
         y2: y,
         color: strokeColor,
+        strokeWidth,
+        lineStyle: strokeStyle,
+        arrowType,
+        arrowHead,
         userId: userIdRef.current,
       };
       const line = activeLine.current;
@@ -92,7 +99,16 @@ export function useLines(
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, strokeColor,doRedraw]);
+  }, [
+    activeTool,
+    strokeColor,
+    doRedraw,
+    strokeWidth,
+    strokeStyle,
+    arrowType,
+    arrowHead,
+
+  ]);
 
   // ---- socket listeners ----
   useEffect(() => {

@@ -54,7 +54,6 @@ export function useShapes(
         rotation:0,
         fillColor,
         edgeStyle,
-        shapeFillType,
         userId: userIdRef.current,
       };
 

@@ -43,8 +43,6 @@ type ToolSettings = {
   strokeStyle: string;
   setStrokeStyle: Dispatch<SetStateAction<string>>;
 
-  sloppines: string;
-  setSloppines: Dispatch<SetStateAction<string>>;
 
   arrowType: string;
   setArrowType: Dispatch<SetStateAction<string>>;
@@ -98,7 +96,6 @@ export function ToolSettingsProvider({
   const [fontSize, setFontSize] = useState("small");
   const [textAlign, setTextAlign] = useState("left");
   const [strokeStyle, setStrokeStyle] = useState("solid");
-  const [sloppines, setSloppines] = useState("artist");
   const [arrowType, setArrowType] = useState("straight");
   const [arrowHead, setArrowHead] = useState("none");
   const [edgeStyle, setEdgeStyle] = useState("sharp");
@@ -144,8 +141,6 @@ export function ToolSettingsProvider({
         setTextAlign,
         strokeStyle,
         setStrokeStyle,
-        sloppines,
-        setSloppines,
         arrowType,
         setArrowType,
         arrowHead,

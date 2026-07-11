@@ -44,16 +44,21 @@ type CanvasElement =
     }
   | {
       id: string;
-      type: "line";
-      lineType: "arrow" | "straight";
-      x1: number;
-      y1: number;
-      x2: number;
-      y2: number;
-      cpx?: number;
-      cpy?: number;
-      color: string;
-      userId: string;
+  type: "line";
+  lineType: "straight" | "arrow";
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  cpx?: number;
+  cpy?: number;
+  color: string;
+  strokeWidth: number;
+  lineStyle:string;
+  sloppiness:string;
+  arrowType:string;
+  arrowHead:string;
+  userId: string;
     };
 
 export type { Stroke, ImageElement, CanvasElement };

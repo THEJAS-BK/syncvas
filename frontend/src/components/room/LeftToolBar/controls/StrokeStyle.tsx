@@ -6,7 +6,7 @@ export default function StrokeStyle() {
 
   return (
     <div>
-      <span className="mb-2 text-sm font-medium text-gray-300 ">Stroke style</span>
+      <span className="mb-2 text-sm font-sm text-gray-300 ">Line style</span>
       <div className="flex space-x-2">
         <div
           onClick={() => setStrokeStyle("solid")}

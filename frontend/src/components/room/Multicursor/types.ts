@@ -65,6 +65,10 @@ interface Line {
   cpx?: number;
   cpy?: number;
   color: string;
+  strokeWidth: number;
+  lineStyle:string;
+  arrowType:string;
+  arrowHead:string;
   userId: string;
 }
 
