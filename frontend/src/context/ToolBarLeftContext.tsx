@@ -52,8 +52,8 @@ type ToolSettings = {
   arrowHead: string;
   setArrowHead: Dispatch<SetStateAction<string>>;
 
-  edge: string;
-  setEdge: Dispatch<SetStateAction<string>>;
+  edgeStyle: string;
+  setEdgeStyle: Dispatch<SetStateAction<string>>;
 
   activeTool: string | null;
   setActiveTool: Dispatch<SetStateAction<string | null>>;
@@ -101,7 +101,7 @@ export function ToolSettingsProvider({
   const [sloppines, setSloppines] = useState("artist");
   const [arrowType, setArrowType] = useState("straight");
   const [arrowHead, setArrowHead] = useState("none");
-  const [edge, setEdge] = useState("sharp");
+  const [edgeStyle, setEdgeStyle] = useState("sharp");
 
   const [selectedEle, setSelectedEle] = useState<Shape | Line | TextBox | null>(
     null,
@@ -150,8 +150,8 @@ export function ToolSettingsProvider({
         setArrowType,
         arrowHead,
         setArrowHead,
-        edge,
-        setEdge,
+        edgeStyle,
+        setEdgeStyle,
         selectedEle,
         setSelectedEle,
         selectedId,

@@ -40,6 +40,7 @@ type CanvasElement =
       color: string;
       userId: string;
       fillColor:string;
+      edgeStyle:string;
     }
   | {
       id: string;

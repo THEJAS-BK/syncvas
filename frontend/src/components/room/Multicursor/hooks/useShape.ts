@@ -29,7 +29,7 @@ export function useShapes(
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  const {fillColor}=useToolSettings();
+  const {fillColor,edgeStyle}=useToolSettings();
 
   // ---- native mouse listeners on canvas ----
   useEffect(() => {
@@ -53,6 +53,7 @@ export function useShapes(
         color,
         rotation:0,
         fillColor,
+        edgeStyle,
         userId: userIdRef.current,
       };
 
@@ -103,7 +104,7 @@ export function useShapes(
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, color,doRedraw,fillColor]);
+  }, [activeTool, color,doRedraw,fillColor,edgeStyle]);
 
   // ---- socket listeners ----
   useEffect(() => {
@@ -149,7 +150,7 @@ export function useShapes(
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, [doRedraw,activeTool,fillColor]);
+  }, [doRedraw,activeTool,fillColor,edgeStyle]);
 
   const deleteShape = (id: string) => {
     shapesRef.current = shapesRef.current.filter((s) => s.id !== id);

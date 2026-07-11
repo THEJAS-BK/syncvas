@@ -462,7 +462,7 @@ const isPointNearStroke = (
   return false;
 };
 
-function drawShape(ctx: CanvasRenderingContext2D, shape: Shape, ) {
+function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
   const left = Math.min(shape.x, shape.x + shape.width);
   const top = Math.min(shape.y, shape.y + shape.height);
   const right = Math.max(shape.x, shape.x + shape.width);
@@ -474,6 +474,7 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape, ) {
   const rotation = shape.rotation || 0;
 
   const shouldFill = shape.fillColor !== "transparent";
+  const isRounded = shape.edgeStyle === "rounded";
 
   ctx.save();
   ctx.translate(cx, cy);
@@ -482,13 +483,22 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape, ) {
   ctx.lineWidth = 2;
 
   switch (shape.shapeType) {
-    case "square":
+    case "square": {
+      const radius = isRounded ? Math.min(w, h) * 0.15 : 0;
+
+      ctx.beginPath();
+      if (radius > 0) {
+        ctx.roundRect(-w / 2, -h / 2, w, h, radius);
+      } else {
+        ctx.rect(-w / 2, -h / 2, w, h);
+      }
       if (shouldFill) {
         ctx.fillStyle = shape.fillColor;
-        ctx.fillRect(-w / 2, -h / 2, w, h);
+        ctx.fill();
       }
-      ctx.strokeRect(-w / 2, -h / 2, w, h);
+      ctx.stroke();
       break;
+    }
 
     case "circle":
       ctx.beginPath();
@@ -501,12 +511,24 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape, ) {
       break;
 
     case "diamond": {
+      const points = [
+        { x: 0, y: -h / 2 },
+        { x: w / 2, y: 0 },
+        { x: 0, y: h / 2 },
+        { x: -w / 2, y: 0 },
+      ];
+      const radius = isRounded ? Math.min(w, h) * 0.15 : 0;
+
       ctx.beginPath();
-      ctx.moveTo(0, -h / 2);
-      ctx.lineTo(w / 2, 0);
-      ctx.lineTo(0, h / 2);
-      ctx.lineTo(-w / 2, 0);
-      ctx.closePath();
+      if (radius > 0) {
+        drawRoundedPolygon(ctx, points, radius);
+      } else {
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.closePath();
+      }
       if (shouldFill) {
         ctx.fillStyle = shape.fillColor;
         ctx.fill();
@@ -518,6 +540,36 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape, ) {
 
   ctx.restore();
 }
+
+function drawRoundedPolygon(
+  ctx: CanvasRenderingContext2D,
+  points: { x: number; y: number }[],
+  radius: number
+) {
+  const n = points.length;
+
+  // Clamp radius so it never exceeds half of any edge's length
+  let r = radius;
+  for (let i = 0; i < n; i++) {
+    const p1 = points[i];
+    const p2 = points[(i + 1) % n];
+    const edgeLen = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    r = Math.min(r, edgeLen / 2);
+  }
+
+  ctx.moveTo(
+    (points[0].x + points[1].x) / 2,
+    (points[0].y + points[1].y) / 2
+  );
+  for (let i = 0; i < n; i++) {
+    const corner = points[(i + 1) % n];
+    const next = points[(i + 2) % n];
+    ctx.arcTo(corner.x, corner.y, next.x, next.y, r);
+  }
+  ctx.closePath();
+}
+
+
 function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   ctx.strokeStyle = line.color;
   ctx.lineWidth = 2;
