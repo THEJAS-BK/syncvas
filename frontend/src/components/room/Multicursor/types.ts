@@ -52,6 +52,7 @@ interface Shape {
   rotation:number;
   fillColor:string;
   edgeStyle:string;
+  strokeWidth:number;
   userId: string;
 }
 interface Line {

@@ -480,7 +480,7 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
   ctx.translate(cx, cy);
   ctx.rotate(rotation);
   ctx.strokeStyle = shape.color;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = parseInt(shape.strokeWidth);
 
   switch (shape.shapeType) {
     case "square": {

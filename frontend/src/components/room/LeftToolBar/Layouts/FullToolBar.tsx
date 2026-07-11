@@ -49,8 +49,8 @@ import EdgeSetting from "../controls/EdgeSetting";
         {(displayTool === "line") && (
           <>
             <ColorSwatches activeTool={"line"} />
-            
             <StrokeWidth />
+            <StrokeStyle />
             <ArrowSetting activeTool={"line"} />
             <EdgeSetting />
             <OpacitySlider />
