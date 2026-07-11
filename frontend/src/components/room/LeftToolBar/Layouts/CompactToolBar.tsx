@@ -1,7 +1,6 @@
 import { Settings2 } from "lucide-react";
 import ColorGrid from "../controls/ColorGrid";
 import { useState } from "react";
-import FillToggle from "../controls/FillToggle";
 import StrokeWidth from "../controls/StrokeWidth";
 import OpacitySlider from "../controls/OpacitySlider";
 import LayerControls from "../controls/LayerControls";
@@ -56,7 +55,7 @@ export default function CompactToolBar({
             <>
               {activeTool === "pen" && (
                 <>
-                  <FillToggle />
+                  
                   <StrokeWidth />
                   <StrokeStyle />
                   <OpacitySlider />
@@ -84,7 +83,7 @@ export default function CompactToolBar({
 
               {activeTool === "line" && (
                 <>
-                  <FillToggle />
+                  
                   <StrokeWidth />
                   <ArrowSetting activeTool={activeTool} />
                   <EdgeSetting />
@@ -95,7 +94,7 @@ export default function CompactToolBar({
 
               {(activeTool === "square" || activeTool === "diamond") && (
                 <>
-                  <FillToggle />
+                  
                   <StrokeWidth />
                   <StrokeStyle />
                   <div>
@@ -120,7 +119,7 @@ export default function CompactToolBar({
 
               {activeTool === "circle" && (
                 <>
-                  <FillToggle />
+                  
                   <StrokeWidth />
                   <StrokeStyle />
                   <div>

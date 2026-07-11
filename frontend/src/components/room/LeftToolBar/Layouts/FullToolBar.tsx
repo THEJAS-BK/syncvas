@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import FillToggle from "../controls/FillToggle";
 import ColorSwatches from "../controls/ColorSwatches";
 import StrokeWidth from "../controls/StrokeWidth";
 import OpacitySlider from "../controls/OpacitySlider";
@@ -23,7 +22,7 @@ import EdgeSetting from "../controls/EdgeSetting";
         {(displayTool === "pen") && (
           <>
             <ColorSwatches activeTool={"pen"}  />
-            <FillToggle />
+            
             <StrokeWidth />
             <OpacitySlider />
             <LayerControls />
@@ -50,7 +49,7 @@ import EdgeSetting from "../controls/EdgeSetting";
         {(displayTool === "line") && (
           <>
             <ColorSwatches activeTool={"line"} />
-            <FillToggle />
+            
             <StrokeWidth />
             <ArrowSetting activeTool={"line"} />
             <EdgeSetting />
@@ -61,7 +60,7 @@ import EdgeSetting from "../controls/EdgeSetting";
         {(displayTool === "square") && (
           <>
             <ColorSwatches activeTool={"square"} />
-            <FillToggle />
+            
             <StrokeWidth />
             <StrokeStyle />
             <ArrowSetting activeTool={"square"} />
@@ -73,7 +72,7 @@ import EdgeSetting from "../controls/EdgeSetting";
         {(displayTool === "diamond") && (
           <>
             <ColorSwatches activeTool={"diamond"} />
-            <FillToggle />
+            
             <StrokeWidth />
             <StrokeStyle />
             <ArrowSetting activeTool={"diamond"} />
@@ -85,7 +84,7 @@ import EdgeSetting from "../controls/EdgeSetting";
         {(displayTool === "circle"  )&& (
           <>
             <ColorSwatches activeTool={"circle"} />
-            <FillToggle />
+            
             <StrokeWidth />
             <StrokeStyle />
             <ArrowSetting activeTool={"circle"} />
