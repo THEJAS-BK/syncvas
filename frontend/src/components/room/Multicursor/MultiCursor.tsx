@@ -68,7 +68,6 @@ export default function MultiCursor({
   const measureRef = useRef<HTMLSpanElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [panTick, setPanTick] = useState(0);
-  const [filled, setFilled] = useState(false);
 
   const editingExistingRef = useRef(false);
 
@@ -184,7 +183,6 @@ export default function MultiCursor({
     shapesRef,
     activeShape,
     userIdRef,
-    filled,
     activeTool,
     strokeColor,
     doRedraw,

@@ -38,8 +38,8 @@ type CanvasElement =
       width: number;
       height: number;
       color: string;
-      filled: boolean;
       userId: string;
+      fillColor:string;
     }
   | {
       id: string;

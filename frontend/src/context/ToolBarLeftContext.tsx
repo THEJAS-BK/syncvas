@@ -90,7 +90,7 @@ export function ToolSettingsProvider({
 
   const [strokeColor, setStrokeColor] = useState("");
   const [fillColor, setFillColor] = useState("transparent");
-  const [strokeWidth, setStrokeWidth] = useState(2);
+  const [strokeWidth, setStrokeWidth] = useState(4);
   const [opacity, setOpacity] = useState(100);
   const [shadeIdx, setShadeIdx] = useState(4);
   const [shapeFillType, setShapeFillType] = useState("hachure");

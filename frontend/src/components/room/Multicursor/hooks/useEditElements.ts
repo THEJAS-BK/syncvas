@@ -16,7 +16,7 @@ export function useEditElements() {
     textbox: textBoxesRef,
   } as const;
 
-  const handleEditShapeColor = (color: string) => {
+  const handleEditShapeOutlineColor = (color: string) => {
     if (!selectedEle) return;
 
     const ref = refByType[selectedEle.type as keyof typeof refByType];
@@ -32,6 +32,23 @@ export function useEditElements() {
       id: el.id,
       changes: { color },
     });
+  }
+
+  const handleEditShapeFillColor = (fillColor: string) => {
+    if (!selectedEle || selectedEle.type !== "shape") return;
+
+    const el = shapesRef.current.find((e) => e.id === selectedEle.id);
+    if (!el) return;
+
+    el.fillColor = fillColor;
+    doRedrawRef.current?.();
+    socket.emit("element-update", {
+      roomId,
+      id: el.id,
+      changes: { fillColor },
+    });
   };
-  return { handleEditShapeColor };
+
+
+  return { handleEditShapeOutlineColor, handleEditShapeFillColor };
 }

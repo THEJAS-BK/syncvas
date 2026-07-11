@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
 import type { RefObject } from "react";
 import type { Shape, CanvasElement } from "../types";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 // maps the active tool name to the shape type stored on the element
 const TOOL_TO_SHAPE: Record<string, "square" | "circle" | "diamond"> = {
@@ -17,7 +18,6 @@ export function useShapes(
   shapesRef: RefObject<Shape[]>,
   activeShape: RefObject<Shape | null>,
   userIdRef: RefObject<string>,
-  filled: boolean,
   activeTool: string | null,
   color: string,
   doRedraw: () => void,
@@ -28,6 +28,8 @@ export function useShapes(
     x: (clientX - camera.current.x) / camera.current.scale,
     y: (clientY - camera.current.y) / camera.current.scale,
   });
+
+  const {fillColor}=useToolSettings();
 
   // ---- native mouse listeners on canvas ----
   useEffect(() => {
@@ -49,8 +51,8 @@ export function useShapes(
         width: 0,
         height: 0,
         color,
-        filled,
         rotation:0,
+        fillColor,
         userId: userIdRef.current,
       };
 
@@ -101,7 +103,7 @@ export function useShapes(
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, color, filled,doRedraw]);
+  }, [activeTool, color,doRedraw,fillColor]);
 
   // ---- socket listeners ----
   useEffect(() => {
@@ -147,7 +149,7 @@ export function useShapes(
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, [doRedraw,activeTool]);
+  }, [doRedraw,activeTool,fillColor]);
 
   const deleteShape = (id: string) => {
     shapesRef.current = shapesRef.current.filter((s) => s.id !== id);

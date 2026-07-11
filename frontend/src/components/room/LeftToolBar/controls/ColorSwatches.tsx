@@ -34,7 +34,8 @@ export default function ColorSwatches({
   const { strokeColor, setStrokeColor, fillColor, setFillColor, selectedEle } =
     useToolSettings();
 
-  const { handleEditShapeColor } = useEditElements();
+  const { handleEditShapeOutlineColor, handleEditShapeFillColor } =
+    useEditElements();
   const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
   const backgroundColors = [
     "transparent",
@@ -73,7 +74,7 @@ export default function ColorSwatches({
             }`}
             onClick={() => {
               setStrokeColor(color);
-              if (selectedEle) handleEditShapeColor(color);
+              if (selectedEle) handleEditShapeOutlineColor(color);
             }}
           />
         ))}
@@ -100,7 +101,10 @@ export default function ColorSwatches({
                     ? `border-2 border-purple-500 ${color === "transparent" ? "border-dashed" : ""}`
                     : "border border-transparent"
                 }`}
-                onClick={() => setFillColor(color)}
+                onClick={() => {
+                  setFillColor(color);
+                  handleEditShapeFillColor(color);
+                }}
               />
             ))}
             <div className="flex gap-1">

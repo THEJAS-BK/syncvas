@@ -462,7 +462,7 @@ const isPointNearStroke = (
   return false;
 };
 
-function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
+function drawShape(ctx: CanvasRenderingContext2D, shape: Shape, ) {
   const left = Math.min(shape.x, shape.x + shape.width);
   const top = Math.min(shape.y, shape.y + shape.height);
   const right = Math.max(shape.x, shape.x + shape.width);
@@ -473,6 +473,8 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
   const h = bottom - top;
   const rotation = shape.rotation || 0;
 
+  const shouldFill = shape.fillColor !== "transparent";
+
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(rotation);
@@ -481,8 +483,8 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
 
   switch (shape.shapeType) {
     case "square":
-      if (shape.filled) {
-        ctx.fillStyle = shape.color;
+      if (shouldFill) {
+        ctx.fillStyle = shape.fillColor;
         ctx.fillRect(-w / 2, -h / 2, w, h);
       }
       ctx.strokeRect(-w / 2, -h / 2, w, h);
@@ -491,8 +493,8 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
     case "circle":
       ctx.beginPath();
       ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, Math.PI * 2);
-      if (shape.filled) {
-        ctx.fillStyle = shape.color;
+      if (shouldFill) {
+        ctx.fillStyle = shape.fillColor;
         ctx.fill();
       }
       ctx.stroke();
@@ -505,8 +507,8 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
       ctx.lineTo(0, h / 2);
       ctx.lineTo(-w / 2, 0);
       ctx.closePath();
-      if (shape.filled) {
-        ctx.fillStyle = shape.color;
+      if (shouldFill) {
+        ctx.fillStyle = shape.fillColor;
         ctx.fill();
       }
       ctx.stroke();

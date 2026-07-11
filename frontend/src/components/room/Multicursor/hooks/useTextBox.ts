@@ -1,11 +1,7 @@
 import { useEffect } from "react";
 import { socket } from "../../../../services/socket";
-import type {  RefObject } from "react";
-import type {
-  TextBox,
-  CanvasElement,
-
-} from "../types";
+import type { RefObject } from "react";
+import type { TextBox, CanvasElement } from "../types";
 export function useTextBox(
   roomId: string,
 
@@ -13,9 +9,9 @@ export function useTextBox(
 
   userId: string,
   color: string,
-textBoxesRef: React.RefObject<TextBox[]>,
-activeTextBox: React.RefObject<TextBox | null>,
-doRedraw:()=>void
+  textBoxesRef: React.RefObject<TextBox[]>,
+  activeTextBox: React.RefObject<TextBox | null>,
+  doRedraw: () => void,
 ) {
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;
@@ -37,71 +33,69 @@ doRedraw:()=>void
     doRedraw();
   };
 
-
   const updateTextBoxContent = (text: string) => {
-  if (!activeTextBox.current) return;
+    if (!activeTextBox.current) return;
 
-  activeTextBox.current.text = text;
-  const id = activeTextBox.current.id;
-  const exists = textBoxesRef.current.some((b) => b.id === id);
+    activeTextBox.current.text = text;
+    const id = activeTextBox.current.id;
+    const exists = textBoxesRef.current.some((b) => b.id === id);
 
-  if (!exists) {
-    // first keystroke — box isn't broadcast yet, add it
-    const box: TextBox = { ...activeTextBox.current, text };
-    textBoxesRef.current = [...textBoxesRef.current, box];
-    socket.emit("element-add", { roomId, element: box });
-  } else {
-    // already exists remotely — just patch the text
-    textBoxesRef.current = textBoxesRef.current.map((b) =>
-      b.id === id ? { ...b, text } : b,
-    );
-    socket.emit("element-update", { roomId, id, changes: { text } });
-  }
-
-  doRedraw();
-};
-
-const finalizeTextBox = (text: string) => {
-  if (!activeTextBox.current) return;
-  const id = activeTextBox.current.id;
-
-  if (!text.trim()) {
-    if (textBoxesRef.current.some((b) => b.id === id)) {
-      textBoxesRef.current = textBoxesRef.current.filter((b) => b.id !== id);
-      socket.emit("element-delete", { roomId, id });
+    if (!exists) {
+      // first keystroke — box isn't broadcast yet, add it
+      const box: TextBox = { ...activeTextBox.current, text };
+      textBoxesRef.current = [...textBoxesRef.current, box];
+      socket.emit("element-add", { roomId, element: box });
+    } else {
+      // already exists remotely — just patch the text
+      textBoxesRef.current = textBoxesRef.current.map((b) =>
+        b.id === id ? { ...b, text } : b,
+      );
+      socket.emit("element-update", { roomId, id, changes: { text } });
     }
+
+    doRedraw();
+  };
+
+  const finalizeTextBox = (text: string) => {
+    if (!activeTextBox.current) return;
+    const id = activeTextBox.current.id;
+
+    if (!text.trim()) {
+      if (textBoxesRef.current.some((b) => b.id === id)) {
+        textBoxesRef.current = textBoxesRef.current.filter((b) => b.id !== id);
+        socket.emit("element-delete", { roomId, id });
+      }
+      activeTextBox.current = null;
+      doRedraw();
+      return;
+    }
+
+    const box: TextBox = { ...activeTextBox.current, text };
+    const exists = textBoxesRef.current.some((b) => b.id === id);
+
+    textBoxesRef.current = exists
+      ? textBoxesRef.current.map((b) => (b.id === id ? box : b))
+      : [...textBoxesRef.current, box];
+
+    socket.emit(
+      exists ? "element-update" : "element-add",
+      exists ? { roomId, id, changes: { text } } : { roomId, element: box },
+    );
+
     activeTextBox.current = null;
     doRedraw();
-    return;
-  }
-
-  const box: TextBox = { ...activeTextBox.current, text };
-  const exists = textBoxesRef.current.some((b) => b.id === id);
-
-  textBoxesRef.current = exists
-    ? textBoxesRef.current.map((b) => (b.id === id ? box : b))
-    : [...textBoxesRef.current, box];
-
-  socket.emit(exists ? "element-update" : "element-add", 
-    exists ? { roomId, id, changes: { text } } : { roomId, element: box }
-  );
-
-  activeTextBox.current = null;
-  doRedraw();
-};
-
+  };
 
   // ---- socket listeners ----
   useEffect(() => {
-
-  const onElementAdd = (el: CanvasElement) => {
-  if (el.type !== "textbox") return;
-  const exists = textBoxesRef.current.some((b) => b.id === el.id);
-  textBoxesRef.current = exists
-    ? textBoxesRef.current.map((b) => (b.id === el.id ? el : b))
-    : [...textBoxesRef.current, el];
-  doRedraw();
-};
+    const onElementAdd = (el: CanvasElement) => {
+      if (el.type !== "textbox") return;
+      const exists = textBoxesRef.current.some((b) => b.id === el.id);
+      textBoxesRef.current = exists
+        ? textBoxesRef.current.map((b) => (b.id === el.id ? el : b))
+        : [...textBoxesRef.current, el];
+      doRedraw();
+    };
 
     const onElementUpdate = ({
       id,
@@ -139,11 +133,11 @@ const finalizeTextBox = (text: string) => {
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, [,doRedraw]);
+  }, [, doRedraw]);
 
   return {
     placeTextBox,
     finalizeTextBox,
-    updateTextBoxContent
+    updateTextBoxContent,
   };
 }

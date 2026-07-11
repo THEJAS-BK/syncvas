@@ -49,8 +49,8 @@ interface Shape {
   width: number;
   height: number;
   color: string;
-  filled: boolean;
   rotation:number;
+  fillColor:string;
   userId: string;
 }
 interface Line {
