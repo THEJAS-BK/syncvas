@@ -14,7 +14,7 @@ export function useTextBox(
   activeTextBox: React.RefObject<TextBox | null>,
   doRedraw: () => void,
 ) {
-  const {fontSize,textAlign}=useToolSettings();
+  const { fontSize, textAlign, fontFamily } = useToolSettings();
 
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;
@@ -31,6 +31,7 @@ export function useTextBox(
       text: "",
       fontSize: fontSize,
       textAlign,
+      fontFamily,
       color,
       userId: userId,
     };
@@ -135,7 +136,7 @@ export function useTextBox(
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, [, doRedraw]);
+  }, [textAlign, fontFamily, fontSize, doRedraw]);
 
   return {
     placeTextBox,

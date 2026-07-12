@@ -23,6 +23,7 @@ const getCanvasPoint = (
     y: (screenY - camera.current.y * dpr) / (camera.current.scale * dpr),
   };
 };
+type FontFamily = "hand-drawn" | "normal" | "code";
 
 //redraw
 const redraw = (
@@ -164,14 +165,26 @@ const redraw = (
     ctx.restore();
   }
 
- for (const tb of allTextBoxes) {
+const FONT_FAMILY_MAP: Record<FontFamily, string> = {
+  "hand-drawn": "'Caveat', cursive",
+  "normal": "'Inter', sans-serif",
+  "code": "'Cascadia Code', monospace",
+};
+
+function resolveFontFamily(value: string | undefined): string {
+  const key = (value ?? "normal") as FontFamily;
+  return FONT_FAMILY_MAP[key] ?? FONT_FAMILY_MAP.normal;
+}
+
+for (const tb of allTextBoxes) {
   ctx.save();
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
 
   const lines = tb.text.split("\n");
   const lineHeight = tb.fontSize * 1.4;
-  ctx.font = `normal ${tb.fontSize}px monospace`;
+  const fontStr = `normal ${tb.fontSize}px ${resolveFontFamily(tb.fontFamily)}`;
+  ctx.font = fontStr;
 
   const lineWidths = lines.map((l) => ctx.measureText(l).width);
   const width = Math.max(...lineWidths);
@@ -184,10 +197,10 @@ const redraw = (
   ctx.rotate(tb.rotation || 0);
   ctx.translate(-cx, -cy);
 
-  ctx.font = `normal ${tb.fontSize}px monospace`;
+  ctx.font = fontStr; 
   ctx.fillStyle = tb.color;
 
-  const align = tb.textAlign || "left"; // "left" | "center" | "right"
+  const align = tb.textAlign || "left"; 
 
   lines.forEach((line, i) => {
     let drawX = tb.x;

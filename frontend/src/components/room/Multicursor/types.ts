@@ -38,8 +38,11 @@ interface TextBox {
   color: string;
   userId: string;
   textAlign:string;
+  fontFamily:string;
   rotation?:number
 }
+
+type FontFamily = "hand-drawn" | "normal" | "code" | "serif";
 
 interface Shape {
   id: string;
@@ -86,4 +89,5 @@ export type {
   Shape,
   Line,
   CanvasElement,
+  FontFamily
 };
