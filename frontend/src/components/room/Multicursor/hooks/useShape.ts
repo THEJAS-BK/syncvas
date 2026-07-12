@@ -106,7 +106,7 @@ export function useShapes(
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, color,doRedraw,fillColor,edgeStyle,shapeFillType]);
+  }, [activeTool, color,doRedraw,fillColor,edgeStyle,shapeFillType,strokeStyle]);
 
   // ---- socket listeners ----
   useEffect(() => {

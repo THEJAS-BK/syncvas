@@ -51,26 +51,26 @@ export default function FontSetting() {
         </span>
         <div className="flex space-x-2">
           <div
-            onClick={() => setFontSize("small")}
-            className={`icon-background ${fontSize === "small" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            onClick={() => setFontSize(16)}
+            className={`icon-background ${fontSize === 16? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             S
           </div>
           <div
-            onClick={() => setFontSize("medium")}
-            className={`icon-background ${fontSize === "medium" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            onClick={() => setFontSize(20)}
+            className={`icon-background ${fontSize === 20? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             M
           </div>
           <div
-            onClick={() => setFontSize("large")}
-            className={`icon-background ${fontSize === "large" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            onClick={() => setFontSize(24)}
+            className={`icon-background ${fontSize === 24 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             L
           </div>
           <div
-            onClick={() => setFontSize("extra-large")}
-            className={`icon-background ${fontSize === "extra-large" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            onClick={() => setFontSize(28)}
+            className={`icon-background ${fontSize === 28 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             XL
           </div>

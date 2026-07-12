@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { socket } from "../../../../services/socket";
 import type { RefObject } from "react";
 import type { TextBox, CanvasElement } from "../types";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 export function useTextBox(
   roomId: string,
 
@@ -13,6 +14,8 @@ export function useTextBox(
   activeTextBox: React.RefObject<TextBox | null>,
   doRedraw: () => void,
 ) {
+  const {fontSize,textAlign}=useToolSettings();
+
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;
     const cx = camera.current?.x ?? 0;
@@ -26,7 +29,8 @@ export function useTextBox(
       x,
       y,
       text: "",
-      fontSize: 16,
+      fontSize: fontSize,
+      textAlign,
       color,
       userId: userId,
     };
@@ -41,12 +45,10 @@ export function useTextBox(
     const exists = textBoxesRef.current.some((b) => b.id === id);
 
     if (!exists) {
-      // first keystroke — box isn't broadcast yet, add it
       const box: TextBox = { ...activeTextBox.current, text };
       textBoxesRef.current = [...textBoxesRef.current, box];
       socket.emit("element-add", { roomId, element: box });
     } else {
-      // already exists remotely — just patch the text
       textBoxesRef.current = textBoxesRef.current.map((b) =>
         b.id === id ? { ...b, text } : b,
       );

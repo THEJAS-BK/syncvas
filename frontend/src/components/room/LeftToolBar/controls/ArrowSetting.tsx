@@ -13,7 +13,7 @@ export default function ArrowSetting({ activeTool }: { activeTool: string }) {
   return (
     <div>
 
-      {activeTool !== "square" && activeTool !== "diamond" && activeTool !== "circle"  && (
+      {activeTool !== "square" && activeTool !== "diamond" && activeTool !== "circle"&& activeTool!=="line"  && (
         <div className="mt-2">
           <span className="mb-2 text-sm  text-gray-300 ">Arrow type</span>
           <div className="flex space-x-2">

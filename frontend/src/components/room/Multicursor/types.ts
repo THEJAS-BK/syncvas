@@ -37,6 +37,7 @@ interface TextBox {
   fontSize: number;
   color: string;
   userId: string;
+  textAlign:string;
   rotation?:number
 }
 

@@ -34,8 +34,8 @@ type ToolSettings = {
   fontFamily: string;
   setFontFamily: Dispatch<SetStateAction<string>>;
 
-  fontSize: string;
-  setFontSize: Dispatch<SetStateAction<string>>;
+  fontSize: number;
+  setFontSize: Dispatch<SetStateAction<number>>;
 
   textAlign: string;
   setTextAlign: Dispatch<SetStateAction<string>>;
@@ -93,7 +93,7 @@ export function ToolSettingsProvider({
   const [shadeIdx, setShadeIdx] = useState(4);
   const [shapeFillType, setShapeFillType] = useState("transparent");
   const [fontFamily, setFontFamily] = useState("hand-draw");
-  const [fontSize, setFontSize] = useState("small");
+  const [fontSize, setFontSize] = useState(20);
   const [textAlign, setTextAlign] = useState("left");
   const [strokeStyle, setStrokeStyle] = useState("solid");
   const [arrowType, setArrowType] = useState("straight");

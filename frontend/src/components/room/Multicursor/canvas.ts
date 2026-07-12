@@ -164,36 +164,47 @@ const redraw = (
     ctx.restore();
   }
 
-  for (const tb of allTextBoxes) {
-    ctx.save();
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = "source-over";
+ for (const tb of allTextBoxes) {
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
 
-    const lines = tb.text.split("\n");
-    const lineHeight = tb.fontSize * 1.4;
-    const width = Math.max(
-      ...lines.map((l) => {
-        ctx.font = `normal ${tb.fontSize}px monospace`;
-        return ctx.measureText(l).width;
-      }),
-    );
-    const height = lines.length * lineHeight;
+  const lines = tb.text.split("\n");
+  const lineHeight = tb.fontSize * 1.4;
+  ctx.font = `normal ${tb.fontSize}px monospace`;
 
-    // rotate around textbox center
-    const cx = tb.x + width / 2;
-    const cy = tb.y + height / 2;
-    ctx.translate(cx, cy);
-    ctx.rotate(tb.rotation || 0);
-    ctx.translate(-cx, -cy);
+  const lineWidths = lines.map((l) => ctx.measureText(l).width);
+  const width = Math.max(...lineWidths);
+  const height = lines.length * lineHeight;
 
-    ctx.font = `normal ${tb.fontSize}px monospace`;
-    ctx.fillStyle = tb.color;
-    lines.forEach((line, i) => {
-      ctx.fillText(line, tb.x, tb.y + tb.fontSize + i * lineHeight);
-    });
+  // rotate around textbox center
+  const cx = tb.x + width / 2;
+  const cy = tb.y + height / 2;
+  ctx.translate(cx, cy);
+  ctx.rotate(tb.rotation || 0);
+  ctx.translate(-cx, -cy);
 
-    ctx.restore();
-  }
+  ctx.font = `normal ${tb.fontSize}px monospace`;
+  ctx.fillStyle = tb.color;
+
+  const align = tb.textAlign || "left"; // "left" | "center" | "right"
+
+  lines.forEach((line, i) => {
+    let drawX = tb.x;
+    const lineWidth = lineWidths[i];
+
+    if (align === "center") {
+      drawX = tb.x + (width - lineWidth) / 2;
+    } else if (align === "right") {
+      drawX = tb.x + (width - lineWidth);
+    }
+    // "left" stays as tb.x
+
+    ctx.fillText(line, drawX, tb.y + tb.fontSize + i * lineHeight);
+  });
+
+  ctx.restore();
+}
 
   //selection
   // ---- selection indicators ----
@@ -579,7 +590,7 @@ function drawRoundedPolygon(
 }
 
 function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
-   ctx.save();
+  ctx.save();
 
   ctx.strokeStyle = line.color;
   ctx.lineWidth = line.strokeWidth;
