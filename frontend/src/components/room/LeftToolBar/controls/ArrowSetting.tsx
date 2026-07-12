@@ -16,22 +16,22 @@ export default function ArrowSetting({ activeTool }: { activeTool: string }) {
       {activeTool !== "square" && activeTool !== "diamond" && activeTool !== "circle"&& activeTool!=="line"  && (
         <div className="mt-2">
           <span className="mb-2 text-sm  text-gray-300 ">Arrow type</span>
-          <div className="flex space-x-2">
+          <div className="flex gap-4">
             <div
               onClick={() => setArrowType("sharp")}
-              className={`icon-background ${arrowType === "sharp" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+              className={`icon-background p-0.5 rounded   ${arrowType === "sharp" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
             >
               <MoveUpRight className="icon" />
             </div>
             <div
               onClick={() => setArrowType("curve")}
-              className={`icon-background ${arrowType === "curve" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+              className={`icon-background p-0.5 rounded   ${arrowType === "curve" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
             >
               <CornerUpRight className="icon" />
             </div>
             <div
               onClick={() => setArrowType("elbow")}
-              className={`icon-background ${arrowType === "elbow" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+              className={`icon-background p-0.5 rounded   ${arrowType === "elbow" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
             >
               <TrendingUp className="icon" />
             </div>
@@ -42,16 +42,16 @@ export default function ArrowSetting({ activeTool }: { activeTool: string }) {
       {activeTool !== "square" && activeTool !== "diamond"&& activeTool !== "circle"&& activeTool!=="line" && (
         <div className="mt-2">
           <span className="mb-2 text-sm  text-gray-300 ">Arrowheads</span>
-          <div className="flex space-x-2">
+          <div className="flex gap-4">
             <div
               onClick={() => setArrowHead("none")}
-              className={`icon-background ${arrowHead === "none" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+              className={`icon-background p-0.5 rounded   ${arrowHead === "none" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
             >
               <ArrowRightFromLine className="icon" />
             </div>
             <div
               onClick={() => setArrowHead("classic")}
-              className={`icon-background ${arrowHead === "classic" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+              className={`icon-background p-0.5 rounded   ${arrowHead === "classic" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
             >
               <MoveRight className="icon" />
             </div>

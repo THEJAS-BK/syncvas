@@ -1,14 +1,14 @@
 import {
   CaseUpper,
   Code,
-  TypeOutline,
   AlignLeft,
   AlignCenter,
   AlignRight,
   Pencil,
 } from "lucide-react";
-import { useState } from "react";
+
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+
 export default function FontSetting() {
   const { fontFamily, setFontFamily, fontSize, setFontSize, textAlign, setTextAlign } = useToolSettings();
   return (
@@ -20,27 +20,21 @@ export default function FontSetting() {
         <div className="flex space-x-2 mt-2">
           <div
             onClick={() => setFontFamily("hand-drawn")}
-            className={`icon-background ${fontFamily === "hand-drawn" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 rounded  ${fontFamily === "hand-drawn" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
-            <Pencil className="icon" />
+            <Pencil className="icon" size={22} />
           </div>
           <div
             onClick={() => setFontFamily("normal")}
-            className={`icon-background ${fontFamily === "normal" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 rounded   ${fontFamily === "normal" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
-            <CaseUpper className="icon" />
+            <CaseUpper className="icon" size={24} />
           </div>
           <div
             onClick={() => setFontFamily("code")}
-            className={`icon-background ${fontFamily === "code" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 rounded  ${fontFamily === "code" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
-            <Code className="icon" />
-          </div>
-          <div
-            onClick={() => setFontFamily("show-font-picker")}
-            className={`icon-background ${fontFamily === "show-font-picker" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
-          >
-            <TypeOutline className="icon" />
+            <Code className="icon" size={22} />
           </div>
         </div>
       </div>
@@ -52,25 +46,25 @@ export default function FontSetting() {
         <div className="flex space-x-2">
           <div
             onClick={() => setFontSize(16)}
-            className={`icon-background ${fontSize === 16? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 px-3 rounded ${fontSize === 16? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             S
           </div>
           <div
             onClick={() => setFontSize(20)}
-            className={`icon-background ${fontSize === 20? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 px-2 rounded  ${fontSize === 20? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             M
           </div>
           <div
             onClick={() => setFontSize(24)}
-            className={`icon-background ${fontSize === 24 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 px-3  rounded  ${fontSize === 24 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             L
           </div>
           <div
             onClick={() => setFontSize(28)}
-            className={`icon-background ${fontSize === 28 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 px-1.5 rounded  ${fontSize === 28 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             XL
           </div>
@@ -84,19 +78,19 @@ export default function FontSetting() {
         <div className="flex space-x-2">
           <div
             onClick={() => setTextAlign("left")}
-            className={`icon-background ${textAlign === "left" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 rounded ${textAlign === "left" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             <AlignLeft className="icon" />
           </div>
           <div
             onClick={() => setTextAlign("center")}
-            className={`icon-background ${textAlign === "center" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 rounded ${textAlign === "center" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             <AlignCenter className="icon" />
           </div>
           <div
             onClick={() => setTextAlign("right")}
-            className={`icon-background ${textAlign === "right" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 rounded ${textAlign === "right" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
             <AlignRight className="icon" />
           </div>

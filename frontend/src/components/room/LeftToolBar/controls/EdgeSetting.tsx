@@ -9,13 +9,13 @@ export default function EdgeSetting() {
       <div className="flex gap-2">
         <div 
           onClick={() => setEdgeStyle("sharp")}
-          className={`icon-background ${edgeStyle === "sharp" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+          className={`icon-background p-0.5 rounded ${edgeStyle === "sharp" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
         >
           <SquareDashedTopSolid />
         </div>
         <div 
           onClick={() => setEdgeStyle("rounded")}
-          className={`icon-background ${edgeStyle === "rounded" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+          className={`icon-background p-0.5 rounded ${edgeStyle === "rounded" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
         >
           <SquareDashed />
         </div>

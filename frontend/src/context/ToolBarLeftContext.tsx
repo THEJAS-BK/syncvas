@@ -92,11 +92,11 @@ export function ToolSettingsProvider({
   const [opacity, setOpacity] = useState(100);
   const [shadeIdx, setShadeIdx] = useState(4);
   const [shapeFillType, setShapeFillType] = useState("transparent");
-  const [fontFamily, setFontFamily] = useState("hand-draw");
+  const [fontFamily, setFontFamily] = useState("hand-drawn");
   const [fontSize, setFontSize] = useState(20);
   const [textAlign, setTextAlign] = useState("left");
   const [strokeStyle, setStrokeStyle] = useState("solid");
-  const [arrowType, setArrowType] = useState("straight");
+  const [arrowType, setArrowType] = useState("sharp");
   const [arrowHead, setArrowHead] = useState("none");
   const [edgeStyle, setEdgeStyle] = useState("sharp");
 

@@ -9,19 +9,19 @@ export default function StrokeWidth() {
       <div className="flex gap-4">
         <div
           onClick={() => setStrokeWidth(2)}
-          className={`icon-background ${strokeWidth === 2 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+          className={`icon-background p-0.5 rounded  ${strokeWidth === 2 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
         >
           <Minus className="icon" strokeWidth={1.25} />
         </div>
         <div
           onClick={() => setStrokeWidth(4)}
-          className={`icon-background ${strokeWidth === 4 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+          className={`icon-background p-0.5 rounded  ${strokeWidth === 4 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
         >
           <Minus className="icon"  />
         </div>
         <div
           onClick={() => setStrokeWidth(8)}
-          className={`icon-background ${strokeWidth === 8 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+          className={`icon-background p-0.5 rounded  ${strokeWidth === 8 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
         >
           <Minus className="icon"  strokeWidth={3} />
         </div>
