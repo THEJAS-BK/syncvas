@@ -107,6 +107,7 @@ export function useLines(
     strokeStyle,
     arrowType,
     arrowHead,
+  
 
   ]);
 

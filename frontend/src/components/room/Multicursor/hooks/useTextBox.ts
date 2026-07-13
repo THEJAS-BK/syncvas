@@ -5,16 +5,30 @@ import type { TextBox, CanvasElement } from "../types";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 export function useTextBox(
   roomId: string,
-
   camera: RefObject<{ x: number; y: number; scale: number }>,
-
   userId: string,
   color: string,
   textBoxesRef: React.RefObject<TextBox[]>,
   activeTextBox: React.RefObject<TextBox | null>,
   doRedraw: () => void,
 ) {
-  const { fontSize, textAlign, fontFamily } = useToolSettings();
+  const { fontSize, activeTool, textAlign, fontFamily, selectedEle } =
+    useToolSettings();
+
+  useEffect(() => {
+    if (activeTool !== "mouse" || !selectedEle) return;
+    const textbox = textBoxesRef.current.find((t) => t.id === selectedEle?.id);
+    if (!textbox) return;
+    textbox.fontFamily = fontFamily;
+    textbox.fontSize = fontSize;
+    textbox.textAlign = textAlign;
+    socket.emit("element-update", {
+      roomId,
+      id: textbox.id,
+      changes: { fontFamily, fontSize, textAlign },
+    });
+    doRedraw();
+  }, [selectedEle, fontFamily, fontSize, textAlign]);
 
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;
