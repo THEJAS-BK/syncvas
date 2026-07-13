@@ -32,8 +32,6 @@ export function useLines(
     selectedLine.arrowHead = arrowHead;
     selectedLine.arrowType = arrowType;
     selectedLine.lineStyle = strokeStyle;
-
-
     socket.emit("element-update", {
       roomId,
       id: selectedLine.id,

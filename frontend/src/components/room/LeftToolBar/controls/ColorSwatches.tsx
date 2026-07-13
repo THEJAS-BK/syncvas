@@ -3,6 +3,8 @@ import ColorGrid from "./ColorGrid";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 import { useEditElements } from "../../Multicursor/hooks/useEditElements";
+import {strokeColors, backgroundColors, transparentPattern} from "../tools/colors"
+
 export default function ColorSwatches({
   activeTool,
 }: {
@@ -11,13 +13,21 @@ export default function ColorSwatches({
   const [colorGrid, setColorGrid] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const { strokeColor, setStrokeColor, fillColor, setFillColor, selectedEle } =
+    useToolSettings();
+  const { handleEditShapeOutlineColor, handleEditShapeFillColor } =
+    useEditElements();
+
+
   const toggle = (panel: string) => {
     setColorGrid((prev) => (prev === panel ? null : panel));
   };
 
+  const swatchStyle = (color: string) =>
+    color === "transparent" ? transparentPattern : { backgroundColor: color };
+
   useEffect(() => {
     if (!colorGrid) return;
-
     const handleClickOutside = (e: MouseEvent) => {
       if (
         containerRef.current &&
@@ -26,38 +36,9 @@ export default function ColorSwatches({
         setColorGrid(null);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [colorGrid]);
-
-  const { strokeColor, setStrokeColor, fillColor, setFillColor, selectedEle } =
-    useToolSettings();
-
-  const { handleEditShapeOutlineColor, handleEditShapeFillColor } =
-    useEditElements();
-  const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
-  const backgroundColors = [
-    "transparent",
-    "#7f1d1d",
-    "#14532d",
-    "#1e3a8a",
-    "#422006",
-  ];
-
-  const transparentPattern = {
-    backgroundImage: `
-    linear-gradient(45deg, #1a1a1a 25%, transparent 25%),
-    linear-gradient(-45deg, #1a1a1a 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #1a1a1a 75%),
-    linear-gradient(-45deg, transparent 75%, #1a1a1a 75%)
-  `,
-    backgroundSize: "12px 12px",
-    backgroundPosition: "0 0, 0 6px, 6px -6px, -6px 0px",
-    backgroundColor: "#3a3a3a",
-  };
-  const swatchStyle = (color: string) =>
-    color === "transparent" ? transparentPattern : { backgroundColor: color };
 
   return (
     <div ref={containerRef} className="flex flex-col z-20">

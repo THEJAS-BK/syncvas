@@ -1,5 +1,4 @@
 import {
-  LineSquiggle,
   MoveUpRight,
   CornerUpRight,
   TrendingUp,

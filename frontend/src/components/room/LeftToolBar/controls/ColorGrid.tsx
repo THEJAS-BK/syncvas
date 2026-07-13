@@ -8,8 +8,14 @@ export default function ColorGrid({
 }: {
   isMostUsedColorsNeeded: boolean;
 }) {
-  const { strokeColor, setStrokeColor, shadeIdx, setShadeIdx } =
-    useToolSettings();
+  const {
+    strokeColor,
+    setStrokeColor,
+    shadeIdx,
+    setShadeIdx,
+    fillColor,
+    setFillColor,
+  } = useToolSettings();
   const [colorList, setColorList] = useState<{ char: string; color: string }[]>(
     [],
   );
@@ -17,23 +23,22 @@ export default function ColorGrid({
 
   useEffect(() => {
     const handleQuickColorChange = (e: KeyboardEvent) => {
+      const shadeCodeMap: Record<string, number> = {
+        Digit1: 0,
+        Digit2: 1,
+        Digit3: 2,
+        Digit4: 3,
+        Digit5: 4,
+      };
 
-    const shadeCodeMap: Record<string, number> = {
-      Digit1: 0,
-      Digit2: 1,
-      Digit3: 2,
-      Digit4: 3,
-      Digit5: 4,
-    };
+      if (e.shiftKey && shadeCodeMap[e.code] !== undefined) {
+        const index = shadeCodeMap[e.code];
+        setShadeIdx(index);
 
-    if (e.shiftKey && shadeCodeMap[e.code] !== undefined) {
-      const index = shadeCodeMap[e.code];
-      setShadeIdx(index);
-
-      const shade = colorShades[selectedChar]?.[index];
-      if (shade) setStrokeColor(shade);
-      return
-    }
+        const shade = colorShades[selectedChar]?.[index];
+        if (shade) setStrokeColor(shade);
+        return;
+      }
 
       const match = colorList.find((c) => c.char === e.key);
       if (!match) return;
@@ -85,6 +90,11 @@ export default function ColorGrid({
                 : "border border-transparent"
             }`}
             onClick={() => {
+              if (!isMostUsedColorsNeeded) {
+                setFillColor(stroke.color);
+                setSelectedChar(stroke.char)
+                return;
+              }
               setStrokeColor(stroke.color);
               setSelectedChar(stroke.char);
             }}
@@ -107,12 +117,15 @@ export default function ColorGrid({
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
-               onClick={() => {
+            onClick={() => {
               setShadeIdx(idx);
+              if (!isMostUsedColorsNeeded) {
+                setFillColor(color);
+                return;
+              }
               setStrokeColor(color);
             }}
           />
-          
         ))}
       </div>
 

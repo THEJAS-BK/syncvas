@@ -62,6 +62,21 @@ export function useEditElements() {
      })
   }
 
+  const handleEdgeUpdatation=(edge:string)=>{
+ if (!selectedEle || selectedEle.type !== "shape") return;
 
-  return { handleEditShapeOutlineColor,handleLineStrokeWidthUpdate, handleEditShapeFillColor };
+    const el = shapesRef.current.find((e) => e.id === selectedEle.id);
+    if (!el) return;
+
+    el.edgeStyle = edge;
+    doRedrawRef.current?.();
+    socket.emit("element-update", {
+      roomId,
+      id: el.id,
+      changes: { edge },
+    });
+  }
+
+
+  return {handleEdgeUpdatation, handleEditShapeOutlineColor,handleLineStrokeWidthUpdate, handleEditShapeFillColor };
 }

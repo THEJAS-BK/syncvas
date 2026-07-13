@@ -1,5 +1,3 @@
-
-
 const colorShades: Record<string, string[]> = {
   w: ["#3a3a3a", "#2a2a2a", "#1a1a1a", "#0d0d0d", "#000000"], // near-black
   e: ["#e9ecef", "#ced4da", "#adb5bd", "#868e96", "#495057"], // gray
@@ -17,4 +15,25 @@ const colorShades: Record<string, string[]> = {
   b: ["#f7a3a3", "#f58f8f", "#f47c7c", "#ef6363", "#e64545"], // coral/salmon
 };
 
-export {colorShades}
+ const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
+  const backgroundColors = [
+    "transparent",
+    "#7f1d1d",
+    "#14532d",
+    "#1e3a8a",
+    "#422006",
+  ];
+
+  const transparentPattern = {
+    backgroundImage: `
+    linear-gradient(45deg, #1a1a1a 25%, transparent 25%),
+    linear-gradient(-45deg, #1a1a1a 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #1a1a1a 75%),
+    linear-gradient(-45deg, transparent 75%, #1a1a1a 75%)
+  `,
+    backgroundSize: "12px 12px",
+    backgroundPosition: "0 0, 0 6px, 6px -6px, -6px 0px",
+    backgroundColor: "#3a3a3a",
+  };
+
+export {colorShades, strokeColors, backgroundColors, transparentPattern}
