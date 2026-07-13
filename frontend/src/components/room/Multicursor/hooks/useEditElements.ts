@@ -49,6 +49,19 @@ export function useEditElements() {
     });
   };
 
+  const handleLineStrokeWidthUpdate=(strokeWidth:number)=>{
+    if(!selectedEle||selectedEle.type!=="line")return;
+     const el= linesRef.current.find((e)=>e.id===selectedEle.id)
+     if(!el)return;
 
-  return { handleEditShapeOutlineColor, handleEditShapeFillColor };
+     el.strokeWidth=strokeWidth;
+     socket.emit("element-update",{
+      roomId,
+      id:el.id,
+      changes:{strokeWidth}
+     })
+  }
+
+
+  return { handleEditShapeOutlineColor,handleLineStrokeWidthUpdate, handleEditShapeFillColor };
 }

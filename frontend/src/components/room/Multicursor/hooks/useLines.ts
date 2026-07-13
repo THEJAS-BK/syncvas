@@ -21,10 +21,28 @@ export function useLines(
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  const { strokeWidth, strokeStyle, arrowType, arrowHead } =
+  const { strokeWidth, strokeStyle, arrowType, arrowHead, selectedEle } =
     useToolSettings();
 
-  // ---- native mouse listeners ----
+  useEffect(() => {
+    if (activeTool !== "mouse" || !selectedEle || selectedEle.type != "line")
+      return;
+    const selectedLine = linesRef.current.find((l) => l.id === selectedEle.id);
+    if (!selectedLine) return;
+    selectedLine.arrowHead = arrowHead;
+    selectedLine.arrowType = arrowType;
+    selectedLine.lineStyle = strokeStyle;
+
+
+    socket.emit("element-update", {
+      roomId,
+      id: selectedLine.id,
+      changes: { arrowHead, arrowType, strokeWidth, lineStyle: strokeStyle },
+    });
+
+    doRedraw();
+  }, [selectedEle, arrowHead, arrowType, strokeStyle]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -107,8 +125,6 @@ export function useLines(
     strokeStyle,
     arrowType,
     arrowHead,
-  
-
   ]);
 
   // ---- socket listeners ----

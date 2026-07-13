@@ -1,26 +1,33 @@
 import { Minus } from "lucide-react";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+import { useEditElements } from "../../Multicursor/hooks/useEditElements";
 
 export default function StrokeWidth() {
-  const {strokeWidth,setStrokeWidth}=useToolSettings();
+  const {strokeWidth,setStrokeWidth,selectedEle}=useToolSettings();
+  const {handleLineStrokeWidthUpdate}=useEditElements();
   return (
     <div>
       <p className="mb-2 mt-2 ml-1 text-sm  text-gray-300 ">Stroke Width</p>
       <div className="flex gap-4">
         <div
-          onClick={() => setStrokeWidth(2)}
+          onClick={() =>{ setStrokeWidth(2) 
+            if(selectedEle) handleLineStrokeWidthUpdate(2) }}
           className={`icon-background p-0.5 rounded  ${strokeWidth === 2 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
         >
           <Minus className="icon" strokeWidth={1.25} />
         </div>
         <div
-          onClick={() => setStrokeWidth(4)}
+          onClick={() =>{ setStrokeWidth(4)
+            if(selectedEle) handleLineStrokeWidthUpdate(4) }
+          }
           className={`icon-background p-0.5 rounded  ${strokeWidth === 4 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
         >
           <Minus className="icon"  />
         </div>
         <div
-          onClick={() => setStrokeWidth(8)}
+          onClick={() => {setStrokeWidth(8)
+            if(selectedEle) handleLineStrokeWidthUpdate(8)
+          }}
           className={`icon-background p-0.5 rounded  ${strokeWidth === 8 ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
         >
           <Minus className="icon"  strokeWidth={3} />

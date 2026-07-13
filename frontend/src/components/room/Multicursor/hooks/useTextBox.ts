@@ -16,7 +16,7 @@ export function useTextBox(
     useToolSettings();
 
   useEffect(() => {
-    if (activeTool !== "mouse" || !selectedEle) return;
+    if (activeTool !== "mouse" || !selectedEle|| selectedEle.type !=="textbox") return;
     const textbox = textBoxesRef.current.find((t) => t.id === selectedEle?.id);
     if (!textbox) return;
     textbox.fontFamily = fontFamily;
