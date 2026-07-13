@@ -75,6 +75,11 @@ type ToolSettings = {
 
   roomId:string|null
   setRoomId:Dispatch<SetStateAction<string>>
+
+
+  //camera settings
+  toggleVideoTab:boolean;
+  setToggleVideoTab:Dispatch<SetStateAction<boolean>>
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
@@ -115,6 +120,8 @@ export function ToolSettingsProvider({
 
   const doRedrawRef = useRef<(() => void) | null>(null);
   const [roomId,setRoomId]=useState<string>("")
+
+  const [toggleVideoTab,setToggleVideoTab]=useState(false)
 
   return (
     <ToolBarLeftContext.Provider
@@ -158,7 +165,9 @@ export function ToolSettingsProvider({
         activeLine,
         doRedrawRef,
         roomId,
-        setRoomId
+        setRoomId,
+        toggleVideoTab,
+        setToggleVideoTab
       }}
     >
       {children}

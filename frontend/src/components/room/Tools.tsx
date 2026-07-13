@@ -1,24 +1,28 @@
 //lucide react components
-import { Circle, Diamond, Minus, MoveRight, Pencil, Square, TypeOutline } from "lucide-react";
+import {
+  Circle,
+  Diamond,
+  Menu,
+  Minus,
+  MoveRight,
+  Pencil,
+  Square,
+  TypeOutline,
+} from "lucide-react";
 import { Image, Eraser, MousePointer, Hand } from "lucide-react";
-import {  type SetStateAction } from "react";
+import { useState,  } from "react";
 import { useToolSettings } from "../../context/ToolBarLeftContext";
-
-
 
 interface ToolsProps {
   openCursor: boolean;
   setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>;
-  floatChatInterface: boolean;
-  setFloatChatInterface: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function Tools({
   openCursor,
   setOpenCursor,
-  floatChatInterface,
-  setFloatChatInterface,
 }: ToolsProps) {
-  const {activeTool,setActiveTool}=useToolSettings()
+  const { activeTool, setActiveTool,setToggleVideoTab,toggleVideoTab } = useToolSettings();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
@@ -29,7 +33,7 @@ export default function Tools({
         >
           <MousePointer />
         </button>
-        <button 
+        <button
           onClick={() => setActiveTool("pen")}
           className={activeTool === "pen" ? "tool-btn-active" : "tool-btn "}
         >
@@ -57,38 +61,66 @@ export default function Tools({
         </button>
 
         <button>
-            <MoveRight
-             onClick={() => setActiveTool("arrow")}
-          className={activeTool === "arrow" ? "tool-btn-active" : "tool-btn"}
-        />
+          <MoveRight
+            onClick={() => setActiveTool("arrow")}
+            className={activeTool === "arrow" ? "tool-btn-active" : "tool-btn"}
+          />
         </button>
         <button>
-          <Minus  onClick={() => setActiveTool("line")}
-          className={activeTool === "line" ? "tool-btn-active" : "tool-btn"}/> 
+          <Minus
+            onClick={() => setActiveTool("line")}
+            className={activeTool === "line" ? "tool-btn-active" : "tool-btn"}
+          />
         </button>
         <button>
-            <Square  onClick={() => setActiveTool("square")}
-          className={activeTool === "square" ? "tool-btn-active" : "tool-btn"}/>
+          <Square
+            onClick={() => setActiveTool("square")}
+            className={activeTool === "square" ? "tool-btn-active" : "tool-btn"}
+          />
         </button>
         <button>
-            <Diamond  onClick={() => setActiveTool("diamond")}
-          className={activeTool === "diamond" ? "tool-btn-active" : "tool-btn"}/>
+          <Diamond
+            onClick={() => setActiveTool("diamond")}
+            className={
+              activeTool === "diamond" ? "tool-btn-active" : "tool-btn"
+            }
+          />
         </button>
         <button>
-            <Circle  onClick={() => setActiveTool("circle")}
-          className={activeTool === "circle" ? "tool-btn-active" : "tool-btn"}/>
+          <Circle
+            onClick={() => setActiveTool("circle")}
+            className={activeTool === "circle" ? "tool-btn-active" : "tool-btn"}
+          />
         </button>
-
 
         <button className="hover:bg-gray-500">
           <label htmlFor="image-upload" className="hover:bg-gray-200">
             <Image />
           </label>
         </button>
-        <button onClick={() => setOpenCursor(!openCursor)}>VideoConf</button>
-        <button onClick={() => setFloatChatInterface(!floatChatInterface)}>
-          Float
-        </button>
+        <div onClick={() => setMenuOpen(!menuOpen)}>
+          <Menu />
+          {menuOpen && (
+            <div className="absolute top-12 right-0 flex flex-col bg-black border border-white overflow-hidden">
+              <button className="p-1 border border-white" onClick={(e) => {
+                e.stopPropagation();
+                setOpenCursor(!openCursor);
+                setMenuOpen(false)
+              }}>
+                video conference
+              </button>
+              <button
+              className="p-1 border border-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setToggleVideoTab(!toggleVideoTab);
+                }}
+              >
+                close camera
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

@@ -1,26 +1,13 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "../../../services/socket";
 import { useNavigate, useParams } from "react-router-dom";
 const COLORS = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
 //helper function
 import { redraw } from "./canvas";
+
+import VideoTab from "../VideoTab";
 //types
-import type {
-  BoardImage,
-  Stroke,
-  Point,
-  ActiveStroke,
-  Shape,
-  Line,
-  TextBox,
-} from "./types";
+import type { BoardImage, Stroke, Point, ActiveStroke } from "./types";
 import { useSocketBoard } from "./hooks/useSocketBoard";
 import { useSocketDraw } from "./hooks/useSocketDraw";
 import { useCanvasZoom } from "./hooks/useCanvasZoom";
@@ -38,13 +25,16 @@ import { useDeleteElement } from "./hooks/useDeleteElement";
 //leftSide tools
 import { useToolSettings } from "../../../context/ToolBarLeftContext";
 import { useEraser } from "./hooks/useEraser";
+import { useWebRtcContext } from "../../../context/WebRtcContext";
 
 export default function MultiCursor({
   images,
   imageUpdate,
+  roomId,
 }: {
   images: React.RefObject<BoardImage[]>;
   imageUpdate: number;
+  roomId: string;
 }) {
   const camera = useRef({ x: 0, y: 0, scale: 1 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -61,7 +51,6 @@ export default function MultiCursor({
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
-  const { roomId } = useParams();
 
   const navigate = useNavigate();
 
@@ -93,7 +82,7 @@ export default function MultiCursor({
     setRoomId,
     strokeWidth,
     opacity,
-    fillColor
+    fillColor,
   } = useToolSettings();
 
   useEffect(() => {
@@ -126,9 +115,9 @@ export default function MultiCursor({
       activeTextBox,
       strokeWidth,
       opacity,
-      fillColor
+      fillColor,
     );
-  }, [strokeColor,strokeWidth,opacity,fillColor]);
+  }, [strokeColor, strokeWidth, opacity, fillColor]);
 
   useEffect(() => {
     doRedrawRef.current = doRedraw;
@@ -242,6 +231,16 @@ export default function MultiCursor({
     doRedraw,
   );
 
+  const {
+    localStream,
+    remoteStreams,
+    isReady,
+    isVideoMuted,
+    isAudioMuted,
+    audioToggle,
+    videoToggle,
+  } = useWebRtcContext();
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -269,6 +268,8 @@ export default function MultiCursor({
     doRedraw();
   }, [imageUpdate]);
 
+  const { toggleVideoTab } = useToolSettings();
+
   return (
     <div
       ref={wrapperRef}
@@ -280,6 +281,19 @@ export default function MultiCursor({
         height: "100%",
       }}
     >
+      {toggleVideoTab && (
+        <div className="absolute right-0 w-[20%] bg-red-600">
+          <VideoTab
+            roomId={roomId}
+            localStream={localStream}
+            remoteStreams={remoteStreams}
+            isReady={isReady}
+            isVideoMuted={isVideoMuted}
+            isCursorOpen={true}
+          />
+        </div>
+      )}
+
       <canvas
         ref={canvasRef}
         className="bg-gray-700"

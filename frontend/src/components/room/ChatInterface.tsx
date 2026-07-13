@@ -3,31 +3,15 @@ import Button from "@mui/material/Button";
 import { socket } from "../../services/socket";
 import { useEffect, useState } from "react";
 import type { RecieveMessage } from "../../types/Chat";
-import VideoTab from "../room/VideoTab";
-import { useWebRtcContext } from "../../context/WebRtcContext";
-import VideoOptions from "./VideoOptions";
 
 export default function ChatInterface({
   roomId,
-  cursorDash,
-  floatChatInterface,
 }: {
-  cursorDash: boolean;
   roomId: string;
-  floatChatInterface: boolean;
 }) {
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<RecieveMessage[]>([]);
 
-  const {
-    localStream,
-    remoteStreams,
-    isReady,
-    isVideoMuted,
-    isAudioMuted,
-    audioToggle,
-    videoToggle,
-  } = useWebRtcContext();
 
   useEffect(() => {
     const handleMessage = (data: RecieveMessage) => {
@@ -56,9 +40,8 @@ export default function ChatInterface({
   };
   return (
     <div
-      className={`border flex-1 pb-4  flex flex-col justify-between ${floatChatInterface ? "absolute right-0 w-[30%] h-[50%] " : "min-h-screen w-[30%]"}`}
+      className={`border flex-1 pb-4 flex flex-col justify-between min-h-screen w-[30%]`}
     >
-      {!cursorDash && (
         <>
           <div className="bg-blue-200 flex-1 px-2 py-6 flex flex-col">
             {messages.map((data, idx) => {
@@ -83,21 +66,8 @@ export default function ChatInterface({
             </Button>
           </div>
         </>
-      )}
+      
 
-      {/* Open cursor */}
-      {cursorDash && (
-        <>
-          <VideoTab
-            roomId={roomId}
-            localStream={localStream}
-            remoteStreams={remoteStreams}
-            isReady={isReady}
-            isVideoMuted={isVideoMuted}
-            isCursorOpen={true}
-          />
-        </>
-      )}
     </div>
   );
 }

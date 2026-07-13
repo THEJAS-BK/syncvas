@@ -13,7 +13,6 @@ export default function ColorGrid({
     setStrokeColor,
     shadeIdx,
     setShadeIdx,
-    fillColor,
     setFillColor,
   } = useToolSettings();
   const [colorList, setColorList] = useState<{ char: string; color: string }[]>(
