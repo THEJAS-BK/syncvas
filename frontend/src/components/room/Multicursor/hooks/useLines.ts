@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
 import type { RefObject } from "react";
-import type { Line, CanvasElement } from "../types";
+import type { Line, CanvasElement, Shape, TextBox } from "../types";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+import { getNextZIndex } from "../tools/zIndex";
 export function useLines(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -12,6 +13,8 @@ export function useLines(
   userIdRef: React.RefObject<string>,
   activeTool: string | null,
   strokeColor: string,
+  shapesRef:RefObject<Shape[]>,
+   textBoxesRef: React.RefObject<TextBox[]>,
   doRedraw: () => void,
 ) {
   const isDragging = useRef(false);
@@ -21,7 +24,7 @@ export function useLines(
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  const { strokeWidth, strokeStyle, arrowType, arrowHead, selectedEle } =
+  const { strokeWidth,opacity, strokeStyle, arrowType, arrowHead, selectedEle } =
     useToolSettings();
 
   useEffect(() => {
@@ -62,6 +65,8 @@ export function useLines(
         lineStyle: strokeStyle,
         arrowType,
         arrowHead,
+        opacity,
+        zIndex:getNextZIndex(shapesRef, linesRef, textBoxesRef),
         userId: userIdRef.current,
       };
       const line = activeLine.current;

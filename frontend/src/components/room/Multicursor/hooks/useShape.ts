@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import { socket } from "../../../../services/socket";
 import type { RefObject } from "react";
-import type { Shape, CanvasElement } from "../types";
+import type { Shape, CanvasElement, Line, TextBox } from "../types";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+import { getNextZIndex } from "../tools/zIndex";
 
 // maps the active tool name to the shape type stored on the element
 const TOOL_TO_SHAPE: Record<string, "square" | "circle" | "diamond"> = {
@@ -20,6 +21,8 @@ export function useShapes(
   userIdRef: RefObject<string>,
   activeTool: string | null,
   color: string,
+  linesRef: React.RefObject<Line[]>,
+  textBoxesRef: React.RefObject<TextBox[]>,
   doRedraw: () => void,
 ) {
   const isDragging = useRef(false);
@@ -29,11 +32,21 @@ export function useShapes(
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  const {fillColor,edgeStyle,shapeFillType,strokeWidth,strokeStyle,selectedEle}=useToolSettings();
-   useEffect(() => {
+  const {
+    fillColor,
+    edgeStyle,
+    shapeFillType,
+    strokeWidth,
+    strokeStyle,
+    selectedEle,
+    opacity
+  } = useToolSettings();
+  useEffect(() => {
     if (activeTool !== "mouse" || !selectedEle || selectedEle.type != "shape")
       return;
-    const selectedShape = shapesRef.current.find((l) => l.id === selectedEle.id);
+    const selectedShape = shapesRef.current.find(
+      (l) => l.id === selectedEle.id,
+    );
     if (!selectedShape) return;
     selectedShape.strokeWidth = strokeWidth;
     selectedShape.strokeStyle = strokeStyle;
@@ -52,7 +65,6 @@ export function useShapes(
 
     const shapeType = activeTool ? TOOL_TO_SHAPE[activeTool] : undefined;
 
-
     const onMouseDown = (e: MouseEvent) => {
       if (!shapeType) return;
       const { x, y } = toCanvas(e.clientX, e.clientY);
@@ -66,11 +78,13 @@ export function useShapes(
         width: 0,
         height: 0,
         color,
-        rotation:0,
+        rotation: 0,
         fillColor,
         edgeStyle,
         strokeWidth,
         strokeStyle,
+        opacity, 
+        zIndex: getNextZIndex(shapesRef, linesRef, textBoxesRef),
         userId: userIdRef.current,
       };
 
@@ -121,7 +135,15 @@ export function useShapes(
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool, color,doRedraw,fillColor,edgeStyle,shapeFillType,strokeStyle]);
+  }, [
+    activeTool,
+    color,
+    doRedraw,
+    fillColor,
+    edgeStyle,
+    shapeFillType,
+    strokeStyle,
+  ]);
 
   // ---- socket listeners ----
   useEffect(() => {
@@ -167,7 +189,7 @@ export function useShapes(
       socket.off("element-delete", onElementDelete);
       socket.off("element-state", onElementState);
     };
-  }, [doRedraw,activeTool,fillColor,edgeStyle,shapeFillType]);
+  }, [doRedraw, activeTool, fillColor, edgeStyle, shapeFillType]);
 
   const deleteShape = (id: string) => {
     shapesRef.current = shapesRef.current.filter((s) => s.id !== id);

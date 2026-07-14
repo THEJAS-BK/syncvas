@@ -84,6 +84,10 @@ type ToolSettings = {
   //offline
   isOffline:boolean;
   setIsOffline:Dispatch<SetStateAction<boolean>>
+
+  //layer settings
+  layer:string;
+  setLayer:Dispatch<SetStateAction<string>>
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
@@ -127,6 +131,8 @@ export function ToolSettingsProvider({
 
   const [toggleVideoTab,setToggleVideoTab]=useState(true);
   const [isOffline, setIsOffline] = useState(false);
+
+  const [layer,setLayer]=useState("")
 
   return (
     <ToolBarLeftContext.Provider
@@ -174,7 +180,9 @@ export function ToolSettingsProvider({
         toggleVideoTab,
         setToggleVideoTab,
         isOffline,
-        setIsOffline
+        setIsOffline,
+        layer,
+        setLayer
       }}
     >
       {children}

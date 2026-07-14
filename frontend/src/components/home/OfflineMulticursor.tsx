@@ -25,6 +25,7 @@ import { useOfflineShapes } from "./hooks/useOfflineShape";
 import { useOfflineDraw } from "./hooks/useOfflineDraw";
 import { useOfflineLines } from "./hooks/useOfflineLines";
 import { useOfflineDeleteElement } from "./hooks/useOfflineDeleteElement";
+import ZoomControls from "../room/Multicursor/ZoomControls";
 
 export default function OfflineMultiCursor({}: {}) {
   const camera = useRef({ x: 0, y: 0, scale: 1 });
@@ -53,7 +54,7 @@ export default function OfflineMultiCursor({}: {}) {
   useEffect(() => {
     setIsOffline(true);
   }, []);
-  
+
   //shapes,textBoxes and lines
   const {
     shapesRef,
@@ -251,6 +252,8 @@ export default function OfflineMultiCursor({}: {}) {
         }}
         onClick={handleCanvasClick}
       />
+
+      <ZoomControls canvasRef={canvasRef} camera={camera} doRedraw={doRedraw} />
 
       {/* active textarea overlay */}
       {activeTextBox.current && (

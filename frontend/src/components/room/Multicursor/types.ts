@@ -39,7 +39,9 @@ interface TextBox {
   userId: string;
   textAlign:string;
   fontFamily:string;
-  rotation?:number
+  zIndex:number;
+opacity:number;
+  rotation?:number;
 }
 
 type FontFamily = "hand-drawn" | "normal" | "code" | "serif";
@@ -58,6 +60,8 @@ interface Shape {
   edgeStyle:string;
   strokeWidth:number;
   strokeStyle:string;
+    zIndex:number;
+  opacity:number;
   userId: string;
 }
 interface Line {
@@ -76,6 +80,8 @@ interface Line {
   arrowType:string;
   arrowHead:string;
   userId: string;
+  zIndex:number;
+  opacity:number;
 }
 
 type CanvasElement = TextBox | Shape | Line;

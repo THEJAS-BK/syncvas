@@ -145,6 +145,8 @@ export default function MultiCursor({
     strokeColor,
     textBoxesRef,
     activeTextBox,
+    shapesRef,
+    linesRef,
     doRedraw,
   );
   const hasTextElements =
@@ -175,6 +177,8 @@ export default function MultiCursor({
     userIdRef,
     activeTool,
     strokeColor,
+    linesRef,
+    textBoxesRef,
     doRedraw,
   );
   useHandTool(canvasRef, camera, activeTool, doRedraw);
@@ -218,6 +222,8 @@ export default function MultiCursor({
     userIdRef,
     activeTool,
     strokeColor,
+    shapesRef,
+    textBoxesRef,
     doRedraw,
   );
 

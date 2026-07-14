@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { socket } from "../../../../services/socket";
 import type { RefObject } from "react";
-import type { TextBox, CanvasElement } from "../types";
+import type { TextBox, CanvasElement,Shape,Line } from "../types";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+import { getNextZIndex } from "../tools/zIndex";
 export function useTextBox(
   roomId: string,
   camera: RefObject<{ x: number; y: number; scale: number }>,
@@ -10,9 +11,11 @@ export function useTextBox(
   color: string,
   textBoxesRef: React.RefObject<TextBox[]>,
   activeTextBox: React.RefObject<TextBox | null>,
+  shapesRef: React.RefObject<Shape[]>,
+  linesRef: React.RefObject<Line[]>,
   doRedraw: () => void,
 ) {
-  const { fontSize, activeTool, textAlign, fontFamily, selectedEle } =
+  const { fontSize,opacity, activeTool, textAlign, fontFamily, selectedEle } =
     useToolSettings();
 
   useEffect(() => {
@@ -48,6 +51,8 @@ export function useTextBox(
       fontFamily,
       color,
       userId: userId,
+      zIndex: getNextZIndex(shapesRef, linesRef, textBoxesRef),
+      opacity
     };
     doRedraw();
   };

@@ -28,6 +28,8 @@ type CanvasElement =
       color: string;
       userId: string;
       textAlign:string;
+      zIndex:number;
+      opacity:number;
       rotation?: number;
     }
   | {
@@ -42,6 +44,8 @@ type CanvasElement =
       userId: string;
       fillColor:string;
       edgeStyle:string;
+      zIndex:number;
+      opacity:number;
       strokeWidth:number
     }
   | {
@@ -59,6 +63,8 @@ type CanvasElement =
   lineStyle:string;
   arrowType:string;
   arrowHead:string;
+  zIndex:number;
+  opacity:number;
   userId: string;
     };
 

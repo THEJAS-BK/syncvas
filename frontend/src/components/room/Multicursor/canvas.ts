@@ -112,20 +112,53 @@ const redraw = (
       img.src = imageData.image;
     }
   }
-  //shapes
-  if (shapesRef?.current) {
-    shapesRef.current.forEach((shape) => drawShape(ctx, shape));
+
+
+  const allShapes = [
+    ...shapesRef.current,
+    ...(activeShape?.current ? [activeShape.current] : []),
+  ];
+  const allLines = [
+    ...linesRef.current,
+    ...(activeLine?.current ? [activeLine.current] : []),
+  ];
+  const allTextBoxesForDraw = [
+    ...(textBoxesRef?.current ?? []).filter(
+      (tb) => tb.id !== activeTextBox?.current?.id,
+    ),
+    ...(activeTextBox?.current ? [activeTextBox.current] : []),
+  ];
+
+  type Sortable =
+    | { kind: "shape"; zIndex: number; el: Shape }
+    | { kind: "line"; zIndex: number; el: Line }
+    | { kind: "textbox"; zIndex: number; el: TextBox };
+
+  const merged: Sortable[] = [
+    ...allShapes.map((el) => ({
+      kind: "shape" as const,
+      zIndex: el.zIndex ?? 0,
+      el,
+    })),
+    ...allLines.map((el) => ({
+      kind: "line" as const,
+      zIndex: el.zIndex ?? 0,
+      el,
+    })),
+    ...allTextBoxesForDraw.map((el) => ({
+      kind: "textbox" as const,
+      zIndex: el.zIndex ?? 0,
+      el,
+    })),
+  ].sort((a, b) => a.zIndex - b.zIndex);
+
+  for (const item of merged) {
+    if (item.kind === "shape") drawShape(ctx, item.el);
+    else if (item.kind === "line") drawLine(ctx, item.el);
+    else drawTextBox(ctx, item.el);
   }
-  if (activeShape?.current) {
-    drawShape(ctx, activeShape.current);
-  }
-  // lines
-  if (linesRef?.current) {
-    linesRef.current.forEach((line) => drawLine(ctx, line));
-  }
-  if (activeLine?.current) {
-    drawLine(ctx, activeLine.current);
-  }
+
+
   // strokes on top
   const allActive = Object.entries(activeStrokes.current).map(
     ([userId, activeStroke]) => ({
@@ -137,12 +170,6 @@ const redraw = (
     }),
   );
 
-  const allTextBoxes = [
-    ...(textBoxesRef?.current ?? []).filter(
-      (tb) => tb.id !== activeTextBox?.current?.id,
-    ),
-    ...(activeTextBox?.current ? [activeTextBox.current] : []),
-  ];
 
   const allStrokes = [
     ...strokes.current,
@@ -164,60 +191,6 @@ const redraw = (
     ctx.stroke();
     ctx.restore();
   }
-
-const FONT_FAMILY_MAP: Record<FontFamily, string> = {
-  "hand-drawn": "'Caveat', cursive",
-  "normal": "'Inter', sans-serif",
-  "code": "'Cascadia Code', monospace",
-};
-
-function resolveFontFamily(value: string | undefined): string {
-  const key = (value ?? "normal") as FontFamily;
-  return FONT_FAMILY_MAP[key] ?? FONT_FAMILY_MAP.normal;
-}
-
-for (const tb of allTextBoxes) {
-  ctx.save();
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "source-over";
-
-  const lines = tb.text.split("\n");
-  const lineHeight = tb.fontSize * 1.4;
-  const fontStr = `normal ${tb.fontSize}px ${resolveFontFamily(tb.fontFamily)}`;
-  ctx.font = fontStr;
-
-  const lineWidths = lines.map((l) => ctx.measureText(l).width);
-  const width = Math.max(...lineWidths);
-  const height = lines.length * lineHeight;
-
-  // rotate around textbox center
-  const cx = tb.x + width / 2;
-  const cy = tb.y + height / 2;
-  ctx.translate(cx, cy);
-  ctx.rotate(tb.rotation || 0);
-  ctx.translate(-cx, -cy);
-
-  ctx.font = fontStr; 
-  ctx.fillStyle = tb.color;
-
-  const align = tb.textAlign || "left"; 
-
-  lines.forEach((line, i) => {
-    let drawX = tb.x;
-    const lineWidth = lineWidths[i];
-
-    if (align === "center") {
-      drawX = tb.x + (width - lineWidth) / 2;
-    } else if (align === "right") {
-      drawX = tb.x + (width - lineWidth);
-    }
-    // "left" stays as tb.x
-
-    ctx.fillText(line, drawX, tb.y + tb.fontSize + i * lineHeight);
-  });
-
-  ctx.restore();
-}
 
   //selection
   // ---- selection indicators ----
@@ -356,6 +329,53 @@ for (const tb of allTextBoxes) {
     }
   }
 };
+
+const FONT_FAMILY_MAP: Record<FontFamily, string> = {
+  "hand-drawn": "'Caveat', cursive",
+  normal: "'Inter', sans-serif",
+  code: "'Cascadia Code', monospace",
+};
+
+function resolveFontFamily(value: string | undefined): string {
+  const key = (value ?? "normal") as FontFamily;
+  return FONT_FAMILY_MAP[key] ?? FONT_FAMILY_MAP.normal;
+}
+
+function drawTextBox(ctx: CanvasRenderingContext2D, tb: TextBox) {
+  ctx.save();
+  ctx.globalAlpha = (tb.opacity ?? 100) / 100;
+  ctx.globalCompositeOperation = "source-over";
+
+  const lines = tb.text.split("\n");
+  const lineHeight = tb.fontSize * 1.4;
+  const fontStr = `normal ${tb.fontSize}px ${resolveFontFamily(tb.fontFamily)}`;
+  ctx.font = fontStr;
+
+  const lineWidths = lines.map((l) => ctx.measureText(l).width);
+  const width = Math.max(...lineWidths);
+  const height = lines.length * lineHeight;
+
+  const cx = tb.x + width / 2;
+  const cy = tb.y + height / 2;
+  ctx.translate(cx, cy);
+  ctx.rotate(tb.rotation || 0);
+  ctx.translate(-cx, -cy);
+
+  ctx.font = fontStr;
+  ctx.fillStyle = tb.color;
+
+  const align = tb.textAlign || "left";
+
+  lines.forEach((line, i) => {
+    let drawX = tb.x;
+    const lineWidth = lineWidths[i];
+    if (align === "center") drawX = tb.x + (width - lineWidth) / 2;
+    else if (align === "right") drawX = tb.x + (width - lineWidth);
+    ctx.fillText(line, drawX, tb.y + tb.fontSize + i * lineHeight);
+  });
+
+  ctx.restore();
+}
 
 const getSelectionLineForImage = (
   ctx: CanvasRenderingContext2D,
