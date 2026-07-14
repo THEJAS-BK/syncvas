@@ -27,8 +27,26 @@ export function useOfflineShapes(
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  const { fillColor, edgeStyle, shapeFillType, strokeWidth, strokeStyle } =
-    useToolSettings();
+  const {
+    fillColor,
+    edgeStyle,
+    selectedEle,
+    shapeFillType,
+    strokeWidth,
+    strokeStyle,
+  } = useToolSettings();
+
+  useEffect(() => {
+    if (activeTool !== "mouse" || !selectedEle || selectedEle.type != "shape")
+      return;
+    const selectedShape = shapesRef.current.find(
+      (l) => l.id === selectedEle.id,
+    );
+    if (!selectedShape) return;
+    selectedShape.strokeWidth = strokeWidth;
+    selectedShape.strokeStyle = strokeStyle;
+    doRedraw();
+  }, [selectedEle, strokeWidth, strokeStyle]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

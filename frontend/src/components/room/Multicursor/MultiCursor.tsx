@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "../../../services/socket";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 const COLORS = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
 //helper function
 import { redraw } from "./canvas";

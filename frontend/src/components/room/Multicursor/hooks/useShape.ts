@@ -29,14 +29,29 @@ export function useShapes(
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  const {fillColor,edgeStyle,shapeFillType,strokeWidth,strokeStyle}=useToolSettings();
+  const {fillColor,edgeStyle,shapeFillType,strokeWidth,strokeStyle,selectedEle}=useToolSettings();
+   useEffect(() => {
+    if (activeTool !== "mouse" || !selectedEle || selectedEle.type != "shape")
+      return;
+    const selectedShape = shapesRef.current.find((l) => l.id === selectedEle.id);
+    if (!selectedShape) return;
+    selectedShape.strokeWidth = strokeWidth;
+    selectedShape.strokeStyle = strokeStyle;
+    socket.emit("element-update", {
+      roomId,
+      id: selectedShape.id,
+      changes: { strokeWidth, strokeStyle },
+    });
 
+    doRedraw();
+  }, [selectedEle, strokeWidth, strokeStyle]);
   // ---- native mouse listeners on canvas ----
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const shapeType = activeTool ? TOOL_TO_SHAPE[activeTool] : undefined;
+
 
     const onMouseDown = (e: MouseEvent) => {
       if (!shapeType) return;

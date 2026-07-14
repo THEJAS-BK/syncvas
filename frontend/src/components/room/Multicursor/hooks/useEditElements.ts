@@ -55,7 +55,7 @@ export function useEditElements() {
   const handleLineStrokeWidthUpdate = (strokeWidth: number) => {
     if (!selectedEle || selectedEle.type !== "line") return;
     const el = linesRef.current.find((e) => e.id === selectedEle.id);
-    if (!el) return;
+    if (!el) return;  
 
     el.strokeWidth = strokeWidth;
     if (isOffline) return;
@@ -74,6 +74,7 @@ export function useEditElements() {
 
     el.edgeStyle = edge;
     doRedrawRef.current?.();
+
     if (isOffline) return;
     socket.emit("element-update", {
       roomId,
