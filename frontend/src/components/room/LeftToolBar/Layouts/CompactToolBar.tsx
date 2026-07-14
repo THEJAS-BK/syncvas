@@ -9,6 +9,7 @@ import StrokeStyle from "../controls/StrokeStyle";
 import ArrowSetting from "../controls/ArrowSetting";
 import EdgeSetting from "../controls/EdgeSetting";
 import { LineSquiggle } from "lucide-react";
+import { HachureIcon } from "../tools/HachureIcon";
 
 export default function CompactToolBar({
   activeTool,
@@ -25,8 +26,15 @@ export default function CompactToolBar({
     <div
       className={`absolute text-white rounded-2xl bg-[#1f1f2b] p-3 shadow-xl left-3 top-1/4 flex flex-col z-20 ${tools.includes(activeTool ?? "") ? "p-2" : "hidden"}  gap-3`}
     >
-      <div className="relative w-8 h-8" onClick={() => toggle("strokes")}>
-        <LineSquiggle />
+      <div
+        className={`
+    relative w-8 h-8 rounded-lg flex items-center justify-center
+    transition-colors cursor-pointer
+    ${panel === "strokes" ? "bg-neutral-800 ring-1 ring-neutral-600" : "hover:bg-neutral-800/60"}
+  `}
+        onClick={() => toggle("strokes")}
+      >
+        <HachureIcon />
         <div onClick={(e) => e.stopPropagation()}>
           {panel === "strokes" && <ColorGrid isMostUsedColorsNeeded={true} />}
         </div>
@@ -55,9 +63,7 @@ export default function CompactToolBar({
             <>
               {activeTool === "pen" && (
                 <>
-                  
                   <StrokeWidth />
-                  <StrokeStyle />
                   <OpacitySlider />
                   <LayerControls />
                 </>
@@ -83,8 +89,8 @@ export default function CompactToolBar({
 
               {activeTool === "line" && (
                 <>
-                  
                   <StrokeWidth />
+                  <StrokeStyle/>
                   <ArrowSetting activeTool={activeTool} />
                   <EdgeSetting />
                   <OpacitySlider />
@@ -94,23 +100,8 @@ export default function CompactToolBar({
 
               {(activeTool === "square" || activeTool === "diamond") && (
                 <>
-                  
                   <StrokeWidth />
                   <StrokeStyle />
-                  <div>
-                    <span>Sloppiness</span>
-                    <div className="flex space-x-2">
-                      <div>
-                        <LineSquiggle strokeWidth={0.5} />
-                      </div>
-                      <div>
-                        <LineSquiggle strokeWidth={1.75} />
-                      </div>
-                      <div>
-                        <LineSquiggle strokeWidth={3} />
-                      </div>
-                    </div>
-                  </div>
                   <EdgeSetting />
                   <OpacitySlider />
                   <LayerControls />
@@ -119,23 +110,8 @@ export default function CompactToolBar({
 
               {activeTool === "circle" && (
                 <>
-                  
                   <StrokeWidth />
                   <StrokeStyle />
-                  <div>
-                    <span>Sloppiness</span>
-                    <div className="flex space-x-2">
-                      <div>
-                        <LineSquiggle strokeWidth={0.5} />
-                      </div>
-                      <div>
-                        <LineSquiggle strokeWidth={1.75} />
-                      </div>
-                      <div>
-                        <LineSquiggle strokeWidth={3} />
-                      </div>
-                    </div>
-                  </div>
                   <OpacitySlider />
                   <LayerControls />
                 </>

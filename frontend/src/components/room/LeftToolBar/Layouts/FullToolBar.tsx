@@ -17,7 +17,7 @@ export default function FullToolBar({
 
   return (
     <div
-      className={`toolbar-scroll absolute text-white left-3 top-15 flex flex-col rounded-2xl bg-[#1f1f2b] shadow-xl ${tools.includes(displayTool ?? "") ? "p-3" : "hidden"} z-20`}
+      className={`toolbar-scroll absolute text-white left-3 top-20 flex flex-col rounded-2xl bg-[#1f1f2b] shadow-xl ${tools.includes(displayTool ?? "") ? "p-3" : "hidden"} z-20`}
     >
       {displayTool === "pen" && (
         <>

@@ -1,11 +1,26 @@
 import FullToolBar from "./Layouts/FullToolBar";
 import { useToolSettings } from "../../../context/ToolBarLeftContext";
 import CompactToolBar from "./Layouts/CompactToolBar";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [query]);
+
+  return matches;
+}
 
 export default function ToolBarContainer() {
   const { activeTool, selectedEle  } = useToolSettings();
   const lastTool = useRef<string | null>(null);
+  
+  const isCompactView = useMediaQuery("(max-width: 1024px)");
 
   if (selectedEle?.type === "shape") {
     lastTool.current = selectedEle.shapeType;
@@ -25,7 +40,11 @@ export default function ToolBarContainer() {
 
   return (
     <div >
-      <FullToolBar displayTool={displayTool} />
+      {isCompactView ? (
+        <CompactToolBar activeTool={displayTool} />
+      ) : (
+        <FullToolBar displayTool={displayTool} />
+      )}
     </div>
   );
 }

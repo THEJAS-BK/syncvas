@@ -10,10 +10,11 @@ import MultiCursor from "../components/room/Multicursor/MultiCursor";
 //image upload function
 import { handleImageUpload } from "../components/room/Multicursor/tools/imageUpload.ts";
 
-import { TableOfContents } from "lucide-react";
+import { Menu, TableOfContents } from "lucide-react";
 
 import Tools from "../components/room/Tools.tsx";
 import ToolBarContainer from "../components/room/LeftToolBar/ToolBarContainer.tsx";
+import HamberMenu from "../components/room/HamberMenu.tsx";
 
 type BoardImage = {
   id: string;
@@ -61,25 +62,17 @@ export default function RoomPage() {
                       onClick={() =>
                         setIsHambergerMenuOpen(!isHambergerMenuOpen)
                       }
-                      className="absolute text-white z-20 left-5 top-5 border border-white rounded"
+                      className="absolute text-white z-20 left-5 top-5  bg-slate-800 p-2 rounded"
                     >
-                      <TableOfContents />
+                      <Menu />
                     </button>
-
                     <ToolBarContainer
-
                     />
                   </>
                 )}
 
                 {isHambergerMenuOpen && (
-                  <div className="absolute top-16 left-0 bg-white shadow-lg z-20">
-                    <ul className="py-2">
-                      <li className="px-4 py-2 hover:bg-gray-200">Option 1</li>
-                      <li className="px-4 py-2 hover:bg-gray-200">Option 2</li>
-                      <li className="px-4 py-2 hover:bg-gray-200">Option 3</li>
-                    </ul>
-                  </div>
+                 <HamberMenu roomId={roomId} />
                 )}
                 {/*center tools menu*/}
                 <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
