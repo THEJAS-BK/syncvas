@@ -129,9 +129,6 @@ export function useSocketDraw(
     socket.on("stroke-end", ({ userId, strokes: strokeData }) => {
       let activeStroke = activeStrokes.current[userId];
       if (!activeStroke) return;
-
-      console.log(strokeData)
-
       strokes.current.push({
         userId,
         color: activeStroke.color,

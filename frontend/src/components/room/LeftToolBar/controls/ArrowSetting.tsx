@@ -9,6 +9,7 @@ import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 export default function ArrowSetting({ activeTool }: { activeTool: string }) {
   const {  arrowType, setArrowType, arrowHead, setArrowHead } = useToolSettings();
+  console.log(activeTool)
   return (
     <div>
 

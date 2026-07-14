@@ -604,8 +604,6 @@ function drawRoundedPolygon(
 
 function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   ctx.save();
-   console.log(line.strokeWidth)
-
   ctx.strokeStyle = line.color;
   ctx.lineWidth = line.strokeWidth;
 

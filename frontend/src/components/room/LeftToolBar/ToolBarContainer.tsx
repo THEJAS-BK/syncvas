@@ -18,10 +18,10 @@ export default function ToolBarContainer() {
   if (selectedEle === null||activeTool!=="mouse") {
     lastTool.current = null; 
   }
-  // if none match, lastTool.current just keeps whatever it was before
 
 
   const displayTool = lastTool.current || activeTool  ;
+
 
   return (
     <div >

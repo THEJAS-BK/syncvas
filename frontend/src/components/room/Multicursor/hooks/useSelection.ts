@@ -41,7 +41,7 @@ export function useSelection(
   const isRotating = useRef(false);
 
   //edit mode
-  const { selectedEle, setSelectedEle } = useToolSettings();
+  const { selectedEle,setArrowHead,setArrowType,setFontFamily,setFontSize,setTextAlign ,setStrokeWidth, setSelectedEle,setFillColor,setStrokeStyle,setEdgeStyle } = useToolSettings();
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -227,10 +227,22 @@ export function useSelection(
         dragType.current = "shape";
         canvas.style.cursor = "move";
         dragOffset.current = { x: x - hitShape.x, y: y - hitShape.y };
+
+        setFillColor(hitShape.fillColor)
+        setStrokeWidth(hitShape.strokeWidth)
+        setStrokeStyle(hitShape.strokeStyle)
+        setEdgeStyle(hitShape.edgeStyle)
+    
+
       } else if (hitText) {
         isDragging.current = true;
         dragType.current = "textbox";
         dragOffset.current = { x: x - hitText.x, y: y - hitText.y };
+
+        setFontFamily(hitText.fontFamily)
+        setFontSize(hitText.fontSize)
+        setTextAlign(hitText.textAlign)
+
       } else if (hitLine) {
         isDragging.current = true;
         dragType.current = "line";
@@ -240,12 +252,25 @@ export function useSelection(
           y1: y - hitLine.y1,
           y2: y - hitLine.y2,
         };
+
+        // if(hitLine.lineType==="arrow"){
+        //   setStrokeStyle(hitLine.lineStyle)
+        //   setStrokeWidth(hitLine.strokeWidth)
+        //   setArrowType(hitLine.arrowType)
+        //   setArrowHead(hitLine.arrowHead)
+        // }
+
+        //  if(hitLine.lineType==="straight"){
+        //   setStrokeStyle(hitLine.lineStyle)
+        //   setStrokeWidth(hitLine.strokeWidth)
+        // }
+
       }
 
       const hit = hitShape ?? hitLine ?? hitText;
       //!edit mode
       if (!hit) return;
-      selectedId.current = hit?.id ?? null;
+      selectedId.current = hit?.id ?? null;   
       setSelectedEle(hit ?? null);
       doRedraw();
     };
