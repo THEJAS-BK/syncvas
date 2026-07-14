@@ -29,7 +29,7 @@ export function useOfflineTextBox(
     textbox.opacity=opacity;
 
     doRedraw();
-  }, [selectedEle,opacity, fontFamily, fontSize, textAlign, activeTool, doRedraw, textBoxesRef]);
+  }, [selectedEle, fontFamily, fontSize, textAlign, opacity]);
 
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;

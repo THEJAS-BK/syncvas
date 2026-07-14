@@ -58,7 +58,7 @@ export function useShapes(
     });
 
     doRedraw();
-  }, [selectedEle, strokeWidth, strokeStyle]);
+  }, [selectedEle, strokeWidth, strokeStyle,opacity]);
   // ---- native mouse listeners on canvas ----
   useEffect(() => {
     const canvas = canvasRef.current;

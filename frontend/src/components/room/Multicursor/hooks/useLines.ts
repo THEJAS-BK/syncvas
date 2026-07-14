@@ -35,14 +35,15 @@ export function useLines(
     selectedLine.arrowHead = arrowHead;
     selectedLine.arrowType = arrowType;
     selectedLine.lineStyle = strokeStyle;
+    selectedLine.opacity=opacity;
     socket.emit("element-update", {
       roomId,
       id: selectedLine.id,
-      changes: { arrowHead, arrowType, strokeWidth, lineStyle: strokeStyle },
+      changes: { arrowHead, arrowType, strokeWidth, lineStyle: strokeStyle,opacity },
     });
 
     doRedraw();
-  }, [selectedEle, arrowHead, arrowType, strokeStyle]);
+  }, [selectedEle, arrowHead, arrowType, strokeStyle, opacity]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

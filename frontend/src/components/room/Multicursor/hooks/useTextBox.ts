@@ -25,13 +25,14 @@ export function useTextBox(
     textbox.fontFamily = fontFamily;
     textbox.fontSize = fontSize;
     textbox.textAlign = textAlign;
+    textbox.opacity=opacity;
     socket.emit("element-update", {
       roomId,
       id: textbox.id,
-      changes: { fontFamily, fontSize, textAlign },
+      changes: { fontFamily, fontSize, textAlign,opacity },
     });
     doRedraw();
-  }, [selectedEle, fontFamily, fontSize, textAlign]);
+  }, [selectedEle, fontFamily, fontSize, textAlign, opacity]);
 
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;

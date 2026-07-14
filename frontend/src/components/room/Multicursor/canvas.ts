@@ -113,7 +113,6 @@ const redraw = (
     }
   }
 
-
   const allShapes = [
     ...shapesRef.current,
     ...(activeShape?.current ? [activeShape.current] : []),
@@ -158,7 +157,6 @@ const redraw = (
     else drawTextBox(ctx, item.el);
   }
 
-
   // strokes on top
   const allActive = Object.entries(activeStrokes.current).map(
     ([userId, activeStroke]) => ({
@@ -169,7 +167,6 @@ const redraw = (
       points: activeStroke.points,
     }),
   );
-
 
   const allStrokes = [
     ...strokes.current,
@@ -519,8 +516,8 @@ function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
 
   const shouldFill = shape.fillColor !== "transparent";
   const isRounded = shape.edgeStyle === "rounded";
-
   ctx.save();
+  ctx.globalAlpha = (shape.opacity ?? 100) / 100;
   ctx.translate(cx, cy);
   ctx.rotate(rotation);
   ctx.strokeStyle = shape.color;
@@ -624,6 +621,7 @@ function drawRoundedPolygon(
 
 function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
   ctx.save();
+    ctx.globalAlpha = (line.opacity ?? 100) / 100;
   ctx.strokeStyle = line.color;
   ctx.lineWidth = line.strokeWidth;
 

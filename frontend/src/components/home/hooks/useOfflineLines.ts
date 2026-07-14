@@ -41,7 +41,7 @@ export function useOfflineLines(
     selectedLine.opacity=opacity;
 
     doRedraw();
-  }, [selectedEle, arrowHead, arrowType, strokeStyle, strokeWidth, opacity, activeTool, doRedraw, linesRef]);
+  }, [selectedEle, arrowHead, arrowType, strokeStyle, opacity]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
