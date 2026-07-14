@@ -15,6 +15,7 @@ import { socket } from "../../services/socket";
 //utils
 import { generateRoomId } from "../../utils/RoomId";
 import dasboard_hero from "../../utils/images/dashboard_hero.png";
+import MyBoards from "./MyBoards";
 
 function connectSocket(maxAttempts = 5): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -174,13 +175,16 @@ export default function Hero() {
             </div>
           </div>
           <div className="flex flex-col justify-center">
-            {/* <img
+            <img
               src={dasboard_hero}
               alt="Dashboard Hero"
               className="max-w-2xl"
-            /> */}
+            />
           </div>
         </div>
+
+        <MyBoards/>
+
       </div>
     </>
   );

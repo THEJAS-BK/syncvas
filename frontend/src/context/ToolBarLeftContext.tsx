@@ -80,6 +80,10 @@ type ToolSettings = {
   //camera settings
   toggleVideoTab:boolean;
   setToggleVideoTab:Dispatch<SetStateAction<boolean>>
+
+  //offline
+  isOffline:boolean;
+  setIsOffline:Dispatch<SetStateAction<boolean>>
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
@@ -121,7 +125,8 @@ export function ToolSettingsProvider({
   const doRedrawRef = useRef<(() => void) | null>(null);
   const [roomId,setRoomId]=useState<string>("")
 
-  const [toggleVideoTab,setToggleVideoTab]=useState(false)
+  const [toggleVideoTab,setToggleVideoTab]=useState(true);
+  const [isOffline, setIsOffline] = useState(false);
 
   return (
     <ToolBarLeftContext.Provider
@@ -167,7 +172,9 @@ export function ToolSettingsProvider({
         roomId,
         setRoomId,
         toggleVideoTab,
-        setToggleVideoTab
+        setToggleVideoTab,
+        isOffline,
+        setIsOffline
       }}
     >
       {children}

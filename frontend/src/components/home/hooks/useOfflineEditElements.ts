@@ -1,14 +1,12 @@
-import { useToolSettings } from "../../../../context/ToolBarLeftContext";
-import { socket } from "../../../../services/socket";
-export function useEditElements() {
+import { useToolSettings } from "../../../context/ToolBarLeftContext";
+
+export function useOfflineEditElements() {
   const {
     shapesRef,
     linesRef,
     textBoxesRef,
     doRedrawRef,
-    roomId,
     selectedEle,
-    isOffline,
   } = useToolSettings();
 
   const refByType = {
@@ -23,63 +21,41 @@ export function useEditElements() {
     const ref = refByType[selectedEle.type as keyof typeof refByType];
     if (!ref) return;
 
-    const el = ref.current.find((e) => e.id === selectedEle.id);
+    const el = ref.current.find((e:any) => e.id === selectedEle.id);
     if (!el) return;
 
     el.color = color;
     doRedrawRef.current?.();
-    if (isOffline) return;
-    socket.emit("element-update", {
-      roomId,
-      id: el.id,
-      changes: { color },
-    });
   };
 
   const handleEditShapeFillColor = (fillColor: string) => {
     if (!selectedEle || selectedEle.type !== "shape") return;
 
-    const el = shapesRef.current.find((e) => e.id === selectedEle.id);
+    const el = shapesRef.current.find((e:any) => e.id === selectedEle.id);
     if (!el) return;
 
     el.fillColor = fillColor;
     doRedrawRef.current?.();
-    if (isOffline) return;
-    socket.emit("element-update", {
-      roomId,
-      id: el.id,
-      changes: { fillColor },
-    });
   };
 
   const handleLineStrokeWidthUpdate = (strokeWidth: number) => {
     if (!selectedEle || selectedEle.type !== "line") return;
-    const el = linesRef.current.find((e) => e.id === selectedEle.id);
+
+    const el = linesRef.current.find((e:any) => e.id === selectedEle.id);
     if (!el) return;
 
     el.strokeWidth = strokeWidth;
-    if (isOffline) return;
-    socket.emit("element-update", {
-      roomId,
-      id: el.id,
-      changes: { strokeWidth },
-    });
+    doRedrawRef.current?.();
   };
 
   const handleEdgeUpdatation = (edge: string) => {
     if (!selectedEle || selectedEle.type !== "shape") return;
 
-    const el = shapesRef.current.find((e) => e.id === selectedEle.id);
+    const el = shapesRef.current.find((e:any) => e.id === selectedEle.id);
     if (!el) return;
 
     el.edgeStyle = edge;
     doRedrawRef.current?.();
-    if (isOffline) return;
-    socket.emit("element-update", {
-      roomId,
-      id: el.id,
-      changes: { edge },
-    });
   };
 
   return {
