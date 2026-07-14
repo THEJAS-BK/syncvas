@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { WebRtcProvider } from "../context/WebRtcContext";
 import { ToolSettingsProvider } from "../context/ToolBarLeftContext.tsx";
 import MultiCursor from "../components/room/Multicursor/MultiCursor";
-import "./RoomPage.css";
+
 //image upload function
 import { handleImageUpload } from "../components/room/Multicursor/tools/imageUpload.ts";
 

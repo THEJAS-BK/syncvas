@@ -10,46 +10,44 @@ import {
   TypeOutline,
 } from "lucide-react";
 import { Image, Eraser, MousePointer, Hand } from "lucide-react";
-import { useState,  } from "react";
+import { useState } from "react";
 import { useToolSettings } from "../../context/ToolBarLeftContext";
 
 interface ToolsProps {
   openCursor: boolean;
   setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function Tools({
-  openCursor,
-  setOpenCursor,
-}: ToolsProps) {
-  const { activeTool, setActiveTool,setToggleVideoTab,toggleVideoTab } = useToolSettings();
+export default function Tools({ openCursor, setOpenCursor }: ToolsProps) {
+  const { activeTool, setActiveTool, setToggleVideoTab, toggleVideoTab } =
+    useToolSettings();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
-      <div className="flex gap-4 shadow-lg">
+      <div className="flex items-center gap-1">
         <button
           onClick={() => setActiveTool("mouse")}
           className={activeTool === "mouse" ? "tool-btn-active" : "tool-btn"}
         >
-          <MousePointer />
+          <MousePointer size={18} />
         </button>
         <button
           onClick={() => setActiveTool("pen")}
-          className={activeTool === "pen" ? "tool-btn-active" : "tool-btn "}
+          className={activeTool === "pen" ? "tool-btn-active" : "tool-btn"}
         >
-          <Pencil />
+          <Pencil size={18} />
         </button>
         <button
           onClick={() => setActiveTool("text")}
           className={activeTool === "text" ? "tool-btn-active" : "tool-btn"}
         >
-          <TypeOutline />
+          <TypeOutline size={18} />
         </button>
         <button
           onClick={() => setActiveTool("hand")}
           className={activeTool === "hand" ? "tool-btn-active" : "tool-btn"}
         >
-          <Hand />
+          <Hand size={18} />
         </button>
         <button
           onClick={() => {
@@ -57,66 +55,80 @@ export default function Tools({
           }}
           className={activeTool === "eraser" ? "tool-btn-active" : "tool-btn"}
         >
-          <Eraser />
+          <Eraser size={18} />
         </button>
 
-        <button>
-          <MoveRight
-            onClick={() => setActiveTool("arrow")}
-            className={activeTool === "arrow" ? "tool-btn-active" : "tool-btn"}
-          />
+        <button
+          className={activeTool === "arrow" ? "tool-btn-active" : "tool-btn"}
+          onClick={() => setActiveTool("arrow")} 
+        >
+          <MoveRight size={18} />
         </button>
-        <button>
-          <Minus
-            onClick={() => setActiveTool("line")}
-            className={activeTool === "line" ? "tool-btn-active" : "tool-btn"}
-          />
+        <button
+          className={activeTool === "line" ? "tool-btn-active" : "tool-btn"}
+          onClick={() => setActiveTool("line")}
+        >
+          <Minus size={18}  />
         </button>
-        <button>
-          <Square
-            onClick={() => setActiveTool("square")}
-            className={activeTool === "square" ? "tool-btn-active" : "tool-btn"}
-          />
+        <button
+          className={activeTool === "square" ? "tool-btn-active" : "tool-btn"}
+          onClick={() => setActiveTool("square")}
+        >
+          <Square size={18}  />
         </button>
-        <button>
-          <Diamond
-            onClick={() => setActiveTool("diamond")}
-            className={
-              activeTool === "diamond" ? "tool-btn-active" : "tool-btn"
-            }
-          />
+        <button
+          className={
+            activeTool === "diamond" ? "tool-btn-active" : "tool-btn"
+          }
+          onClick={() => setActiveTool("diamond")} 
+        >
+          <Diamond size={18} />
         </button>
-        <button>
-          <Circle
-            onClick={() => setActiveTool("circle")}
-            className={activeTool === "circle" ? "tool-btn-active" : "tool-btn"}
-          />
+        <button
+          className={activeTool === "circle" ? "tool-btn-active" : "tool-btn"}
+          onClick={() => setActiveTool("circle")}
+        >
+          <Circle size={18} />
         </button>
 
-        <button className="hover:bg-gray-500">
-          <label htmlFor="image-upload" className="hover:bg-gray-200">
-            <Image />
+        <div className="w-px h-6 bg-white/10 mx-1" />
+
+        <button className="tool-btn">
+          <label
+            htmlFor="image-upload"
+            className="flex items-center justify-center cursor-pointer"
+          >
+            <Image size={18} />
           </label>
         </button>
-        <div onClick={() => setMenuOpen(!menuOpen)}>
-          <Menu />
+
+        <div className="relative">
+          <div
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="tool-btn cursor-pointer"
+          >
+            <Menu size={18} />
+          </div>
           {menuOpen && (
-            <div className="absolute top-12 right-0 flex flex-col bg-black border border-white overflow-hidden">
-              <button className="p-1 border border-white" onClick={(e) => {
-                e.stopPropagation();
-                setOpenCursor(!openCursor);
-                setMenuOpen(false)
-              }}>
-                video conference
+            <div className="absolute top-11 right-0 flex flex-col bg-[#1e1e2e] border border-white/10 rounded-lg shadow-xl overflow-hidden min-w-[160px] z-30">
+              <button
+                className="px-3 py-2 text-sm text-left text-gray-200 hover:bg-white/10 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenCursor(!openCursor);
+                  setMenuOpen(false);
+                }}
+              >
+                Video conference
               </button>
               <button
-              className="p-1 border border-white"
+                className="px-3 py-2 text-sm text-left text-gray-200 hover:bg-white/10 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   setToggleVideoTab(!toggleVideoTab);
                 }}
               >
-                close camera
+                Close camera
               </button>
             </div>
           )}
