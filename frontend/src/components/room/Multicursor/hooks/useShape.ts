@@ -50,10 +50,11 @@ export function useShapes(
     if (!selectedShape) return;
     selectedShape.strokeWidth = strokeWidth;
     selectedShape.strokeStyle = strokeStyle;
+    selectedShape.opacity=opacity;
     socket.emit("element-update", {
       roomId,
       id: selectedShape.id,
-      changes: { strokeWidth, strokeStyle },
+      changes: { strokeWidth, strokeStyle,opacity },
     });
 
     doRedraw();

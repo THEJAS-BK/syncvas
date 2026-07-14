@@ -27,6 +27,7 @@ import { useToolSettings } from "../../../context/ToolBarLeftContext";
 import { useEraser } from "./hooks/useEraser";
 import { useWebRtcContext } from "../../../context/WebRtcContext";
 import ZoomControls from "./ZoomControls";
+import { useLayers } from "./hooks/useLayers";
 
 export default function MultiCursor({
   images,
@@ -167,6 +168,8 @@ export default function MultiCursor({
       triggerUpdate();
     }
   };
+
+  useLayers();
 
   useShapes(
     roomId ?? "",

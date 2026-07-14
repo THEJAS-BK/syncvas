@@ -41,7 +41,7 @@ export function useSelection(
   const isRotating = useRef(false);
 
   //edit mode
-  const { selectedEle,setArrowHead,setArrowType,setFontFamily,setFontSize,setTextAlign ,setStrokeWidth, setSelectedEle,setFillColor,setStrokeStyle,setEdgeStyle } = useToolSettings();
+  const { selectedEle,setArrowHead,setArrowType,setOpacity,setFontFamily,setFontSize,setTextAlign ,setStrokeWidth, setSelectedEle,setFillColor,setStrokeStyle,setEdgeStyle } = useToolSettings();
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -232,8 +232,8 @@ export function useSelection(
         setStrokeWidth(hitShape.strokeWidth)
         setStrokeStyle(hitShape.strokeStyle)
         setEdgeStyle(hitShape.edgeStyle)
+        setOpacity(hitShape.opacity??100)     
     
-
       } else if (hitText) {
         isDragging.current = true;
         dragType.current = "textbox";
@@ -242,6 +242,7 @@ export function useSelection(
         setFontFamily(hitText.fontFamily)
         setFontSize(hitText.fontSize)
         setTextAlign(hitText.textAlign)
+        setOpacity(hitText.opacity??100)
 
       } else if (hitLine) {
         isDragging.current = true;
@@ -253,17 +254,19 @@ export function useSelection(
           y2: y - hitLine.y2,
         };
 
-        // if(hitLine.lineType==="arrow"){
-        //   setStrokeStyle(hitLine.lineStyle)
-        //   setStrokeWidth(hitLine.strokeWidth)
-        //   setArrowType(hitLine.arrowType)
-        //   setArrowHead(hitLine.arrowHead)
-        // }
+        if(hitLine.lineType==="arrow"){
+          setStrokeStyle(hitLine.lineStyle)
+          setStrokeWidth(hitLine.strokeWidth)
+          setArrowType(hitLine.arrowType)
+          setArrowHead(hitLine.arrowHead)
+          setOpacity(hitLine.opacity)
+        }
 
-        //  if(hitLine.lineType==="straight"){
-        //   setStrokeStyle(hitLine.lineStyle)
-        //   setStrokeWidth(hitLine.strokeWidth)
-        // }
+         if(hitLine.lineType==="straight"){
+          setStrokeStyle(hitLine.lineStyle)
+          setStrokeWidth(hitLine.strokeWidth)
+          setOpacity(hitLine.opacity??100)
+        }
 
       }
 
