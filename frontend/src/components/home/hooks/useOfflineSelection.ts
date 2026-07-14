@@ -36,7 +36,8 @@ export function useOfflineSelection(
   const lineEndpoint = useRef<"p1" | "p2" | "mid" | null>(null);
   const isRotating = useRef(false);
 
-  const { selectedEle, setSelectedEle, setStrokeColor } = useToolSettings();
+   const { selectedEle,setStrokeColor,setArrowHead,setArrowType,setOpacity,setFontFamily,setFontSize,setTextAlign ,setStrokeWidth, setSelectedEle,setFillColor,setStrokeStyle,setEdgeStyle } = useToolSettings();
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -215,15 +216,30 @@ export function useOfflineSelection(
         .reverse()
         .find((t) => hitTestTextBox(t, x, y, ctx));
 
+    
+      //!moving shapes,textbox and lines
       if (hitShape) {
         isDragging.current = true;
         dragType.current = "shape";
         canvas.style.cursor = "move";
         dragOffset.current = { x: x - hitShape.x, y: y - hitShape.y };
+
+        setFillColor(hitShape.fillColor)
+        setStrokeWidth(hitShape.strokeWidth)
+        setStrokeStyle(hitShape.strokeStyle)
+        setEdgeStyle(hitShape.edgeStyle)
+        setOpacity(hitShape.opacity??100)     
+    
       } else if (hitText) {
         isDragging.current = true;
         dragType.current = "textbox";
         dragOffset.current = { x: x - hitText.x, y: y - hitText.y };
+
+        setFontFamily(hitText.fontFamily)
+        setFontSize(hitText.fontSize)
+        setTextAlign(hitText.textAlign)
+        setOpacity(hitText.opacity??100)
+
       } else if (hitLine) {
         isDragging.current = true;
         dragType.current = "line";
@@ -233,6 +249,21 @@ export function useOfflineSelection(
           y1: y - hitLine.y1,
           y2: y - hitLine.y2,
         };
+
+        if(hitLine.lineType==="arrow"){
+          setStrokeStyle(hitLine.lineStyle)
+          setStrokeWidth(hitLine.strokeWidth)
+          setArrowType(hitLine.arrowType)
+          setArrowHead(hitLine.arrowHead)
+          setOpacity(hitLine.opacity)
+        }
+
+         if(hitLine.lineType==="straight"){
+          setStrokeStyle(hitLine.lineStyle)
+          setStrokeWidth(hitLine.strokeWidth)
+          setOpacity(hitLine.opacity??100)
+        }
+
       }
 
       const hit = hitShape ?? hitLine ?? hitText;

@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
-import type { Line } from "../../room/Multicursor/types.ts";
+import type { Line, Shape, TextBox } from "../../room/Multicursor/types.ts";
 import { useToolSettings } from "../../../context/ToolBarLeftContext.tsx";
+import OpacitySlider from "../../room/LeftToolBar/controls/OpacitySlider.tsx";
+import { getNextZIndex } from "../../room/Multicursor/tools/zIndex.ts";
 
 export function useOfflineLines(
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -11,6 +13,8 @@ export function useOfflineLines(
   userIdRef: React.RefObject<string>,
   activeTool: string | null,
   strokeColor: string,
+  shapesRef:RefObject<Shape[]>,
+  textBoxesRef:RefObject<TextBox[]>,
   doRedraw: () => void,
 ) {
   const isDragging = useRef(false);
@@ -20,7 +24,7 @@ export function useOfflineLines(
     y: (clientY - camera.current.y) / camera.current.scale,
   });
 
-  const { strokeWidth, strokeStyle, arrowType, arrowHead, selectedEle } =
+  const { strokeWidth,opacity, strokeStyle, arrowType, arrowHead, selectedEle } =
     useToolSettings();
 
   useEffect(() => {
@@ -34,9 +38,10 @@ export function useOfflineLines(
     selectedLine.arrowType = arrowType;
     selectedLine.lineStyle = strokeStyle;
     selectedLine.strokeWidth = strokeWidth;
+    selectedLine.opacity=opacity;
 
     doRedraw();
-  }, [selectedEle, arrowHead, arrowType, strokeStyle, strokeWidth, activeTool, doRedraw, linesRef]);
+  }, [selectedEle, arrowHead, arrowType, strokeStyle, strokeWidth, opacity, activeTool, doRedraw, linesRef]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -62,6 +67,8 @@ export function useOfflineLines(
         arrowType,
         arrowHead,
         userId: userIdRef.current,
+        opacity,
+        zIndex:getNextZIndex(shapesRef, linesRef, textBoxesRef)
       };
 
       doRedraw();

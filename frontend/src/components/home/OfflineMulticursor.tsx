@@ -131,6 +131,8 @@ export default function OfflineMultiCursor({}: {}) {
       strokeColor,
       textBoxesRef,
       activeTextBox,
+      linesRef,
+      shapesRef,
       doRedraw,
     );
 
@@ -155,6 +157,8 @@ export default function OfflineMultiCursor({}: {}) {
     activeShape,
     userIdRef,
     activeTool,
+    linesRef,
+    textBoxesRef,
     strokeColor,
     doRedraw,
   );
@@ -201,6 +205,8 @@ export default function OfflineMultiCursor({}: {}) {
     userIdRef,
     activeTool,
     strokeColor,
+    shapesRef,
+    textBoxesRef,
     doRedraw,
   );
 

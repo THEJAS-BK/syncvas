@@ -1,16 +1,19 @@
 import { useEffect } from "react";
 import type { RefObject } from "react";
-import type { TextBox } from "../../room/Multicursor/types.ts";
+import type { Line, Shape, TextBox } from "../../room/Multicursor/types.ts";
 import { useToolSettings } from "../../../context/ToolBarLeftContext.tsx";
+import { getNextZIndex } from "../../room/Multicursor/tools/zIndex.ts";
 export function useOfflineTextBox(
   camera: RefObject<{ x: number; y: number; scale: number }>,
   userId: string,
   color: string,
   textBoxesRef: React.RefObject<TextBox[]>,
   activeTextBox: React.RefObject<TextBox | null>,
+  linesRef:React.RefObject<Line[]>,
+  shapesRef:React.RefObject<Shape[]>,
   doRedraw: () => void,
 ) {
-  const { fontSize, activeTool, textAlign, fontFamily, selectedEle } =
+  const { fontSize, activeTool,opacity, textAlign, fontFamily, selectedEle } =
     useToolSettings();
 
   useEffect(() => {
@@ -23,9 +26,10 @@ export function useOfflineTextBox(
     textbox.fontFamily = fontFamily;
     textbox.fontSize = fontSize;
     textbox.textAlign = textAlign;
+    textbox.opacity=opacity;
 
     doRedraw();
-  }, [selectedEle, fontFamily, fontSize, textAlign, activeTool, doRedraw, textBoxesRef]);
+  }, [selectedEle,opacity, fontFamily, fontSize, textAlign, activeTool, doRedraw, textBoxesRef]);
 
   const placeTextBox = (clientX: number, clientY: number) => {
     const scale = camera.current?.scale ?? 1;
@@ -44,6 +48,8 @@ export function useOfflineTextBox(
       textAlign,
       fontFamily,
       color,
+      opacity,
+      zIndex:getNextZIndex(shapesRef, linesRef, textBoxesRef),
       userId,
     };
 

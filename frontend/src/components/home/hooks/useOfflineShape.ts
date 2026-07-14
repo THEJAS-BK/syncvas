@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
-import type { Shape } from "../../room/Multicursor/types.ts";
+import type { Line, Shape, TextBox } from "../../room/Multicursor/types.ts";
 import { useToolSettings } from "../../../context/ToolBarLeftContext.tsx";
+import { getNextZIndex } from "../../room/Multicursor/tools/zIndex.ts";
 
 // maps the active tool name to the shape type stored on the element
 const TOOL_TO_SHAPE: Record<string, "square" | "circle" | "diamond"> = {
@@ -17,6 +18,8 @@ export function useOfflineShapes(
   activeShape: RefObject<Shape | null>,
   userIdRef: RefObject<string>,
   activeTool: string | null,
+  linesRef:RefObject<Line[]>,
+  textBoxesRef:RefObject<TextBox[]>,
   color: string,
   doRedraw: () => void,
 ) {
@@ -34,6 +37,7 @@ export function useOfflineShapes(
     shapeFillType,
     strokeWidth,
     strokeStyle,
+    opacity
   } = useToolSettings();
 
   useEffect(() => {
@@ -45,8 +49,9 @@ export function useOfflineShapes(
     if (!selectedShape) return;
     selectedShape.strokeWidth = strokeWidth;
     selectedShape.strokeStyle = strokeStyle;
+     selectedShape.opacity=opacity;
     doRedraw();
-  }, [selectedEle, strokeWidth, strokeStyle]);
+  }, [selectedEle, strokeWidth, strokeStyle, opacity]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -74,6 +79,8 @@ export function useOfflineShapes(
         edgeStyle,
         strokeWidth,
         strokeStyle,
+        zIndex:getNextZIndex(shapesRef, linesRef, textBoxesRef),
+        opacity,
         userId: userIdRef.current,
       };
     };
