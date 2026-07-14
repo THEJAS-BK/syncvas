@@ -26,6 +26,7 @@ import { useDeleteElement } from "./hooks/useDeleteElement";
 import { useToolSettings } from "../../../context/ToolBarLeftContext";
 import { useEraser } from "./hooks/useEraser";
 import { useWebRtcContext } from "../../../context/WebRtcContext";
+import ZoomControls from "./ZoomControls";
 
 export default function MultiCursor({
   images,
@@ -293,6 +294,8 @@ export default function MultiCursor({
           />
         </div>
       )}
+
+      <ZoomControls canvasRef={canvasRef} camera={camera} doRedraw={doRedraw} />
 
       <canvas
         ref={canvasRef}
