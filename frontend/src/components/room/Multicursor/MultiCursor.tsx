@@ -36,12 +36,14 @@ export default function MultiCursor({
   roomId,
   openCursor,
   setOpenCursor,
+  setIsViewMode
 }: {
   images: React.RefObject<BoardImage[]>;
   imageUpdate: number;
   roomId: string;
   openCursor: boolean;
   setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsViewMode: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const camera = useRef({ x: 0, y: 0, scale: 1 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -71,11 +73,16 @@ export default function MultiCursor({
   const triggerUpdate = () => forceUpdate((n) => n + 1);
 
   //edit stroke color
-  const { strokeColor, setStrokeColor } = useToolSettings();
+  const { strokeColor, setStrokeColor,viewMode } = useToolSettings();
   useEffect(() => {
     setStrokeColor(color);
   }, []);
   const { activeTool, selectedId } = useToolSettings();
+
+  //view mode
+    useEffect(()=>{
+    setIsViewMode(viewMode)
+  },[viewMode])
 
   //shapes,textBoxes and lines
   const {

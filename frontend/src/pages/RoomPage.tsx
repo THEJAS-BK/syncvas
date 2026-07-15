@@ -39,6 +39,8 @@ export default function RoomPage() {
 
   //hambergerMenu
   const [isHambergerMenuOpen, setIsHambergerMenuOpen] = useState(false);
+
+  const [isViewMode, setIsViewMode] = useState(false);
   return (
     <>
       {/*image upload*/}
@@ -68,14 +70,15 @@ export default function RoomPage() {
                 </>
               )}
 
-              {isHambergerMenuOpen && <HamberMenu roomId={roomId} />}
+              {isHambergerMenuOpen && <HamberMenu  openCursor={openCursor}
+                    setOpenCursor={setOpenCursor} roomId={roomId} />}
               {/*center tools menu*/}
-                {openCursor && (
+                {openCursor&&isViewMode && (
               <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
 
                   <Tools
-                    openCursor={openCursor}
-                    setOpenCursor={setOpenCursor}
+                   
+                   
                   />
               </div>
                 )}
@@ -98,6 +101,7 @@ export default function RoomPage() {
                   images={images}
                   openCursor={openCursor}
                   setOpenCursor={setOpenCursor}
+                   setIsViewMode={setIsViewMode}
                 />
               )}
             </main>
