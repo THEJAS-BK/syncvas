@@ -22,7 +22,6 @@ export default function FullToolBar({
       {displayTool === "pen" && (
         <>
           <ColorSwatches activeTool={"pen"} />
-
           <StrokeWidth />
           <OpacitySlider />
           <LayerControls />
@@ -59,7 +58,6 @@ export default function FullToolBar({
       {displayTool === "square" && (
         <>
           <ColorSwatches activeTool={"square"} />
-
           <StrokeWidth />
           <StrokeStyle />
           <ArrowSetting activeTool={"square"} />

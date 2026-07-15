@@ -15,6 +15,7 @@ import { Menu, TableOfContents } from "lucide-react";
 import Tools from "../components/room/Tools.tsx";
 import ToolBarContainer from "../components/room/LeftToolBar/ToolBarContainer.tsx";
 import HamberMenu from "../components/room/HamberMenu.tsx";
+import type { FaLessThanEqual } from "react-icons/fa";
 
 type BoardImage = {
   id: string;
@@ -28,7 +29,7 @@ type BoardImage = {
 
 export default function RoomPage() {
   const { roomId } = useParams();
-  const [openCursor, setOpenCursor] = useState(true);
+  const [openCursor, setOpenCursor] = useState(false);
   const images = useRef<BoardImage[]>([]);
 
   //redraw
@@ -54,7 +55,6 @@ export default function RoomPage() {
       <WebRtcProvider roomId={roomId}>
           <ToolSettingsProvider>
             <div className="h-screen flex flex-col overflow-hidden">
-              {!openCursor && <RoomNavbar />}
               <main className="flex-1 flex static">
                 {openCursor && (
                   <>
@@ -75,20 +75,19 @@ export default function RoomPage() {
                  <HamberMenu roomId={roomId} />
                 )}
                 {/*center tools menu*/}
-                <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
-                  <Tools
+               {openCursor && (
+                 <Tools
                     openCursor={openCursor}
                     setOpenCursor={setOpenCursor}
-
                   />
-                </div>
+               )}
                 {/* cursor interface not open*/}
                 {!openCursor && (
                   <>
                   <MainContent
                     roomId={roomId}
                   />
-                  <ChatInterface roomId={roomId}/></>
+               </>
                 )}
 
                 {openCursor && (

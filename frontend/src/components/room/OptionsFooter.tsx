@@ -1,0 +1,52 @@
+import { MessagesSquare, Mic, MicOff, Presentation, SquareArrowRightExit, Users, Video, VideoOff } from "lucide-react";
+interface VideoOptionsProp {
+  audioToggle: () => void;
+  videoToggle: () => void;
+  isAudioMuted: boolean;
+  isVideoMuted: boolean;
+}
+export default function OptionsFooter({
+  audioToggle,
+  videoToggle,
+  isAudioMuted,
+  isVideoMuted,
+}: VideoOptionsProp) {
+  return (
+  <div className="flex justify-between items-center w-full px-6 py-3 bg-gray-700">
+
+  <div className="flex gap-3  rounded-full px-3 py-2">
+    <button
+      onClick={audioToggle}
+      className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full"
+    >
+      {isAudioMuted ? <MicOff size={20} /> : <Mic size={20} />}
+    </button>
+    <button
+      onClick={videoToggle}
+      className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full"
+    >
+      {isVideoMuted ? <VideoOff size={20} /> : <Video size={20} />}
+    </button>
+  </div>
+
+  <div className="flex gap-3 bg-gray-700 rounded-full px-3 py-2">
+    <button className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full">
+      <Presentation size={20} />
+    </button>
+    <button className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full">
+      <MessagesSquare size={20} />
+    </button>
+    <button className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full">
+      <Users size={20} />
+    </button>
+  </div>
+
+  {/* Right group: exit */}
+  <div className="flex bg-red-600 rounded-full px-3 py-2">
+    <button className="bg-red-500 hover:bg-red-400 text-white p-2 rounded-full">
+      <SquareArrowRightExit size={20} />
+    </button>
+  </div>
+</div>
+  );
+}

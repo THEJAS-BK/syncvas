@@ -40,10 +40,10 @@ export default function ChatInterface({
   };
   return (
     <div
-      className={`border flex-1 pb-4 flex flex-col justify-between min-h-screen w-[30%]`}
+      className={`border flex-1 pb-4 flex flex-col justify-between h-full w-[30%]`}
     >
         <>
-          <div className="bg-blue-200 flex-1 px-2 py-6 flex flex-col">
+          <div className="bg-blue-200 flex-1 h-[100%] flex flex-col">
             {messages.map((data, idx) => {
               return (
                 <ChatBox

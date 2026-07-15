@@ -1,4 +1,4 @@
-import { Settings2 } from "lucide-react";
+import { Settings2, Trash2 } from "lucide-react";
 import ColorGrid from "../controls/ColorGrid";
 import { useState } from "react";
 import StrokeWidth from "../controls/StrokeWidth";
@@ -10,6 +10,9 @@ import ArrowSetting from "../controls/ArrowSetting";
 import EdgeSetting from "../controls/EdgeSetting";
 import { LineSquiggle } from "lucide-react";
 import { HachureIcon } from "../tools/HachureIcon";
+import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+import { socket } from "../../../../services/socket";
+import { useCompactToolDelete } from "../hooks/useCompactToolDelete";
 
 export default function CompactToolBar({
   activeTool,
@@ -21,6 +24,10 @@ export default function CompactToolBar({
   const toggle = (panel: string) => {
     setPanel((prev) => (prev === panel ? null : panel));
   };
+
+  const { handleDelete } = useCompactToolDelete();
+  const { selectedEle } = useToolSettings();
+
   const tools = ["pen", "text", "arrow", "line", "square", "diamond", "circle"];
   return (
     <div
@@ -90,7 +97,7 @@ export default function CompactToolBar({
               {activeTool === "line" && (
                 <>
                   <StrokeWidth />
-                  <StrokeStyle/>
+                  <StrokeStyle />
                   <ArrowSetting activeTool={activeTool} />
                   <EdgeSetting />
                   <OpacitySlider />
@@ -120,6 +127,11 @@ export default function CompactToolBar({
           )}
         </div>
       </div>
+      {selectedEle && (
+        <div className="w-8 h-8" onClick={handleDelete}>
+          <Trash2 />
+        </div>
+      )}
     </div>
   );
 }
