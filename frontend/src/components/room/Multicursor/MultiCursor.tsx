@@ -90,6 +90,7 @@ export default function MultiCursor({
     strokeWidth,
     opacity,
     fillColor,
+    tabSize,
   } = useToolSettings();
 
   useEffect(() => {
@@ -284,6 +285,11 @@ export default function MultiCursor({
   }, [imageUpdate]);
 
   const { toggleVideoTab } = useToolSettings();
+  const tabSizeMap: Record<string, string> = {
+    small: "w-[12%]",
+    medium: "w-[14%]",
+    large: "w-[20%]",
+  };
 
   return (
     <div
@@ -297,14 +303,16 @@ export default function MultiCursor({
       }}
     >
       {toggleVideoTab && (
-        <div className="absolute right-0 w-[20%] bg-red-600">
-           <OptionsFooter
+        <div
+          className={`absolute right-0 top-10 ${tabSizeMap[tabSize] ?? tabSizeMap.medium} bg-zinc-900 border border-zinc-600 rounded-2xl`}
+        >
+          <OptionsFooter
             audioToggle={audioToggle}
             videoToggle={videoToggle}
             isAudioMuted={isAudioMuted}
             isVideoMuted={isVideoMuted}
-             openCursor={openCursor}
-          setOpenCursor={setOpenCursor}
+            openCursor={openCursor}
+            setOpenCursor={setOpenCursor}
           />
           <VideoTab
             roomId={roomId}
@@ -314,7 +322,6 @@ export default function MultiCursor({
             isVideoMuted={isVideoMuted}
             openCursor={true}
           />
-         
         </div>
       )}
 

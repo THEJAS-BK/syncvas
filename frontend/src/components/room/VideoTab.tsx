@@ -29,32 +29,55 @@ export default function VideoTab({
   };
   return (
     <>
-      <div
-        className={`bg-zinc-900 ${
-          openCursor
-            ? "flex flex-col"
-            : "flex flex-wrap h-full w-full  items-center justify-center content-center gap-2 "
-        }`}
-      >
-        {isReady && localStream.current && (
-          <div className={getTileSize(participantCount)}>
-            <VideoCard
-              stream={localStream.current}
-              isVideoMuted={isVideoMuted}
-              openCursor={openCursor}
-            />
-          </div>
-        )}
-        {Object.entries(remoteStreams).map(([id, stream]) => (
-          <div key={id} className={getTileSize(participantCount)}>
-            <VideoCard
-              stream={stream}
-              isVideoMuted={isVideoMuted}
-              openCursor={openCursor}
-            />
-          </div>
-        ))}
-      </div>
+     {!openCursor && (
+        <div
+          className={`bg-zinc-900 flex flex-wrap h-full w-full  items-center justify-center content-center gap-2 `}
+        >
+          {isReady && localStream.current && (
+            <div className={getTileSize(participantCount)}>
+              <VideoCard
+                stream={localStream.current}
+                isVideoMuted={isVideoMuted}
+                openCursor={openCursor}
+              />
+            </div>
+          )}
+          {Object.entries(remoteStreams).map(([id, stream]) => (
+            <div key={id} className={getTileSize(participantCount)}>
+              <VideoCard
+                stream={stream}
+                isVideoMuted={isVideoMuted}
+                openCursor={openCursor}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {openCursor && (
+        <div
+          className={`p-2 flex flex-col flex-wrap h-full w-full  items-center justify-center content-center gap-2 `}
+        >
+          {isReady && localStream.current && (
+            <div >
+              <VideoCard
+                stream={localStream.current}
+                isVideoMuted={isVideoMuted}
+                openCursor={openCursor}
+              />
+            </div>
+          )}
+          {Object.entries(remoteStreams).map(([id, stream]) => (
+            <div key={id} >
+              <VideoCard
+                stream={stream}
+                isVideoMuted={isVideoMuted}
+                openCursor={openCursor}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }

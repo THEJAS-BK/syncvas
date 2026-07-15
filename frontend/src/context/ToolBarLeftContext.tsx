@@ -88,6 +88,10 @@ type ToolSettings = {
   //layer settings
   layer:string;
   setLayer:Dispatch<SetStateAction<string>>
+
+  //miniMize video in mulicursor
+  tabSize:string;
+  setTabSize:Dispatch<SetStateAction<string>>
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
@@ -133,6 +137,8 @@ export function ToolSettingsProvider({
   const [isOffline, setIsOffline] = useState(false);
 
   const [layer,setLayer]=useState("")
+
+  const [tabSize,setTabSize]=useState("")
 
   return (
     <ToolBarLeftContext.Provider
@@ -182,7 +188,9 @@ export function ToolSettingsProvider({
         isOffline,
         setIsOffline,
         layer,
-        setLayer
+        setLayer,
+        tabSize,
+        setTabSize
       }}
     >
       {children}

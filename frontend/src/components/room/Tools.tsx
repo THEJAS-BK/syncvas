@@ -91,8 +91,6 @@ export default function Tools({ openCursor, setOpenCursor }: ToolsProps) {
           <Circle size={18} />
         </button>
 
-        <div className="w-px h-6 bg-white/10 mx-1" />
-
         <button className="tool-btn">
           <label
             htmlFor="image-upload"

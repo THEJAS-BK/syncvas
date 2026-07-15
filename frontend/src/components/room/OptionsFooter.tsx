@@ -1,4 +1,5 @@
 import {
+  Menu,
   MessagesSquare,
   Mic,
   MicOff,
@@ -29,7 +30,7 @@ export default function OptionsFooter({
   setOpenCursor,
 }: VideoOptionsProp) {
   const [tab, setTab] = useState("");
-  const { roomId } = useToolSettings();
+  const { roomId, setTabSize } = useToolSettings();
   const handleTabClick = (tabName: string) => {
     setTab((prev) => (prev === tabName ? "" : tabName));
   };
@@ -37,26 +38,44 @@ export default function OptionsFooter({
   return (
     <>
       {openCursor && (
-        <div className="flex flex-1 gap-3  rounded-full px-3 py-2">
-          <button
-            onClick={audioToggle}
-            className=" hover:bg-gray-400 text-white p-2 rounded-full"
-          >
-            {isAudioMuted ? <MicOff size={20} /> : <Mic size={20} />}
-          </button>
-          <button
-            onClick={videoToggle}
-            className=" hover:bg-gray-400 text-white p-2 rounded-full"
-          >
-            {isVideoMuted ? <VideoOff size={20} /> : <Video size={20} />}
-          </button>
-          <button
-            onClick={() => setOpenCursor(!openCursor)}
-            className=" hover:bg-gray-400 text-white p-2 rounded-full"
-          >
-            <Presentation size={20} />
-          </button>
-        </div>
+        <>
+          <div className="flex flex-1 gap-3  rounded-full px-3 py-2">
+            <button
+              className="relative text-white"
+              onClick={() => handleTabClick("small")}
+            >
+              <Menu />
+              {tab === "small" && (
+                <div className="absolute top-0 right-9 mr-2 bg-gray-800 text-white p-2 rounded-md whitespace-nowrap">
+                  <div onClick={() => setTabSize("close")}>close</div>
+                  <div onClick={() => setTabSize("small")}>small</div>
+                  <div onClick={() => setTabSize("normal")}>normal</div>
+                  <div onClick={() => setTabSize("large")}>large</div>
+                </div>
+              )}
+            </button>
+            <button
+              onClick={audioToggle}
+              className=" hover:bg-gray-400 text-white p-2 rounded-full"
+            >
+              {isAudioMuted ? <MicOff size={20} /> : <Mic size={20} />}
+            </button>
+            <button
+              onClick={videoToggle}
+              className=" hover:bg-gray-400 text-white p-2 rounded-full"
+            >
+              {isVideoMuted ? <VideoOff size={20} /> : <Video size={20} />}
+            </button>
+            <button
+              onClick={() => setOpenCursor(!openCursor)}
+              className=" hover:bg-gray-400 text-white p-2 rounded-full"
+            >
+              <Presentation size={20} />
+            </button>
+          </div>
+
+          <hr className="border-t border-zinc-700 w-full" />
+        </>
       )}
 
       {!openCursor && (

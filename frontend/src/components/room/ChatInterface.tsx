@@ -39,7 +39,7 @@ export default function ChatInterface({
     setInputText("");
   };
   return (
- <div className="absolute bottom-full left-0 mb-2 flex flex-col justify-between h-[500px] w-[320px] bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl overflow-hidden">
+ <div   onClick={(e) => e.stopPropagation()} className="absolute bottom-full left-0 mb-2 flex flex-col justify-between h-[500px] w-[320px] bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl overflow-hidden">
   <div className="px-3 py-2 border-b border-zinc-700 text-sm font-medium text-white">
     Chat
   </div>
