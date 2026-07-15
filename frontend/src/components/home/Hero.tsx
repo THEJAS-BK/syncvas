@@ -14,7 +14,6 @@ import { socket } from "../../services/socket";
 
 //utils
 import { generateRoomId } from "../../utils/RoomId";
-import dasboard_hero from "../../utils/images/dashboard_hero.png";
 import MyBoards from "./MyBoards";
 
 function connectSocket(maxAttempts = 5): Promise<void> {
@@ -34,7 +33,6 @@ function connectSocket(maxAttempts = 5): Promise<void> {
           reject(err);
           return;
         }
-        // backoff: 1s, 2s, 3s... before retrying
         setTimeout(tryConnect, attempt * 1000);
       };
       const cleanup = () => {
@@ -63,7 +61,6 @@ export default function Hero() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [roomId, setRoomId] = useState("");
 
-  //invalid room id
   const [Toast, setToast] = useState({ open: false, message: "" });
   const [loading, setLoading] = useState<string | null>(null);
 
@@ -159,33 +156,35 @@ export default function Hero() {
           {Toast.message}
         </div>
       )}
-      <div className="h-screen overflow-y-auto">
-        <div className="h-screen flex justify-center gap-5 mt-[-50px]">
-          <div className="flex flex-col justify-center overflow-hidden w-[45%] mb-30">
-            <p className="text-7xl">Collaborate visually,in real time</p>
-            <p className="text-lg mt-4 w-[80%]">
-              The easiest way for remote teams to brainstorm, design and plan
-              togather on a shared digital canvas. Simple, fast and beautiful.
-            </p>
-            <div className="mt-7 flex ">
-              <Button onClick={handleCreateRoom}>Create Room</Button>
-              <Button variant="outlined" onClick={handleOpenJoinRoom}>
-                Join Room
-              </Button>
-            </div>
-          </div>
-          <div className="flex flex-col justify-center">
-            {/* <img
-              src={dasboard_hero}
-              alt="Dashboard Hero"
-              className="max-w-2xl"
-            /> */}
-          </div>
-        </div>
+      <div className="h-screen overflow-y-auto bg-white">
+  <div className="flex flex-col items-center justify-center text-center px-6 pt-40 pb-20 max-w-2xl mx-auto">
+    <h1 className="text-6xl font-bold tracking-tight text-[#101820] leading-[1.1]">
+      Collaborate visually,
+      <br />
+      in real time
+    </h1>
+    <p className="text-lg text-gray-500 mt-5 max-w-lg">
+      The easiest way for remote teams to brainstorm, design and plan
+      together on a shared digital canvas.
+    </p>
+    <div className="mt-8 flex gap-3">
+      <button
+        onClick={handleCreateRoom}
+        className="bg-[#101820] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#1c2733] transition-colors"
+      >
+        Create room
+      </button>
+      <button
+        onClick={handleOpenJoinRoom}
+        className="border border-gray-300 text-[#101820] px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+      >
+        Join room
+      </button>
+    </div>
+  </div>
 
-        <MyBoards/>
-
-      </div>
+  <MyBoards />
+</div>
     </>
   );
 }

@@ -30,38 +30,17 @@ export default function OptionsFooter({
   setOpenCursor,
 }: VideoOptionsProp) {
   const [tab, setTab] = useState("");
-  const { roomId, setTabSize } = useToolSettings();
+  const { roomId } = useToolSettings();
   const handleTabClick = (tabName: string) => {
     setTab((prev) => (prev === tabName ? "" : tabName));
   };
-  const { setToggleVideoTab, toggleVideoTab } = useToolSettings();
 
   return (
     <>
       {openCursor && (
         <>
-          <div className="flex flex-1 gap-3  rounded-full px-3 py-2">
-            <button
-              className="relative text-white"
-              onClick={() => handleTabClick("small")}
-            >
-              <Menu />
-              {tab === "small" && (
-                <div className="absolute top-0 right-9 mr-2 bg-gray-800 text-white p-2 rounded-md whitespace-nowrap">
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setToggleVideoTab(!toggleVideoTab);
-                    }}
-                  >
-                    close
-                  </div>
-                  <div onClick={() => setTabSize("small")}>small</div>
-                  <div onClick={() => setTabSize("normal")}>normal</div>
-                  <div onClick={() => setTabSize("large")}>large</div>
-                </div>
-              )}
-            </button>
+          <div className="flex flex-1 gap-3 justify-center rounded-full px-3 py-2">
+           
             <button
               onClick={audioToggle}
               className=" hover:bg-gray-400 text-white p-2 rounded-full"
@@ -73,12 +52,6 @@ export default function OptionsFooter({
               className=" hover:bg-gray-400 text-white p-2 rounded-full"
             >
               {isVideoMuted ? <VideoOff size={20} /> : <Video size={20} />}
-            </button>
-            <button
-              onClick={() => setOpenCursor(!openCursor)}
-              className=" hover:bg-gray-400 text-white p-2 rounded-full"
-            >
-              <Presentation size={20} />
             </button>
           </div>
 

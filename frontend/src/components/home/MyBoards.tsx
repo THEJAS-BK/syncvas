@@ -1,18 +1,22 @@
 import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
+
 export default function MyBoards() {
-
   return (
-    <div className="h-full p-10">
-      <h2 className="text-7xl mb-10">My boards</h2>
+    <div className="max-w-5xl mx-auto p-10 text-center">
+      <h2 className="text-5xl font-semibold">My boards</h2>
+      <p className="text-gray-500 mt-2 mb-8">
+        Boards you create will show up here.
+      </p>
 
-      <Link to="/offlineboard" >
-      <div
-        className="w-90 h-60 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
-      >
-        <Plus className="w-8 h-8 text-gray-500" />
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6 justify-center">
+        <Link to="/offlineboard">
+          <div className="aspect-[3/2] border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors">
+            <Plus className="w-6 h-6 text-gray-400" />
+            <span className="text-sm text-gray-500">New board</span>
+          </div>
+        </Link>
       </div>
-      </Link>
     </div>
   );
 }

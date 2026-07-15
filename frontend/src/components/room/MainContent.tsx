@@ -1,7 +1,5 @@
 import VideoTab from "./VideoTab";
 import { useWebRtcContext } from "../../context/WebRtcContext";
-import ChatInterface from "./ChatInterface";
-import NavBar from "../home/NavBar";
 import OptionsFooter from "./OptionsFooter";
 import RoomNavbar from "./RoomNavbar";
 
