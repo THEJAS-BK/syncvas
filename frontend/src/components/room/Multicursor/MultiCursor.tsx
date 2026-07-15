@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "../../../services/socket";
 import { useNavigate } from "react-router-dom";
 const COLORS = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
@@ -28,15 +28,20 @@ import { useEraser } from "./hooks/useEraser";
 import { useWebRtcContext } from "../../../context/WebRtcContext";
 import ZoomControls from "./ZoomControls";
 import { useLayers } from "./hooks/useLayers";
+import OptionsFooter from "../OptionsFooter";
 
 export default function MultiCursor({
   images,
   imageUpdate,
   roomId,
+  openCursor,
+  setOpenCursor,
 }: {
   images: React.RefObject<BoardImage[]>;
   imageUpdate: number;
   roomId: string;
+  openCursor: boolean;
+  setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const camera = useRef({ x: 0, y: 0, scale: 1 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -300,6 +305,14 @@ export default function MultiCursor({
             isReady={isReady}
             isVideoMuted={isVideoMuted}
             isCursorOpen={true}
+          />
+          <OptionsFooter
+            audioToggle={audioToggle}
+            videoToggle={videoToggle}
+            isAudioMuted={isAudioMuted}
+            isVideoMuted={isVideoMuted}
+             openCursor={openCursor}
+          setOpenCursor={setOpenCursor}
           />
         </div>
       )}

@@ -4,7 +4,8 @@ import ChatInterface from "./ChatInterface";
 import NavBar from "../home/NavBar";
 import OptionsFooter from "./OptionsFooter";
 
-export default function MainContent({ roomId }: { roomId: string }) {
+export default function MainContent({ roomId,openCursor,setOpenCursor }: { roomId: string,  openCursor: boolean;
+  setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>; }) {
   const { localStream, remoteStreams, isReady, isVideoMuted } =
     useWebRtcContext();
   const { audioToggle, videoToggle, isAudioMuted } = useWebRtcContext();
@@ -31,6 +32,8 @@ export default function MainContent({ roomId }: { roomId: string }) {
           videoToggle={videoToggle}
           isAudioMuted={isAudioMuted}
           isVideoMuted={isVideoMuted}
+          openCursor={openCursor}
+          setOpenCursor={setOpenCursor}
         />
       </div>
     </>

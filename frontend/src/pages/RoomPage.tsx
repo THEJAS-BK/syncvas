@@ -53,54 +53,56 @@ export default function RoomPage() {
       />
 
       <WebRtcProvider roomId={roomId}>
-          <ToolSettingsProvider>
-            <div className="h-screen flex flex-col overflow-hidden">
-              <main className="flex-1 flex static">
-                {openCursor && (
-                  <>
-                    <button
-                      onClick={() =>
-                        setIsHambergerMenuOpen(!isHambergerMenuOpen)
-                      }
-                      className="absolute text-white z-20 left-5 top-5  bg-slate-800 p-2 rounded"
-                    >
-                      <Menu />
-                    </button>
-                    <ToolBarContainer
-                    />
-                  </>
-                )}
+        <ToolSettingsProvider>
+          <div className="h-screen flex flex-col overflow-hidden">
+            <main className="flex-1 flex static">
+              {openCursor && (
+                <>
+                  <button
+                    onClick={() => setIsHambergerMenuOpen(!isHambergerMenuOpen)}
+                    className="absolute text-white z-20 left-5 top-5  bg-slate-800 p-2 rounded"
+                  >
+                    <Menu />
+                  </button>
+                  <ToolBarContainer />
+                </>
+              )}
 
-                {isHambergerMenuOpen && (
-                 <HamberMenu roomId={roomId} />
-                )}
-                {/*center tools menu*/}
-               {openCursor && (
-                 <Tools
+              {isHambergerMenuOpen && <HamberMenu roomId={roomId} />}
+              {/*center tools menu*/}
+                {openCursor && (
+              <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
+
+                  <Tools
                     openCursor={openCursor}
                     setOpenCursor={setOpenCursor}
                   />
-               )}
-                {/* cursor interface not open*/}
-                {!openCursor && (
-                  <>
-                  <MainContent
-                    roomId={roomId}
-                  />
-               </>
+              </div>
                 )}
 
-                {openCursor && (
-                  <MultiCursor
-                  roomId={roomId}
-                    imageUpdate={redrawVersion}
-                    images={images}
+              {/* cursor interface not open*/}
+              {!openCursor && (
+                <>
+                  <MainContent
+                    roomId={roomId}
+                    openCursor={openCursor}
+                    setOpenCursor={setOpenCursor}
                   />
-                )}
-              
-              </main>
-            </div>
-          </ToolSettingsProvider>
+                </>
+              )}
+
+              {openCursor && (
+                <MultiCursor
+                  roomId={roomId}
+                  imageUpdate={redrawVersion}
+                  images={images}
+                  openCursor={openCursor}
+                  setOpenCursor={setOpenCursor}
+                />
+              )}
+            </main>
+          </div>
+        </ToolSettingsProvider>
       </WebRtcProvider>
     </>
   );
