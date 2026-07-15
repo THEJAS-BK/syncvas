@@ -4,12 +4,12 @@ export default function VideoCard({
   stream,
   muted = false,
   isVideoMuted,
-  isCursorOpen
+  openCursor
 }: {
   stream: MediaStream;
   muted?: boolean;
   isVideoMuted?: boolean;
-  isCursorOpen?: boolean;
+  openCursor?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
 

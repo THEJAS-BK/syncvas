@@ -20,7 +20,7 @@ export default function VideoTab({
 
   return (
     <>
-      <div className="grid h-full w-full  h-[90%]">
+      <div className="grid h-full w-full  h-[90%] bg-zinc-900 ">
           {isReady && localStream.current && (
             <VideoCard
               stream={localStream.current}

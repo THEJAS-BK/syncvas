@@ -3,6 +3,7 @@ import { useWebRtcContext } from "../../context/WebRtcContext";
 import ChatInterface from "./ChatInterface";
 import NavBar from "../home/NavBar";
 import OptionsFooter from "./OptionsFooter";
+import RoomNavbar from "./RoomNavbar";
 
 export default function MainContent({ roomId,openCursor,setOpenCursor }: { roomId: string,  openCursor: boolean;
   setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>; }) {
@@ -16,7 +17,7 @@ export default function MainContent({ roomId,openCursor,setOpenCursor }: { roomI
         className={`flex flex-col w-full`}
         style={{ scrollBehavior: "auto", overflow: "auto" }}
       >
-        <NavBar />
+        <RoomNavbar roomId={roomId} />
         <div className="flex-1 h-full w-full flex">
           <VideoTab
             roomId={roomId}
@@ -24,7 +25,7 @@ export default function MainContent({ roomId,openCursor,setOpenCursor }: { roomI
             remoteStreams={remoteStreams}
             isReady={isReady}
             isVideoMuted={isVideoMuted}
-            isCursorOpen={false}
+            openCursor={false}
           />
         </div>
         <OptionsFooter

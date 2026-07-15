@@ -30,42 +30,45 @@ export default function OptionsFooter({
     {openCursor&&<div className="flex gap-3  rounded-full px-3 py-2">
         <button
           onClick={audioToggle}
-          className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full"
+          className=" hover:bg-gray-400 text-white p-2 rounded-full"
         >
           {isAudioMuted ? <MicOff size={20} /> : <Mic size={20} />}
         </button>
         <button
           onClick={videoToggle}
-          className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full"
+          className=" hover:bg-gray-400 text-white p-2 rounded-full"
         >
           {isVideoMuted ? <VideoOff size={20} /> : <Video size={20} />}
         </button>
+          <button onClick={()=>setOpenCursor(!openCursor)} className=" hover:bg-gray-400 text-white p-2 rounded-full">
+          <Presentation size={20} />
+        </button>
       </div>}
     
-    {!openCursor&&<div className="flex justify-between items-center w-full px-6 bg-gray-700">
+    {!openCursor&&<div className="flex justify-between items-center w-full px-6 bg-zinc-800 ">
       <div className="flex gap-3  rounded-full px-3 py-2">
         <button
           onClick={audioToggle}
-          className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full"
+          className=" hover:bg-gray-400 text-white p-2 rounded-full"
         >
           {isAudioMuted ? <MicOff size={20} /> : <Mic size={20} />}
         </button>
         <button
           onClick={videoToggle}
-          className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full"
+          className=" hover:bg-gray-400 text-white p-2 rounded-full"
         >
           {isVideoMuted ? <VideoOff size={20} /> : <Video size={20} />}
         </button>
       </div>
 
-      <div className="flex gap-3 bg-gray-700 rounded-full px-3 py-2">
-        <button onClick={()=>setOpenCursor(!openCursor)} className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full">
+      <div className="flex gap-3  rounded-full px-3 py-2">
+        <button onClick={()=>setOpenCursor(!openCursor)} className=" hover:bg-gray-400 text-white p-2 rounded-full">
           <Presentation size={20} />
         </button>
-        <button className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full">
+        <button className=" hover:bg-gray-400 text-white p-2 rounded-full">
           <MessagesSquare size={20} />
         </button>
-        <button className="bg-gray-500 hover:bg-gray-400 text-white p-2 rounded-full">
+        <button className=" hover:bg-gray-400 text-white p-2 rounded-full">
           <Users size={20} />
         </button>
       </div>
