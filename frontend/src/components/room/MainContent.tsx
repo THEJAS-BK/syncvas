@@ -5,38 +5,41 @@ import NavBar from "../home/NavBar";
 import OptionsFooter from "./OptionsFooter";
 import RoomNavbar from "./RoomNavbar";
 
-export default function MainContent({ roomId,openCursor,setOpenCursor }: { roomId: string,  openCursor: boolean;
-  setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>; }) {
-  const { localStream, remoteStreams, isReady, isVideoMuted } =
-    useWebRtcContext();
+export default function MainContent({
+  roomId,
+  openCursor,
+  setOpenCursor,
+}: {
+  roomId: string;
+  openCursor: boolean;
+  setOpenCursor: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const { localStream, remoteStreams, isReady, isVideoMuted } = useWebRtcContext();
   const { audioToggle, videoToggle, isAudioMuted } = useWebRtcContext();
 
   return (
-    <>
-      <div
-        className={`flex flex-col w-full`}
-        style={{ scrollBehavior: "auto", overflow: "auto" }}
-      >
-        <RoomNavbar roomId={roomId} />
-        <div className="flex-1 h-full w-full flex">
-          <VideoTab
-            roomId={roomId}
-            localStream={localStream}
-            remoteStreams={remoteStreams}
-            isReady={isReady}
-            isVideoMuted={isVideoMuted}
-            openCursor={false}
-          />
-        </div>
-        <OptionsFooter
-          audioToggle={audioToggle}
-          videoToggle={videoToggle}
-          isAudioMuted={isAudioMuted}
+    <div className="h-screen w-full flex flex-col overflow-hidden bg-zinc-900">
+      <RoomNavbar roomId={roomId} />
+
+      <div className="flex-1 min-h-0 w-full flex">
+        <VideoTab
+          roomId={roomId}
+          localStream={localStream}
+          remoteStreams={remoteStreams}
+          isReady={isReady}
           isVideoMuted={isVideoMuted}
           openCursor={openCursor}
-          setOpenCursor={setOpenCursor}
         />
       </div>
-    </>
+
+      <OptionsFooter
+        audioToggle={audioToggle}
+        videoToggle={videoToggle}
+        isAudioMuted={isAudioMuted}
+        isVideoMuted={isVideoMuted}
+        openCursor={openCursor}
+        setOpenCursor={setOpenCursor}
+      />
+    </div>
   );
 }

@@ -36,9 +36,11 @@ export default function VideoCard({
 
   return (
      <video
-      ref={ref}
-      autoPlay
-      playsInline
-    />
+    ref={ref}
+    autoPlay
+    playsInline
+    muted={muted}
+    className="w-full h-[95%] object-cover rounded-lg"
+  />
   );
 }

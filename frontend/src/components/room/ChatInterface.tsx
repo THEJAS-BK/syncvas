@@ -7,7 +7,7 @@ import type { RecieveMessage } from "../../types/Chat";
 export default function ChatInterface({
   roomId,
 }: {
-  roomId: string;
+  roomId: string|null;
 }) {
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<RecieveMessage[]>([]);
@@ -39,35 +39,38 @@ export default function ChatInterface({
     setInputText("");
   };
   return (
-    <div
-      className={`border flex-1 pb-4 flex flex-col justify-between h-full w-[30%]`}
-    >
-        <>
-          <div className="bg-blue-200 flex-1 h-[100%] flex flex-col">
-            {messages.map((data, idx) => {
-              return (
-                <ChatBox
-                  key={idx}
-                  message={data.data}
-                  isOwn={data.socketId === socket.id}
-                />
-              );
-            })}
-          </div>
-          <div className="px-2 py-4">
-            <input
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              type="text"
-              placeholder="text something"
-            />
-            <Button variant="contained" onClick={handleMesSend}>
-              Send
-            </Button>
-          </div>
-        </>
-      
+ <div className="absolute bottom-full left-0 mb-2 flex flex-col justify-between h-[500px] w-[320px] bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl overflow-hidden">
+  <div className="px-3 py-2 border-b border-zinc-700 text-sm font-medium text-white">
+    Chat
+  </div>
 
-    </div>
+  <div className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2 bg-zinc-900">
+    {messages.map((data, idx) => (
+      <ChatBox
+        key={idx}
+        message={data.data}
+        isOwn={data.socketId === socket.id}
+      />
+    ))}
+  </div>
+
+  <div className="flex items-center gap-2 px-3 py-3 border-t border-zinc-700 bg-zinc-800">
+    <input
+      value={inputText}
+      onChange={(e) => setInputText(e.target.value)}
+      type="text"
+      placeholder="Type a message..."
+      onKeyDown={(e) => e.key === "Enter" && handleMesSend()}
+      className="flex-1 bg-zinc-700 text-white placeholder-zinc-400 text-sm rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    <Button
+      variant="contained"
+      onClick={handleMesSend}
+      sx={{ backgroundColor: "#2563eb", "&:hover": { backgroundColor: "#1d4ed8" } }}
+    >
+      Send
+    </Button>
+  </div>
+</div>
   );
 }

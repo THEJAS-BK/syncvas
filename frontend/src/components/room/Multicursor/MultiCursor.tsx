@@ -298,15 +298,7 @@ export default function MultiCursor({
     >
       {toggleVideoTab && (
         <div className="absolute right-0 w-[20%] bg-red-600">
-          <VideoTab
-            roomId={roomId}
-            localStream={localStream}
-            remoteStreams={remoteStreams}
-            isReady={isReady}
-            isVideoMuted={isVideoMuted}
-            isCursorOpen={true}
-          />
-          <OptionsFooter
+           <OptionsFooter
             audioToggle={audioToggle}
             videoToggle={videoToggle}
             isAudioMuted={isAudioMuted}
@@ -314,6 +306,15 @@ export default function MultiCursor({
              openCursor={openCursor}
           setOpenCursor={setOpenCursor}
           />
+          <VideoTab
+            roomId={roomId}
+            localStream={localStream}
+            remoteStreams={remoteStreams}
+            isReady={isReady}
+            isVideoMuted={isVideoMuted}
+            openCursor={true}
+          />
+         
         </div>
       )}
 

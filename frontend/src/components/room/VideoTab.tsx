@@ -7,7 +7,7 @@ interface VideoTabProps {
   remoteStreams: { [socketId: string]: MediaStream };
   isReady: boolean;
   isVideoMuted: boolean;
-  isCursorOpen: boolean;
+  openCursor: boolean;
 }
 export default function VideoTab({
   roomId,
@@ -15,30 +15,46 @@ export default function VideoTab({
   remoteStreams,
   isReady,
   isVideoMuted,
-  isCursorOpen,
+  openCursor,
 }: VideoTabProps) {
+  const participantCount =
+    (isReady && localStream.current ? 1 : 0) +
+    Object.keys(remoteStreams).length;
 
+  const getTileSize = (count: number) => {
+    if (count <= 1) return "w-full h-[90%] max-w-4xl";
+    if (count <= 2) return "w-[48%] h-[90%]";
+    if (count <= 4) return "w-[48%] h-[45%]";
+    return "w-[32%] h-[45%]"; // 5-6 people
+  };
   return (
     <>
-      <div className="grid h-full w-full  h-[90%] bg-zinc-900 ">
-          {isReady && localStream.current && (
+      <div
+        className={`bg-zinc-900 ${
+          openCursor
+            ? "flex flex-col"
+            : "flex flex-wrap h-full w-full  items-center justify-center content-center gap-2 "
+        }`}
+      >
+        {isReady && localStream.current && (
+          <div className={getTileSize(participantCount)}>
             <VideoCard
               stream={localStream.current}
               isVideoMuted={isVideoMuted}
-              isCursorOpen={isCursorOpen}
+              openCursor={openCursor}
             />
-          )}
-          {Object.entries(remoteStreams).map(([id, stream]) => {
-            return (
-              <VideoCard
-                key={id}
-                stream={stream}
-                isVideoMuted={isVideoMuted}
-                isCursorOpen={isCursorOpen}
-              />
-            );
-          })}
-        </div>
+          </div>
+        )}
+        {Object.entries(remoteStreams).map(([id, stream]) => (
+          <div key={id} className={getTileSize(participantCount)}>
+            <VideoCard
+              stream={stream}
+              isVideoMuted={isVideoMuted}
+              openCursor={openCursor}
+            />
+          </div>
+        ))}
+      </div>
     </>
   );
 }
