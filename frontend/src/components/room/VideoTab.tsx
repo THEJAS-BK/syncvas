@@ -25,7 +25,7 @@ export default function VideoTab({
     if (count <= 1) return "w-full h-[90%] max-w-4xl";
     if (count <= 2) return "w-[48%] h-[90%]";
     if (count <= 4) return "w-[48%] h-[45%]";
-    return "w-[32%] h-[45%]"; // 5-6 people
+    return "w-[32%] h-[45%]"; 
   };
   return (
     <>

@@ -108,7 +108,7 @@ export default function Tools({ openCursor, setOpenCursor }: ToolsProps) {
             <Menu size={18} />
           </div>
           {menuOpen && (
-            <div className="absolute top-11 right-0 flex flex-col bg-[#1e1e2e] border border-white/10 rounded-lg shadow-xl overflow-hidden min-w-[160px] z-30">
+            <div className="absolute top-12 right-0 flex flex-col bg-[#1e1e2e] border border-white/10 rounded-lg shadow-xl overflow-hidden min-w-[160px] z-30">
               <button
                 className="px-3 py-2 text-sm text-left text-gray-200 hover:bg-white/10 transition-colors"
                 onClick={(e) => {
@@ -126,7 +126,7 @@ export default function Tools({ openCursor, setOpenCursor }: ToolsProps) {
                   setToggleVideoTab(!toggleVideoTab);
                 }}
               >
-                Close camera
+                Toggle video tab
               </button>
             </div>
           )}

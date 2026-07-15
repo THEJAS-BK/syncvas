@@ -34,6 +34,7 @@ export default function OptionsFooter({
   const handleTabClick = (tabName: string) => {
     setTab((prev) => (prev === tabName ? "" : tabName));
   };
+  const { setToggleVideoTab, toggleVideoTab } = useToolSettings();
 
   return (
     <>
@@ -47,7 +48,14 @@ export default function OptionsFooter({
               <Menu />
               {tab === "small" && (
                 <div className="absolute top-0 right-9 mr-2 bg-gray-800 text-white p-2 rounded-md whitespace-nowrap">
-                  <div onClick={() => setTabSize("close")}>close</div>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setToggleVideoTab(!toggleVideoTab);
+                    }}
+                  >
+                    close
+                  </div>
                   <div onClick={() => setTabSize("small")}>small</div>
                   <div onClick={() => setTabSize("normal")}>normal</div>
                   <div onClick={() => setTabSize("large")}>large</div>
