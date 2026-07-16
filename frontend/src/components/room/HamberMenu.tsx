@@ -84,7 +84,7 @@ export default function HamberMenu({
               setVideoSettingsOpen((prev) => !prev);
             }}
           >
-            <Settings size={16} />
+         
             Video settings
           </button>
 
@@ -126,13 +126,13 @@ export default function HamberMenu({
           className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors border-b border-white/10"
           onClick={() => { setActiveTool(null); setViewMode(!viewMode); }}
         >
-          {viewMode ? "view only mode" : "edit mode"}
+          {viewMode ? "view only mode" : "draw mode"}
         </li>
 
         {!viewMode && (
-          <li className="relative border-b border-white/10">
+          <li className="relative ">
             <div
-              className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors"
+              className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors border border-white/10"
               onClick={() => setFollowMenuOpen((prev) => !prev)}
             >
               Follow user camera
@@ -153,13 +153,17 @@ export default function HamberMenu({
             )}
           </li>
         )}
+         <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors ">
+          Board colors
+        </li>
 
-        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors border-b border-white/10">
+        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors ">
           My Boards
         </li>
-        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors border-b border-white/10">
+        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors ">
           Save Board
         </li>
+       
         <li className="px-4 py-2 text-sm text-red-400 hover:bg-white/10 cursor-pointer transition-colors">
           Exit room
         </li>

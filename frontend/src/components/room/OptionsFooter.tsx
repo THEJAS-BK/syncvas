@@ -78,6 +78,7 @@ export default function OptionsFooter({
 
           <div className="flex gap-3  rounded-full px-3 py-2">
             <button
+            title="open Multi-board"
               onClick={() => setOpenCursor(!openCursor)}
               className=" hover:bg-gray-400 text-white p-2 rounded-full"
             >
@@ -107,7 +108,7 @@ export default function OptionsFooter({
               </button>
 
               {tab === "participants" && (
-                <div className="absolute bottom-[110%] right-30 z-10">
+                <div  className="absolute bottom-[110%] right-30 z-10">
                   <ParticipantList onClose={() => setTab("")}  />
                 </div>
               )}
