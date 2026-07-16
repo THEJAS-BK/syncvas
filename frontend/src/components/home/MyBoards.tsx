@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 
 export default function MyBoards() {
   return (
-    <div className="max-w-5xl mx-auto p-10 text-center">
-      <h2 className="text-5xl font-semibold">My boards</h2>
-      <p className="text-gray-500 mt-2 mb-8">
+    <div className="max-w-5xl mx-auto mt-36 px-10 pb-24 pt-4 text-center">
+      <h2 className="text-5xl font-semibold text-[#101820]">My boards</h2>
+      <p className="text-gray-500 mt-2 mb-10">
         Boards you create will show up here.
       </p>
 

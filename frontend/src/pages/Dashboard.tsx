@@ -1,3 +1,4 @@
+import Footer from "../components/home/Footer";
 import Hero from "../components/home/Hero";
 import NavBar from "../components/home/NavBar";
 

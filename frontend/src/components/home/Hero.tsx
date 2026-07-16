@@ -1,5 +1,6 @@
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+import Footer from "./Footer";
 //type
 type CreateRoomResponse = {
   success: boolean;
@@ -121,7 +122,7 @@ export default function Hero() {
           onSubmit={handleJoinRoom}
           className="fixed inset-0 bg-black/30 backdrop-blur-sm  z-50 flex items-center justify-center"
         >
-          <div className="bg-white p-6 rounded-lg">
+          <div className="bg-gray-950 p-6 rounded-lg">
             <p>Enter Room code:</p>
             <input
               onChange={(e) => setRoomId(e.target.value.toUpperCase())}
@@ -157,34 +158,35 @@ export default function Hero() {
         </div>
       )}
       <div className="h-screen overflow-y-auto bg-white">
-  <div className="flex flex-col items-center justify-center text-center px-6 pt-40 pb-20 max-w-2xl mx-auto">
-    <h1 className="text-6xl font-bold tracking-tight text-[#101820] leading-[1.1]">
-      Collaborate visually,
-      <br />
-      in real time
-    </h1>
-    <p className="text-lg text-gray-500 mt-5 max-w-lg">
-      The easiest way for remote teams to brainstorm, design and plan
-      together on a shared digital canvas.
-    </p>
-    <div className="mt-8 flex gap-3">
-      <button
-        onClick={handleCreateRoom}
-        className="bg-[#101820] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#1c2733] transition-colors"
-      >
-        Create room
-      </button>
-      <button
-        onClick={handleOpenJoinRoom}
-        className="border border-gray-300 text-[#101820] px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-      >
-        Join room
-      </button>
-    </div>
-  </div>
+        <div className="flex flex-col h-[80%] items-center justify-center text-center px-6 pt-40 pb-20 max-w-2xl mx-auto">
+          <h1 className="text-6xl font-bold tracking-tight text-[#101820] leading-[1.1]">
+            Collaborate visually,
+            <br />
+            in real time
+          </h1>
+          <p className="text-lg text-gray-500 mt-5 max-w-lg">
+            The easiest way for remote teams to brainstorm, design and plan
+            together on a shared digital canvas.
+          </p>
+          <div className="mt-8 flex gap-3">
+            <button
+              onClick={handleCreateRoom}
+              className="bg-[#101820] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#1c2733] transition-colors"
+            >
+              Create room
+            </button>
+            <button
+              onClick={handleOpenJoinRoom}
+              className="border border-gray-300 text-[#101820] px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              Join room
+            </button>
+          </div>
+        </div>
 
-  <MyBoards />
-</div>
+        <MyBoards />
+         <Footer/>
+      </div>
     </>
   );
 }
