@@ -42,7 +42,7 @@ const setSocketConnection = (server: any) => {
   });
   io.on("connection", (socket) => {
     console.log("user joined    ", socket.id);
-    registerRoomHandler(socket, activeRooms);
+    registerRoomHandler(socket,io, activeRooms);
     registerWebRtcHandler(socket, io, activeRooms);
     registerChatInterfaceHandler(socket, io);
     registerCanvasHandler(socket, roomBoards, roomImages, roomElements);

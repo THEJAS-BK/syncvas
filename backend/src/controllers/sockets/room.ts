@@ -1,6 +1,8 @@
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
+
 export function registerRoomHandler(
   socket: Socket,
+  io: Server,
   activeRooms: Record<string, Set<string>>,
 ) {
   socket.on("create-room", (roomId, callback) => {
@@ -58,4 +60,12 @@ export function registerRoomHandler(
       delete activeRooms[roomId];
     }
   });
+ socket.on("get-participants", (roomId: string) => {
+  const memberIds = activeRooms[roomId] ?? new Set<string>();
+  const names = [...memberIds].map((id) => {
+    const memberSocket = io.sockets.sockets.get(id);
+    return memberSocket?.data.name ?? "Unknown";
+  });
+  socket.emit("participants-list", names);
+});
 }

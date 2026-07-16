@@ -30,11 +30,11 @@ export default function OptionsFooter({
   setOpenCursor,
 }: VideoOptionsProp) {
   const [tab, setTab] = useState("");
-  const { roomId } = useToolSettings();
 
   const handleTabClick = (tabName: string) => {
     setTab((prev) => (prev === tabName ? "" : tabName));
   };
+
 
   return (
     <>
@@ -93,7 +93,7 @@ export default function OptionsFooter({
 
               {tab === "chat" && (
                 <div className="absolute  bottom-[110%]  right-30  z-10">
-                  <ChatInterface/>
+                  <ChatInterface onClose={() => setTab("")} />
                 </div>
               )}
             </div>
@@ -108,7 +108,7 @@ export default function OptionsFooter({
 
               {tab === "participants" && (
                 <div className="absolute bottom-[110%] right-30 z-10">
-                  <ParticipantList roomId={roomId} />
+                  <ParticipantList onClose={() => setTab("")}  />
                 </div>
               )}
             </div>
