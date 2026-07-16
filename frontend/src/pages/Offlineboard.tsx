@@ -29,7 +29,7 @@ export default function Offlineboard() {
 
       <ToolSettingsProvider>
         <ToolBarContainer />
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2  text-white shadow-lg z-20 ">
           <OfflineTools />
         </div>
         <OfflineMultiCursor />

@@ -61,12 +61,13 @@ export default function RoomPage() {
               {openCursor && (
                 <>
                   <button
+                    data-hamburger-trigger
                     onClick={() => setIsHambergerMenuOpen(!isHambergerMenuOpen)}
-                    className="absolute text-white z-20 left-5 top-5  bg-slate-800 p-2 rounded"
+                    className="absolute text-white z-20 left-5 top-5 bg-slate-800 p-2 rounded"
                   >
                     <Menu />
                   </button>
-                  <ToolBarContainer />
+                 {isViewMode&& <ToolBarContainer />}
                 </>
               )}
 
@@ -80,7 +81,7 @@ export default function RoomPage() {
               )}
               {/*center tools menu*/}
               {openCursor && isViewMode && (
-                <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
+                <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded text-white shadow-lg z-20 ">
                   <Tools />
                 </div>
               )}

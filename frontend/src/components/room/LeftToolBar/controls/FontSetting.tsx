@@ -20,9 +20,9 @@ export default function FontSetting() {
         <div className="flex space-x-2 mt-2">
           <div
             onClick={() => setFontFamily("hand-drawn")}
-            className={`icon-background p-0.5 rounded  ${fontFamily === "hand-drawn" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
+            className={`icon-background p-0.5 rounded px-1 ${fontFamily === "hand-drawn" ? "bg-[rgb(65,65,137)]" : "bg-[rgb(51,52,55)]"} `}
           >
-            <Pencil className="icon" size={22} />
+            <Pencil className="icon mt-0.5" size={20} />
           </div>
           <div
             onClick={() => setFontFamily("normal")}

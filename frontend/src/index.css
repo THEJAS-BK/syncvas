@@ -29,3 +29,10 @@
   background-color: rgb(96, 165, 250); /* blue-500 tint */
   color: white;
 }
+
+.tool-btn {
+  @apply w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors;
+}
+.tool-btn-active {
+  @apply w-9 h-9 flex items-center justify-center rounded-lg bg-blue-500 text-white transition-colors;
+}

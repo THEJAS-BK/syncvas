@@ -45,25 +45,27 @@ export default function ZoomControls({
   const percentage = Math.round(camera.current.scale * 100);
 
   return (
-    <div className=" absolute bottom-3 left-5.5 flex items-center gap-1 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg p-1">
+    <div className="absolute bottom-3 left-5.5 flex items-center gap-1 bg-black rounded-2xl border border-gray-800 shadow-lg px-2 py-2 text-white">
       <button
         onClick={zoomOut}
-        className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 disabled:opacity-30"
+        title="Zoom out"
         disabled={camera.current.scale <= MIN_SCALE}
+        className="tool-btn"
       >
-        <Minus className="w-4 h-4" />
+        <Minus size={18} />
       </button>
 
-      <span className="w-12 text-center text-sm tabular-nums select-none">
+      <span className="w-12 text-center text-sm tabular-nums select-none text-gray-300">
         {percentage}%
       </span>
 
       <button
         onClick={zoomIn}
-        className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 disabled:opacity-30"
+        title="Zoom in"
         disabled={camera.current.scale >= MAX_SCALE}
+        className="tool-btn"
       >
-        <Plus className="w-4 h-4" />
+        <Plus size={18} />
       </button>
     </div>
   );

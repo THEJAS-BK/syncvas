@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useToolSettings } from "../../context/ToolBarLeftContext";
-import { LayoutGrid, Settings } from "lucide-react";
-
+import { LayoutGrid, Presentation, Settings } from "lucide-react";
+import { Users } from "lucide-react";
 interface HamberMenuProps {
   roomId: string;
   openCursor: boolean;
@@ -27,14 +27,23 @@ export default function HamberMenu({
     setTabSize,
     setToggleVideoTab,
     toggleVideoTab,
+    setActiveTool
   } = useToolSettings();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      const target = e.target as HTMLElement;
+
+      // Ignore clicks on the trigger — let its own onClick toggle handle it
+      if (target.closest("[data-hamburger-trigger]")) {
+        return;
+      }
+
+      if (menuRef.current && !menuRef.current.contains(target)) {
         setIsHambergerMenuOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -48,12 +57,13 @@ export default function HamberMenu({
     >
       <ul className="py-1">
         {/* Room ID row */}
-        <li className="px-4 py-3 flex items-center justify-between border-b border-white/10">
+        <li className="px-4 py-3 flex items-center justify-between ">
           <div>
             <span className="text-xs text-gray-400">Room ID</span>
             <p className="text-sm text-gray-200 font-mono truncate">{roomId}</p>
           </div>
           <button
+            title="Switch to video conference"
             className="p-2 rounded-md text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
             onClick={(e) => {
               e.stopPropagation();
@@ -61,12 +71,12 @@ export default function HamberMenu({
               setIsHambergerMenuOpen(false);
             }}
           >
-            <LayoutGrid size={18} />
+            <Presentation size={18} />
           </button>
         </li>
 
         {/* Video settings */}
-        <li className="relative">
+        <li className="relative border-b border-white/10">
           <button
             className="w-full flex items-center gap-2 px-4 py-2 text-sm text-left text-gray-200 hover:bg-white/10 transition-colors"
             onClick={(e) => {
@@ -113,14 +123,14 @@ export default function HamberMenu({
 
         {/* Actions */}
         <li
-          className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors"
-          onClick={() => setViewMode(!viewMode)}
+          className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors border-b border-white/10"
+          onClick={() => { setActiveTool(null); setViewMode(!viewMode); }}
         >
-          View Mode
+          {viewMode ? "view only mode" : "edit mode"}
         </li>
 
         {!viewMode && (
-          <li className="relative">
+          <li className="relative border-b border-white/10">
             <div
               className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors"
               onClick={() => setFollowMenuOpen((prev) => !prev)}
@@ -144,14 +154,14 @@ export default function HamberMenu({
           </li>
         )}
 
-        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors">
+        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors border-b border-white/10">
           My Boards
         </li>
-        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors">
+        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors border-b border-white/10">
           Save Board
         </li>
         <li className="px-4 py-2 text-sm text-red-400 hover:bg-white/10 cursor-pointer transition-colors">
-          Exit
+          Exit room
         </li>
       </ul>
     </div>
