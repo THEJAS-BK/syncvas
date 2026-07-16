@@ -1,14 +1,34 @@
 import { Server, Socket } from "socket.io";
 
+type RecieveMessage = {
+  socketId: string;
+  userId: string;
+  name: string;
+  data: string;
+  timeStamp: number;
+};
+
+const roomMessages: Record<string, RecieveMessage[]> = {};
+
 export function registerChatInterfaceHandler(socket: Socket, io: Server) {
   socket.on("send-message", (roomId: string, data: string) => {
-    io.to(roomId).emit("receive-message", {
-      roomId: roomId,
+    if (!roomMessages[roomId]) {
+      roomMessages[roomId] = [];
+    }
+
+    const message: RecieveMessage = {
       userId: socket.data.userId,
       name: socket.data.name,
       data,
-      sentAt: Date.now(),
       socketId: socket.id,
-    });
+      timeStamp: Date.now(),
+    };
+
+    roomMessages[roomId].push(message);
+    io.to(roomId).emit("receive-message", message);
+  });
+
+  socket.on("initial-state", (roomId: string) => {
+    socket.emit("initial-state", roomMessages[roomId] ?? []);
   });
 }

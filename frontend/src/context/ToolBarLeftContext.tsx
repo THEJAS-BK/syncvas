@@ -144,7 +144,7 @@ export function ToolSettingsProvider({
 
   const [tabSize,setTabSize]=useState("")
 
-  const [viewMode,setViewMode]=useState(false)
+  const [viewMode,setViewMode]=useState(true)
 
   return (
     <ToolBarLeftContext.Provider

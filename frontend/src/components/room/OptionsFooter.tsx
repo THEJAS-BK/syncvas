@@ -9,7 +9,7 @@ import {
   Video,
   VideoOff,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChatInterface from "./ChatInterface";
 import { useToolSettings } from "../../context/ToolBarLeftContext";
 import ParticipantList from "./ParticipantList";
@@ -31,6 +31,7 @@ export default function OptionsFooter({
 }: VideoOptionsProp) {
   const [tab, setTab] = useState("");
   const { roomId } = useToolSettings();
+
   const handleTabClick = (tabName: string) => {
     setTab((prev) => (prev === tabName ? "" : tabName));
   };
@@ -92,7 +93,7 @@ export default function OptionsFooter({
 
               {tab === "chat" && (
                 <div className="absolute  bottom-[110%]  right-30  z-10">
-                  <ChatInterface roomId={roomId} />
+                  <ChatInterface/>
                 </div>
               )}
             </div>
