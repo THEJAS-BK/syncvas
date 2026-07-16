@@ -16,19 +16,9 @@ import { useToolSettings } from "../../context/ToolBarLeftContext";
 export default function Tools() {
   const {
     activeTool,
-    setTabSize,
     setActiveTool,
-    setToggleVideoTab,
-    toggleVideoTab,
   } = useToolSettings();
-  const [menuOpen, setMenuOpen] = useState(false);
 
-
-
-  const [tab, setTab] = useState("");
-  const handleTabClick = (tabName: string) => {
-    setTab((prev) => (prev === tabName ? "" : tabName));
-  };
 
   return (
     <>

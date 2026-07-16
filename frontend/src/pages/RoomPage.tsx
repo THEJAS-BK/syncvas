@@ -75,6 +75,7 @@ export default function RoomPage() {
                   openCursor={openCursor}
                   setOpenCursor={setOpenCursor}
                   roomId={roomId}
+                  setIsHambergerMenuOpen={setIsHambergerMenuOpen}
                 />
               )}
               {/*center tools menu*/}
@@ -88,7 +89,6 @@ export default function RoomPage() {
               {!openCursor && (
                 <>
                   <MainContent
-                    roomId={roomId}
                     openCursor={openCursor}
                     setOpenCursor={setOpenCursor}
                   />
