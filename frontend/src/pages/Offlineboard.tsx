@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { TableOfContents } from "lucide-react";
+import { Menu, TableOfContents } from "lucide-react";
 import { ToolSettingsProvider } from "../context/ToolBarLeftContext.tsx";
 import OfflineMultiCursor from "../components/home/OfflineMulticursor.tsx";
 import OfflineTools from "../components/home/OfflineTools.tsx";
 import ToolBarContainer from "../components/room/LeftToolBar/ToolBarContainer.tsx";
+import OfflineHamberMenu from "../components/home/OfflineHamberMenu.tsx";
 
 export default function Offlineboard() {
   const [isHambergerMenuOpen, setIsHambergerMenuOpen] = useState(false);
@@ -17,19 +18,15 @@ export default function Offlineboard() {
         <TableOfContents />
       </button>
 
-      {/* <ToolBarContainer /> */}
+      <button
+        onClick={() => setIsHambergerMenuOpen(!isHambergerMenuOpen)}
+        className="absolute text-white z-20 left-5 top-5  bg-slate-800 p-2 rounded"
+      >
+        <Menu />
+      </button>
 
-      {isHambergerMenuOpen && (
-        <div className="absolute top-16 left-0 bg-white shadow-lg z-20">
-          <ul className="py-2">
-            <li className="px-4 py-2 hover:bg-gray-200">Option 1</li>
-            <li className="px-4 py-2 hover:bg-gray-200">Option 2</li>
-            <li className="px-4 py-2 hover:bg-gray-200">Option 3</li>
-          </ul>
-        </div>
-      )}
+      {isHambergerMenuOpen && <OfflineHamberMenu />}
 
-      {/* center tools menu */}
       <ToolSettingsProvider>
         <ToolBarContainer />
         <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">

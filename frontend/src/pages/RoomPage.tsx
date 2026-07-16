@@ -70,18 +70,19 @@ export default function RoomPage() {
                 </>
               )}
 
-              {isHambergerMenuOpen && <HamberMenu  openCursor={openCursor}
-                    setOpenCursor={setOpenCursor} roomId={roomId} />}
+              {isHambergerMenuOpen && (
+                <HamberMenu
+                  openCursor={openCursor}
+                  setOpenCursor={setOpenCursor}
+                  roomId={roomId}
+                />
+              )}
               {/*center tools menu*/}
-                {openCursor&&isViewMode && (
-              <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
-
-                  <Tools
-                   
-                   
-                  />
-              </div>
-                )}
+              {openCursor && isViewMode && (
+                <div className="absolute top-10 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-grayscale-25 rounded text-white shadow-lg z-20 p-2">
+                  <Tools />
+                </div>
+              )}
 
               {/* cursor interface not open*/}
               {!openCursor && (
@@ -101,7 +102,7 @@ export default function RoomPage() {
                   images={images}
                   openCursor={openCursor}
                   setOpenCursor={setOpenCursor}
-                   setIsViewMode={setIsViewMode}
+                  setIsViewMode={setIsViewMode}
                 />
               )}
             </main>

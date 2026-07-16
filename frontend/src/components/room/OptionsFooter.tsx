@@ -40,7 +40,6 @@ export default function OptionsFooter({
       {openCursor && (
         <>
           <div className="flex flex-1 gap-3 justify-center rounded-full px-3 py-2">
-           
             <button
               onClick={audioToggle}
               className=" hover:bg-gray-400 text-white p-2 rounded-full"
@@ -83,21 +82,35 @@ export default function OptionsFooter({
             >
               <Presentation size={20} />
             </button>
-            <button
-              onClick={() => handleTabClick("chat")}
-              className="relative hover:bg-gray-400 text-white p-2 rounded-full"
-            >
-              <MessagesSquare size={20} />
-              {tab === "chat" && <ChatInterface roomId={roomId} />}
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => handleTabClick("chat")}
+                className="hover:bg-gray-400 text-white p-2 rounded-full"
+              >
+                <MessagesSquare size={20} />
+              </button>
 
-            <button
-              onClick={() => handleTabClick("participants")}
-              className="relative hover:bg-gray-400 text-white p-2 rounded-full"
-            >
-              <Users size={20} />
-              {tab === "participants" && <ParticipantList roomId={roomId} />}
-            </button>
+              {tab === "chat" && (
+                <div className="absolute  bottom-[110%]  right-30  z-10">
+                  <ChatInterface roomId={roomId} />
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <button
+                onClick={() => handleTabClick("participants")}
+                className="hover:bg-gray-400 text-white p-2 rounded-full"
+              >
+                <Users size={20} />
+              </button>
+
+              {tab === "participants" && (
+                <div className="absolute bottom-[110%] right-30 z-10">
+                  <ParticipantList roomId={roomId} />
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right group: exit */}
