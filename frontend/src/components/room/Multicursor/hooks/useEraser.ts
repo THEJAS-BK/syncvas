@@ -24,6 +24,11 @@ export function useEraser(
   const isEraserSelected = useRef<boolean>(false);
 
   useEffect(() => {
+    if (activeTool !== "eraser") {
+      isEraserSelected.current = false;
+      return;
+    }
+   
     const canvas = canvasRef.current;
     if (!canvas) return;
     const mouseDown = () => {

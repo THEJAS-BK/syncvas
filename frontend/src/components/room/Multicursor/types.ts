@@ -86,6 +86,20 @@ interface Line {
 
 type CanvasElement = TextBox | Shape | Line;
 
+// ---- 5. sync toolbar state to whatever got selected ----
+interface ToolSetters {
+  setFillColor: (v: Shape["fillColor"]) => void;
+  setStrokeWidth: (v: number) => void;
+  setStrokeStyle: (v: any) => void;
+  setEdgeStyle: (v: Shape["edgeStyle"]) => void;
+  setOpacity: (v: number) => void;
+  setFontFamily: (v: TextBox["fontFamily"]) => void;
+  setFontSize: (v: TextBox["fontSize"]) => void;
+  setTextAlign: (v: TextBox["textAlign"]) => void;
+  setArrowType: (v: Line["arrowType"]) => void;
+  setArrowHead: (v: Line["arrowHead"]) => void;
+}
+
 export type {
   Point,
   Stroke,
@@ -95,5 +109,6 @@ export type {
   Shape,
   Line,
   CanvasElement,
-  FontFamily
+  FontFamily,
+  ToolSetters
 };

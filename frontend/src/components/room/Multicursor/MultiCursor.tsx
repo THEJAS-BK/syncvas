@@ -287,9 +287,6 @@ export default function MultiCursor({
     });
   }, []);
 
-  useEffect(() => {
-    doRedraw();
-  }, [imageUpdate]);
 
   const { toggleVideoTab } = useToolSettings();
   const tabSizeMap: Record<string, string> = {
@@ -424,26 +421,11 @@ export default function MultiCursor({
 
               const rect = el.getBoundingClientRect();
               autoPanIfNeeded(
-                canvasRef.current!,
-                canvasRef.current!.getContext("2d")!,
                 camera,
                 rect.right,
                 rect.bottom,
-                images,
-                imageCache,
-                activeStrokes,
-                currentStroke,
-                strokes,
-                userIdRef.current,
-                strokeColor,
                 () => setPanTick((t) => t + 1),
-                shapesRef,
-                activeShape,
-                linesRef,
-                activeLine,
-                selectedId,
-                textBoxesRef,
-                activeTextBox,
+                doRedraw
               );
             }}
             onBlur={(e) => {

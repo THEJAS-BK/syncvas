@@ -3,7 +3,7 @@ import type { RefObject } from "react";
 import type { Shape, Line, TextBox } from "../../room/Multicursor/types.ts";
 import { hitTestTextBoxRotationHandle } from "../../room/Multicursor/canvas.ts";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../../room/Multicursor/tools/hitTests";
-import { hitTestCorner, hitTestRotationHandle } from "../../room/Multicursor/canvas.ts";
+import { hitTestCorner, hitTestRotationHandle } from "../../room/Multicursor/tools/hitTests.ts";
 import { useToolSettings } from "../../../context/ToolBarLeftContext";
 
 export function useOfflineSelection(

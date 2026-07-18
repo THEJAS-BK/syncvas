@@ -1,11 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
-import type { Shape, Line, TextBox } from "../types";
+import type { Shape, Line, TextBox,ToolSetters } from "../types";
 import { hitTestTextBoxRotationHandle } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
-import { hitTestCorner, hitTestRotationHandle } from "../canvas";
+import { hitTestCorner, hitTestRotationHandle } from "../tools/hitTests";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
+//tools
+import { handleElementDelete, type InteractionRefs } from "../tools/selectionTools";
+import {  computeResizeOrigin,
+  tryStartShapeHandleInteraction,
+  tryStartLineHandleInteraction,
+  findElementAt,
+  syncToolSettingsToShape,
+  syncToolSettingsToText,
+  syncToolSettingsToLine} from "../tools/selectionTools"
 export function useSelection(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -47,236 +56,74 @@ export function useSelection(
     if (!canvas) return;
 
 
-    const handleElementDelete = (e: KeyboardEvent) => {
-      if (e.key !== "Delete" && e.key !== "Backspace") return;
-      if (activeTool !== "mouse") return;
-
-      // don't hijack backspace while the person is typing in a textarea
-      const target = e.target as HTMLElement;
-      if (target?.tagName === "TEXTAREA" || target?.tagName === "INPUT") return;
-
-      const id = selectedId.current;
-      if (!id) return;
-
-      if (shapesRef.current.some((s) => s.id === id)) {
-        shapesRef.current = shapesRef.current.filter((s) => s.id !== id);
-      } else if (linesRef.current.some((l) => l.id === id)) {
-        linesRef.current = linesRef.current.filter((l) => l.id !== id);
-      } else if (textBoxesRef.current.some((t) => t.id === id)) {
-        textBoxesRef.current = textBoxesRef.current.filter((t) => t.id !== id);
-      } else {
-        return;
-      }
-
-      socket.emit("element-delete", { roomId, id });
-      selectedId.current = null;
-      setSelectedEle(null);
-      doRedraw();
-    };
-
     const onMouseDown = (e: MouseEvent) => {
-      if (activeTool !== "mouse") return;
-      const { x, y } = toCanvas(e.clientX, e.clientY);
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+  if (activeTool !== "mouse") return;
+  const { x, y } = toCanvas(e.clientX, e.clientY);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
-      //!resize shapes textbox and lines
-      if (selectedId.current) {
-        const selectedText = textBoxesRef.current.find(
-          (t) => t.id === selectedId.current,
-        );
-        if (selectedText && ctx) {
-          if (
-            hitTestTextBoxRotationHandle(
-              selectedText,
-              x,
-              y,
-              ctx,
-              camera.current.scale,
-            )
-          ) {
-            isRotating.current = true;
-            dragType.current = "textbox";
-            return;
-          }
-        }
-        //rotate
-        const selectedShape = shapesRef.current.find(
-          (s) => s.id === selectedId.current,
-        );
-        if (selectedShape) {
-          if (
-            hitTestRotationHandle(selectedShape, x, y, camera.current.scale)
-          ) {
-            isRotating.current = true;
-            return;
-          }
+  const refs: InteractionRefs = {
+    isDragging, isResizing, isRotating, dragType,
+    dragOffset, lineDragOffset, resizeCorner, resizeOrigin, lineEndpoint,
+  };
+  const setters: ToolSetters = {
+    setFillColor, setStrokeWidth, setStrokeStyle, setEdgeStyle, setOpacity,
+    setFontFamily, setFontSize, setTextAlign, setArrowType, setArrowHead,
+  };
 
-          //resize
-          const corner = hitTestCorner(
-            selectedShape,
-            x,
-            y,
-            camera.current.scale,
-          );
-          if (corner) {
-            isResizing.current = true;
-            resizeCorner.current = corner;
+  // 1. try to grab a handle on whatever is already selected
+  if (selectedId.current) {
+    const selectedText = textBoxesRef.current.find((t) => t.id === selectedId.current);
+    if (selectedText && hitTestTextBoxRotationHandle(selectedText, x, y, ctx, camera.current.scale)) {
+      isRotating.current = true;
+      dragType.current = "textbox";
+      return;
+    }
 
-            const left = Math.min(
-              selectedShape.x,
-              selectedShape.x + selectedShape.width,
-            );
-            const top = Math.min(
-              selectedShape.y,
-              selectedShape.y + selectedShape.height,
-            );
-            const right = Math.max(
-              selectedShape.x,
-              selectedShape.x + selectedShape.width,
-            );
-            const bottom = Math.max(
-              selectedShape.y,
-              selectedShape.y + selectedShape.height,
-            );
-            const w = right - left;
-            const h = bottom - top;
-            const centerX = (left + right) / 2;
-            const centerY = (top + bottom) / 2;
-            const rotation = selectedShape.rotation || 0;
+    const selectedShape = shapesRef.current.find((s) => s.id === selectedId.current);
+    if (selectedShape && tryStartShapeHandleInteraction(
+      selectedShape, x, y, camera.current.scale, refs, hitTestRotationHandle, hitTestCorner,
+    )) return;
 
-            // opposite corner in local space
-            const localOx = corner.includes("l") ? w / 2 : -w / 2;
-            const localOy = corner.includes("t") ? h / 2 : -h / 2;
+    const selectedLine = linesRef.current.find((l) => l.id === selectedId.current);
+    if (selectedLine && tryStartLineHandleInteraction(selectedLine, x, y, camera.current.scale, refs)) return;
+  }
 
-            // rotate back to world space
-            const worldOx =
-              localOx * Math.cos(rotation) - localOy * Math.sin(rotation);
-            const worldOy =
-              localOx * Math.sin(rotation) + localOy * Math.cos(rotation);
+  // 2. otherwise, look for a new hit among all elements
+  const { hitShape, hitLine, hitText } = findElementAt(
+    x, y, ctx, camera.current.scale,
+    shapesRef.current, linesRef.current, textBoxesRef.current,
+    hitTestShape, hitTestLine, hitTestTextBox,
+  );
 
-            resizeOrigin.current = {
-              x: centerX + worldOx,
-              y: centerY + worldOy,
-            };
-            return;
-          }
-        }
-        const selectedLine = linesRef.current.find(
-          (l) => l.id === selectedId.current,
-        );
-        if (selectedLine) {
-          const tolerance = 8 / camera.current.scale;
-          const distP1 = Math.hypot(x - selectedLine.x1, y - selectedLine.y1);
-          const distP2 = Math.hypot(x - selectedLine.x2, y - selectedLine.y2);
-
-          if (distP1 <= tolerance) {
-            lineEndpoint.current = "p1";
-            isResizing.current = true;
-            return;
-          }
-          if (distP2 <= tolerance) {
-            lineEndpoint.current = "p2";
-            isResizing.current = true;
-            return;
-          }
-
-          const midX =
-            selectedLine.cpx !== undefined
-              ? 0.25 * selectedLine.x1 +
-                0.5 * selectedLine.cpx +
-                0.25 * selectedLine.x2
-              : (selectedLine.x1 + selectedLine.x2) / 2;
-          const midY =
-            selectedLine.cpy !== undefined
-              ? 0.25 * selectedLine.y1 +
-                0.5 * selectedLine.cpy +
-                0.25 * selectedLine.y2
-              : (selectedLine.y1 + selectedLine.y2) / 2;
-
-          const distMid = Math.hypot(x - midX, y - midY);
-          if (distMid <= tolerance) {
-            lineEndpoint.current = "mid";
-            isResizing.current = true;
-            if (selectedLine.cpx === undefined) {
-              selectedLine.cpx = midX;
-              selectedLine.cpy = midY;
-            }
-            return;
-          }
-        }
-      }
-
-      // reverse so topmost (last drawn) wins
-      const hitShape = [...shapesRef.current]
-        .reverse()
-        .find((s) => hitTestShape(s, x, y));
-
-      const hitLine = [...linesRef.current]
-        .reverse()
-        .find((l) => hitTestLine(l, x, y, camera.current.scale));
-
-      const hitText = [...(textBoxesRef?.current ?? [])]
-        .reverse()
-        .find((t) => hitTestTextBox(t, x, y, ctx));
-
-
-      //!moving shapes,textbox and lines
-      if (hitShape) {
-        isDragging.current = true;
-        dragType.current = "shape";
-        canvas.style.cursor = "move";
-        dragOffset.current = { x: x - hitShape.x, y: y - hitShape.y };
-
-        setFillColor(hitShape.fillColor)
-        setStrokeWidth(hitShape.strokeWidth)
-        setStrokeStyle(hitShape.strokeStyle)
-        setEdgeStyle(hitShape.edgeStyle)
-        setOpacity(hitShape.opacity??100)     
-    
-      } else if (hitText) {
-        isDragging.current = true;
-        dragType.current = "textbox";
-        dragOffset.current = { x: x - hitText.x, y: y - hitText.y };
-
-        setFontFamily(hitText.fontFamily)
-        setFontSize(hitText.fontSize)
-        setTextAlign(hitText.textAlign)
-        setOpacity(hitText.opacity??100)
-
-      } else if (hitLine) {
-        isDragging.current = true;
-        dragType.current = "line";
-        lineDragOffset.current = {
-          x1: x - hitLine.x1,
-          x2: x - hitLine.x2,
-          y1: y - hitLine.y1,
-          y2: y - hitLine.y2,
-        };
-
-        if(hitLine.lineType==="arrow"){
-          setStrokeStyle(hitLine.lineStyle)
-          setStrokeWidth(hitLine.strokeWidth)
-          setArrowType(hitLine.arrowType)
-          setArrowHead(hitLine.arrowHead)
-          setOpacity(hitLine.opacity)
-        }
-
-         if(hitLine.lineType==="straight"){
-          setStrokeStyle(hitLine.lineStyle)
-          setStrokeWidth(hitLine.strokeWidth)
-          setOpacity(hitLine.opacity??100)
-        }
-
-      }
-
-      const hit = hitShape ?? hitLine ?? hitText;
-      //!edit mode
-      if (!hit) return;
-      selectedId.current = hit?.id ?? null;   
-      setSelectedEle(hit ?? null);
-      doRedraw();
+  // 3. start dragging + sync toolbar to the hit element
+  if (hitShape) {
+    isDragging.current = true;
+    dragType.current = "shape";
+    canvas.style.cursor = "move";
+    dragOffset.current = { x: x - hitShape.x, y: y - hitShape.y };
+    syncToolSettingsToShape(hitShape, setters);
+  } else if (hitText) {
+    isDragging.current = true;
+    dragType.current = "textbox";
+    dragOffset.current = { x: x - hitText.x, y: y - hitText.y };
+    syncToolSettingsToText(hitText, setters);
+  } else if (hitLine) {
+    isDragging.current = true;
+    dragType.current = "line";
+    lineDragOffset.current = {
+      x1: x - hitLine.x1, x2: x - hitLine.x2,
+      y1: y - hitLine.y1, y2: y - hitLine.y2,
     };
+    syncToolSettingsToLine(hitLine, setters);
+  }
+
+  const hit = hitShape ?? hitLine ?? hitText;
+  if (!hit) return;
+  selectedId.current = hit.id;
+  setSelectedEle(hit);
+  doRedraw();
+};
 
     const onMouseMove = (e: MouseEvent) => {
       if (!selectedId.current) return;
@@ -519,13 +366,13 @@ export function useSelection(
     canvas.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     canvas.addEventListener("dblclick", onDblClick);
-    window.addEventListener("keydown", handleElementDelete);
+    window.addEventListener("keydown", (e) => handleElementDelete(e, selectedId, shapesRef, linesRef, textBoxesRef));
     return () => {
       canvas.removeEventListener("mousedown", onMouseDown);
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("dblclick", onDblClick);
-      window.removeEventListener("keydown", handleElementDelete);
+      window.removeEventListener("keydown", (e) => handleElementDelete(e, selectedId, shapesRef, linesRef, textBoxesRef));
     };
   }, [activeTool, color, doRedraw]);
 
