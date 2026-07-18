@@ -212,3 +212,128 @@ export {
   handleElementDelete,
 };
 export type { InteractionRefs, HitResult, ToolSetters };
+
+
+
+//mouse move
+
+// ---- shared: dedupe the repeated emit pattern ----
+function emitElementUpdate(roomId: string, id: string, changes: Record<string, unknown>) {
+  socket.emit("element-update", { roomId, id, changes });
+}
+
+// ---- rotation math ----
+function computeTextBoxRotation(
+  tb: TextBox,
+  x: number,
+  y: number,
+  ctx: CanvasRenderingContext2D,
+): number {
+  ctx.font = `normal ${tb.fontSize}px monospace`;
+  const lines = tb.text.split("\n");
+  const width = Math.max(...lines.map((l) => ctx.measureText(l).width));
+  const height = lines.length * tb.fontSize * 1.4;
+  const centerX = tb.x + width / 2;
+  const centerY = tb.y + height / 2;
+  return Math.atan2(y - centerY, x - centerX) + Math.PI / 2;
+}
+
+function computeShapeRotation(shape: Shape, x: number, y: number): number {
+  const left = Math.min(shape.x, shape.x + shape.width);
+  const top = Math.min(shape.y, shape.y + shape.height);
+  const right = Math.max(shape.x, shape.x + shape.width);
+  const bottom = Math.max(shape.y, shape.y + shape.height);
+  const centerX = (left + right) / 2;
+  const centerY = (top + bottom) / 2;
+  return Math.atan2(y - centerY, x - centerX) + Math.PI / 2;
+}
+
+// ---- line endpoint / midpoint drag math ----
+type LineEndpoint = "p1" | "p2" | "mid";
+
+function computeLineEndpointChanges(
+  line: Line,
+  endpoint: LineEndpoint,
+  x: number,
+  y: number,
+): Partial<Line> {
+  if (endpoint === "p1") return { x1: x, y1: y };
+  if (endpoint === "p2") return { x2: x, y2: y };
+  // mid
+  return {
+    cpx: 2 * x - 0.5 * (line.x1 + line.x2),
+    cpy: 2 * y - 0.5 * (line.y1 + line.y2),
+  };
+}
+
+// ---- shape resize math (rotation-aware) ----
+function computeShapeResize(
+  shape: Shape,
+  corner: string,
+  anchor: { x: number; y: number },
+  x: number,
+  y: number,
+): { x: number; y: number; width: number; height: number } {
+  const rotation = shape.rotation || 0;
+  const minSize = 10;
+
+  const dx = x - anchor.x;
+  const dy = y - anchor.y;
+  const localDx = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
+  const localDy = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
+
+  const signX = corner.includes("r") ? 1 : -1;
+  const signY = corner.includes("b") ? 1 : -1;
+
+  const newWidth = Math.max(minSize, signX * localDx);
+  const newHeight = Math.max(minSize, signY * localDy);
+
+  const anchorLocalX = -signX * (newWidth / 2);
+  const anchorLocalY = -signY * (newHeight / 2);
+
+  const offsetX = anchorLocalX * Math.cos(rotation) - anchorLocalY * Math.sin(rotation);
+  const offsetY = anchorLocalX * Math.sin(rotation) + anchorLocalY * Math.cos(rotation);
+
+  const newCenterX = anchor.x - offsetX;
+  const newCenterY = anchor.y - offsetY;
+
+  return {
+    x: newCenterX - newWidth / 2,
+    y: newCenterY - newHeight / 2,
+    width: newWidth,
+    height: newHeight,
+  };
+}
+
+// ---- drag/move math ----
+function computeDragPosition(
+  x: number,
+  y: number,
+  offset: { x: number; y: number },
+): { x: number; y: number } {
+  return { x: x - offset.x, y: y - offset.y };
+}
+
+function computeLineDragPosition(
+  x: number,
+  y: number,
+  offset: { x1: number; y1: number; x2: number; y2: number },
+): { x1: number; y1: number; x2: number; y2: number } {
+  return {
+    x1: x - offset.x1,
+    y1: y - offset.y1,
+    x2: x - offset.x2,
+    y2: y - offset.y2,
+  };
+}
+
+export {
+  emitElementUpdate,
+  computeTextBoxRotation,
+  computeShapeRotation,
+  computeLineEndpointChanges,
+  computeShapeResize,
+  computeDragPosition,
+  computeLineDragPosition,
+};
+export type { LineEndpoint };

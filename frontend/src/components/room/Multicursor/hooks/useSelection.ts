@@ -7,18 +7,28 @@ import { socket } from "../../../../services/socket";
 import { hitTestCorner, hitTestRotationHandle } from "../tools/hitTests";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 //tools
+
+//mousedown 
 import {
+  computeDragPosition,
+  computeLineDragPosition,
+  computeLineEndpointChanges,
+  computeShapeResize,
+  computeShapeRotation,
+  emitElementUpdate,
   handleElementDelete,
   type InteractionRefs,
 } from "../tools/selectionTools";
+
+//mouse move
 import {
-  computeResizeOrigin,
   tryStartShapeHandleInteraction,
   tryStartLineHandleInteraction,
   findElementAt,
   syncToolSettingsToShape,
   syncToolSettingsToText,
   syncToolSettingsToLine,
+  computeTextBoxRotation
 } from "../tools/selectionTools";
 export function useSelection(
   roomId: string,
@@ -201,197 +211,83 @@ export function useSelection(
       doRedraw();
     };
 
-    const onMouseMove = (e: MouseEvent) => {
-      if (!selectedId.current) return;
-      const { x, y } = toCanvas(e.clientX, e.clientY);
+   const onMouseMove = (e: MouseEvent) => {
+  if (!selectedId.current) return;
+  const { x, y } = toCanvas(e.clientX, e.clientY);
 
-      //!rotate
-      if (isRotating.current && selectedId.current) {
-        if (dragType.current === "textbox") {
-          const tb = textBoxesRef.current.find(
-            (t) => t.id === selectedId.current,
-          );
-          if (!tb) return;
-          const ctx = canvasRef.current?.getContext("2d");
-          if (!ctx) return;
+  //!rotate
+  if (isRotating.current) {
+    if (dragType.current === "textbox") {
+      const tb = textBoxesRef.current.find((t) => t.id === selectedId.current);
+      const ctx = canvasRef.current?.getContext("2d");
+      if (!tb || !ctx) return;
 
-          ctx.font = `normal ${tb.fontSize}px monospace`;
-          const lines = tb.text.split("\n");
-          const width = Math.max(...lines.map((l) => ctx.measureText(l).width));
-          const height = lines.length * tb.fontSize * 1.4;
-          const centerX = tb.x + width / 2;
-          const centerY = tb.y + height / 2;
-
-          tb.rotation = Math.atan2(y - centerY, x - centerX) + Math.PI / 2;
-          socket.emit("element-update", {
-            roomId,
-            id: tb.id,
-            changes: { rotation: tb.rotation },
-          });
-          doRedraw();
-          return;
-        }
-        const shape = shapesRef.current.find(
-          (s) => s.id === selectedId.current,
-        );
-        if (!shape) return;
-
-        const left = Math.min(shape.x, shape.x + shape.width);
-        const top = Math.min(shape.y, shape.y + shape.height);
-        const right = Math.max(shape.x, shape.x + shape.width);
-        const bottom = Math.max(shape.y, shape.y + shape.height);
-        const centerX = (left + right) / 2;
-        const centerY = (top + bottom) / 2;
-
-        shape.rotation = Math.atan2(y - centerY, x - centerX) + Math.PI / 2;
-
-        socket.emit("element-update", {
-          roomId,
-          id: shape.id,
-          changes: { rotation: shape.rotation },
-        });
-        doRedraw();
-        return;
-      }
-
-      if (!isDragging.current && !isResizing.current) return;
-      //!resize shapes,textbox and lines
-      //lines
-      if (isResizing.current && lineEndpoint.current) {
-        const line = linesRef.current.find((l) => l.id === selectedId.current);
-        if (!line) return;
-
-        if (lineEndpoint.current === "p1") {
-          line.x1 = x;
-          line.y1 = y;
-          socket.emit("element-update", {
-            roomId,
-            id: line.id,
-            changes: { x1: x, y1: y },
-          });
-        } else if (lineEndpoint.current === "p2") {
-          line.x2 = x;
-          line.y2 = y;
-          socket.emit("element-update", {
-            roomId,
-            id: line.id,
-            changes: { x2: x, y2: y },
-          });
-        } else if (lineEndpoint.current === "mid") {
-          line.cpx = 2 * x - 0.5 * (line.x1 + line.x2);
-          line.cpy = 2 * y - 0.5 * (line.y1 + line.y2);
-          socket.emit("element-update", {
-            roomId,
-            id: line.id,
-            changes: { cpx: line.cpx, cpy: line.cpy },
-          });
-        }
-        doRedraw();
-        return;
-      }
-
-      if (isResizing.current && selectedId.current && resizeCorner.current) {
-        const shape = shapesRef.current.find(
-          (s) => s.id === selectedId.current,
-        );
-        if (!shape) return;
-
-        const rotation = shape.rotation || 0;
-        const anchor = resizeOrigin.current; // fixed world-space anchor, set once in onMouseDown
-
-        // vector from the fixed anchor to the current mouse, un-rotated into local space
-        const dx = x - anchor.x;
-        const dy = y - anchor.y;
-        const localDx = dx * Math.cos(-rotation) - dy * Math.sin(-rotation);
-        const localDy = dx * Math.sin(-rotation) + dy * Math.cos(-rotation);
-
-        const signX = resizeCorner.current.includes("r") ? 1 : -1;
-        const signY = resizeCorner.current.includes("b") ? 1 : -1;
-        const minSize = 10;
-
-        const newWidth = Math.max(minSize, signX * localDx);
-        const newHeight = Math.max(minSize, signY * localDy);
-
-        // anchor's position relative to the new center, in local space
-        const anchorLocalX = -signX * (newWidth / 2);
-        const anchorLocalY = -signY * (newHeight / 2);
-
-        // rotate that back to world space to find where the new center must be
-        const offsetX =
-          anchorLocalX * Math.cos(rotation) - anchorLocalY * Math.sin(rotation);
-        const offsetY =
-          anchorLocalX * Math.sin(rotation) + anchorLocalY * Math.cos(rotation);
-
-        const newCenterX = anchor.x - offsetX;
-        const newCenterY = anchor.y - offsetY;
-
-        shape.width = newWidth;
-        shape.height = newHeight;
-        shape.x = newCenterX - newWidth / 2;
-        shape.y = newCenterY - newHeight / 2;
-
-        socket.emit("element-update", {
-          roomId,
-          id: shape.id,
-          changes: {
-            x: shape.x,
-            y: shape.y,
-            width: shape.width,
-            height: shape.height,
-          },
-        });
-        doRedraw();
-        return;
-      }
-
-      //!moving elements
-      if (dragType.current === "shape" || dragType.current === "textbox") {
-        const newX = x - dragOffset.current.x;
-        const newY = y - dragOffset.current.y;
-
-        if (dragType.current === "shape") {
-          const shape = shapesRef.current.find(
-            (s) => s.id === selectedId.current,
-          );
-          if (shape) Object.assign(shape, { x: newX, y: newY });
-        } else if (dragType.current === "textbox") {
-          const tb = textBoxesRef.current.find(
-            (t) => t.id === selectedId.current,
-          );
-          if (tb) Object.assign(tb, { x: newX, y: newY });
-        }
-
-        socket.emit("element-update", {
-          roomId,
-          id: selectedId.current,
-          changes: { x: newX, y: newY },
-        });
-      }
-
-      if (dragType.current === "line") {
-        const line = linesRef.current.find((l) => l.id === selectedId.current);
-        if (line)
-          Object.assign(line, {
-            x1: x - lineDragOffset.current.x1,
-            y1: y - lineDragOffset.current.y1,
-            x2: x - lineDragOffset.current.x2,
-            y2: y - lineDragOffset.current.y2,
-          });
-
-        socket.emit("element-update", {
-          roomId,
-          id: selectedId.current,
-          changes: {
-            x1: x - lineDragOffset.current.x1,
-            y1: y - lineDragOffset.current.y1,
-            x2: x - lineDragOffset.current.x2,
-            y2: y - lineDragOffset.current.y2,
-          },
-        });
-      }
-
+      tb.rotation = computeTextBoxRotation(tb, x, y, ctx);
+      emitElementUpdate(roomId, tb.id, { rotation: tb.rotation });
       doRedraw();
-    };
+      return;
+    }
+
+    const shape = shapesRef.current.find((s) => s.id === selectedId.current);
+    if (!shape) return;
+
+    shape.rotation = computeShapeRotation(shape, x, y);
+    emitElementUpdate(roomId, shape.id, { rotation: shape.rotation });
+    doRedraw();
+    return;
+  }
+
+  if (!isDragging.current && !isResizing.current) return;
+
+  //!resize lines
+  if (isResizing.current && lineEndpoint.current) {
+    const line = linesRef.current.find((l) => l.id === selectedId.current);
+    if (!line) return;
+
+    const changes = computeLineEndpointChanges(line, lineEndpoint.current, x, y);
+    Object.assign(line, changes);
+    emitElementUpdate(roomId, line.id, changes);
+    doRedraw();
+    return;
+  }
+
+  //!resize shapes
+  if (isResizing.current && resizeCorner.current && resizeOrigin.current) {
+    const shape = shapesRef.current.find((s) => s.id === selectedId.current);
+    if (!shape) return;
+
+    const changes = computeShapeResize(shape, resizeCorner.current, resizeOrigin.current, x, y);
+    Object.assign(shape, changes);
+    emitElementUpdate(roomId, shape.id, changes);
+    doRedraw();
+    return;
+  }
+
+  //!moving shape/textbox
+  if (dragType.current === "shape" || dragType.current === "textbox") {
+    const pos = computeDragPosition(x, y, dragOffset.current);
+
+    if (dragType.current === "shape") {
+      const shape = shapesRef.current.find((s) => s.id === selectedId.current);
+      if (shape) Object.assign(shape, pos);
+    } else {
+      const tb = textBoxesRef.current.find((t) => t.id === selectedId.current);
+      if (tb) Object.assign(tb, pos);
+    }
+
+    emitElementUpdate(roomId, selectedId.current, pos);
+  }
+
+  //!moving line
+  if (dragType.current === "line") {
+    const line = linesRef.current.find((l) => l.id === selectedId.current);
+    const pos = computeLineDragPosition(x, y, lineDragOffset.current);
+    if (line) Object.assign(line, pos);
+    emitElementUpdate(roomId, selectedId.current, pos);
+  }
+
+  doRedraw();
+};
 
     const onMouseUp = () => {
       if (activeTool !== "mouse") return;
