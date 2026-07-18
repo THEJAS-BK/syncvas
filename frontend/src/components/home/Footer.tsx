@@ -12,11 +12,11 @@ export default function Footer() {
         </div>
 
         <div className="flex items-center gap-6 text-sm text-gray-500">
-          <a href="https://github.com" className="hover:text-[#101820] transition-colors">
+          <a href="https://github.com/THEJAS-BK" className="hover:text-[#101820] transition-colors">
             GitHub
           </a>
           <a href="/offlineboard" className="hover:text-[#101820] transition-colors">
-            Offline board
+            linkedIn
           </a>
           <a href="#" className="hover:text-[#101820] transition-colors">
             About

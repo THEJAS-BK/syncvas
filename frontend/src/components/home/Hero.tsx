@@ -67,7 +67,6 @@ export default function Hero() {
 
   const handleCreateRoom = async () => {
     try {
-      await connectSocket();
       setLoading("creating room");
       const tryCreate = () => {
         const roomId = generateRoomId();
@@ -88,6 +87,9 @@ export default function Hero() {
   const handleOpenJoinRoom = () => {
     setShowConfirm(true);
   };
+
+
+
   const handleJoinRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const roomCode = roomId;
@@ -97,7 +99,6 @@ export default function Hero() {
       return;
     }
     try {
-      await connectSocket();
       setShowConfirm(false);
       setLoading("joining room");
       socket.emit("join-room", roomCode, (res: CreateRoomResponse) => {
@@ -117,31 +118,46 @@ export default function Hero() {
 
   return (
     <>
-      {showConfirm && (
-        <form
-          onSubmit={handleJoinRoom}
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm  z-50 flex items-center justify-center"
+     {showConfirm && (
+  <form
+    onSubmit={handleJoinRoom}
+    className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center px-6"
+  >
+    <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-sm">
+      <h2 className="text-xl font-bold text-[#101820] tracking-tight">
+        Join a room
+      </h2>
+      <p className="text-gray-500 text-sm mt-1">
+        Enter the room code your team shared with you.
+      </p>
+
+      <input
+        autoFocus
+        onChange={(e) => setRoomId(e.target.value.toUpperCase())}
+        type="text"
+        value={roomId}
+        placeholder="Room code"
+        className="w-full border border-gray-300 text-[#101820] p-3 rounded-lg mt-5 tracking-widest text-center font-medium focus:outline-none focus:ring-2 focus:ring-[#101820]/20 focus:border-[#101820]"
+      />
+
+      <div className="flex gap-3 mt-6">
+        <button
+          type="button"
+          onClick={() => setShowConfirm(false)}
+          className="flex-1 border border-gray-300 text-[#101820] px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
         >
-          <div className="bg-gray-950 p-6 rounded-lg">
-            <p>Enter Room code:</p>
-            <input
-              onChange={(e) => setRoomId(e.target.value.toUpperCase())}
-              type="text"
-              value={roomId}
-              placeholder="Room code"
-              className="border border-gray-300 p-2 rounded-lg mt-2"
-            />
-            <Stack spacing={2} direction="row" className="mx-auto mt-4">
-              <Button variant="outlined" onClick={() => setShowConfirm(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="contained" color="success">
-                Join Room
-              </Button>
-            </Stack>
-          </div>
-        </form>
-      )}
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="flex-1 bg-[#101820] text-white px-4 py-3 rounded-lg font-medium hover:bg-[#1c2733] transition-colors"
+        >
+          Join room
+        </button>
+      </div>
+    </div>
+  </form>
+)}
 
       {loading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex flex-col items-center justify-center gap-4">
