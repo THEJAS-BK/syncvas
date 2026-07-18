@@ -1,5 +1,4 @@
 import type { RefObject } from "react";
-import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 import type { Line, Shape, TextBox, ToolSetters } from "../types";
 import { socket } from "../../../../services/socket";
 const handleElementDelete = (
@@ -8,8 +7,12 @@ const handleElementDelete = (
   shapesRef: RefObject<Shape[]>,
   linesRef: RefObject<Line[]>,
   textBoxesRef: React.RefObject<TextBox[]>,
+  setSelectedEle: React.Dispatch<React.SetStateAction<Shape | Line | TextBox | null>>,
+  doRedrawRef:()=>void,
+  roomId: string,
+  activeTool:string|null
 ) => {
-  const { activeTool, setSelectedEle, doRedrawRef, roomId } = useToolSettings();
+
   if (e.key !== "Delete" && e.key !== "Backspace") return;
   if (activeTool !== "mouse") return;
 
@@ -32,7 +35,7 @@ const handleElementDelete = (
   socket.emit("element-delete", { roomId, id });
   selectedId.current = null;
   setSelectedEle(null);
-  doRedrawRef.current?.();
+  doRedrawRef();
 };
 
 interface InteractionRefs {

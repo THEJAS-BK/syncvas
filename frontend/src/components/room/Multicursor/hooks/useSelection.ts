@@ -1,20 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
-import type { Shape, Line, TextBox,ToolSetters } from "../types";
+import type { Shape, Line, TextBox, ToolSetters } from "../types";
 import { hitTestTextBoxRotationHandle } from "../canvas";
 import { hitTestLine, hitTestShape, hitTestTextBox } from "../tools/hitTests";
 import { socket } from "../../../../services/socket";
 import { hitTestCorner, hitTestRotationHandle } from "../tools/hitTests";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 //tools
-import { handleElementDelete, type InteractionRefs } from "../tools/selectionTools";
-import {  computeResizeOrigin,
+import {
+  handleElementDelete,
+  type InteractionRefs,
+} from "../tools/selectionTools";
+import {
+  computeResizeOrigin,
   tryStartShapeHandleInteraction,
   tryStartLineHandleInteraction,
   findElementAt,
   syncToolSettingsToShape,
   syncToolSettingsToText,
-  syncToolSettingsToLine} from "../tools/selectionTools"
+  syncToolSettingsToLine,
+} from "../tools/selectionTools";
 export function useSelection(
   roomId: string,
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -50,80 +55,151 @@ export function useSelection(
   const isRotating = useRef(false);
 
   //edit mode
-  const { selectedEle,setArrowHead,setArrowType,setOpacity,setFontFamily,setFontSize,setTextAlign ,setStrokeWidth, setSelectedEle,setFillColor,setStrokeStyle,setEdgeStyle } = useToolSettings();
+  const {
+    selectedEle,
+    setArrowHead,
+    setArrowType,
+    setOpacity,
+    setFontFamily,
+    setFontSize,
+    setTextAlign,
+    setStrokeWidth,
+    setSelectedEle,
+    setFillColor,
+    setStrokeStyle,
+    setEdgeStyle,
+  } = useToolSettings();
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-
     const onMouseDown = (e: MouseEvent) => {
-  if (activeTool !== "mouse") return;
-  const { x, y } = toCanvas(e.clientX, e.clientY);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+      if (activeTool !== "mouse") return;
+      const { x, y } = toCanvas(e.clientX, e.clientY);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-  const refs: InteractionRefs = {
-    isDragging, isResizing, isRotating, dragType,
-    dragOffset, lineDragOffset, resizeCorner, resizeOrigin, lineEndpoint,
-  };
-  const setters: ToolSetters = {
-    setFillColor, setStrokeWidth, setStrokeStyle, setEdgeStyle, setOpacity,
-    setFontFamily, setFontSize, setTextAlign, setArrowType, setArrowHead,
-  };
+      const refs: InteractionRefs = {
+        isDragging,
+        isResizing,
+        isRotating,
+        dragType,
+        dragOffset,
+        lineDragOffset,
+        resizeCorner,
+        resizeOrigin,
+        lineEndpoint,
+      };
+      const setters: ToolSetters = {
+        setFillColor,
+        setStrokeWidth,
+        setStrokeStyle,
+        setEdgeStyle,
+        setOpacity,
+        setFontFamily,
+        setFontSize,
+        setTextAlign,
+        setArrowType,
+        setArrowHead,
+      };
 
-  // 1. try to grab a handle on whatever is already selected
-  if (selectedId.current) {
-    const selectedText = textBoxesRef.current.find((t) => t.id === selectedId.current);
-    if (selectedText && hitTestTextBoxRotationHandle(selectedText, x, y, ctx, camera.current.scale)) {
-      isRotating.current = true;
-      dragType.current = "textbox";
-      return;
-    }
+      // 1. try to grab a handle on whatever is already selected
+      if (selectedId.current) {
+        const selectedText = textBoxesRef.current.find(
+          (t) => t.id === selectedId.current,
+        );
+        if (
+          selectedText &&
+          hitTestTextBoxRotationHandle(
+            selectedText,
+            x,
+            y,
+            ctx,
+            camera.current.scale,
+          )
+        ) {
+          isRotating.current = true;
+          dragType.current = "textbox";
+          return;
+        }
 
-    const selectedShape = shapesRef.current.find((s) => s.id === selectedId.current);
-    if (selectedShape && tryStartShapeHandleInteraction(
-      selectedShape, x, y, camera.current.scale, refs, hitTestRotationHandle, hitTestCorner,
-    )) return;
+        const selectedShape = shapesRef.current.find(
+          (s) => s.id === selectedId.current,
+        );
+        if (
+          selectedShape &&
+          tryStartShapeHandleInteraction(
+            selectedShape,
+            x,
+            y,
+            camera.current.scale,
+            refs,
+            hitTestRotationHandle,
+            hitTestCorner,
+          )
+        )
+          return;
 
-    const selectedLine = linesRef.current.find((l) => l.id === selectedId.current);
-    if (selectedLine && tryStartLineHandleInteraction(selectedLine, x, y, camera.current.scale, refs)) return;
-  }
+        const selectedLine = linesRef.current.find(
+          (l) => l.id === selectedId.current,
+        );
+        if (
+          selectedLine &&
+          tryStartLineHandleInteraction(
+            selectedLine,
+            x,
+            y,
+            camera.current.scale,
+            refs,
+          )
+        )
+          return;
+      }
 
-  // 2. otherwise, look for a new hit among all elements
-  const { hitShape, hitLine, hitText } = findElementAt(
-    x, y, ctx, camera.current.scale,
-    shapesRef.current, linesRef.current, textBoxesRef.current,
-    hitTestShape, hitTestLine, hitTestTextBox,
-  );
+      // 2. otherwise, look for a new hit among all elements
+      const { hitShape, hitLine, hitText } = findElementAt(
+        x,
+        y,
+        ctx,
+        camera.current.scale,
+        shapesRef.current,
+        linesRef.current,
+        textBoxesRef.current,
+        hitTestShape,
+        hitTestLine,
+        hitTestTextBox,
+      );
 
-  // 3. start dragging + sync toolbar to the hit element
-  if (hitShape) {
-    isDragging.current = true;
-    dragType.current = "shape";
-    canvas.style.cursor = "move";
-    dragOffset.current = { x: x - hitShape.x, y: y - hitShape.y };
-    syncToolSettingsToShape(hitShape, setters);
-  } else if (hitText) {
-    isDragging.current = true;
-    dragType.current = "textbox";
-    dragOffset.current = { x: x - hitText.x, y: y - hitText.y };
-    syncToolSettingsToText(hitText, setters);
-  } else if (hitLine) {
-    isDragging.current = true;
-    dragType.current = "line";
-    lineDragOffset.current = {
-      x1: x - hitLine.x1, x2: x - hitLine.x2,
-      y1: y - hitLine.y1, y2: y - hitLine.y2,
+      // 3. start dragging + sync toolbar to the hit element
+      if (hitShape) {
+        isDragging.current = true;
+        dragType.current = "shape";
+        canvas.style.cursor = "move";
+        dragOffset.current = { x: x - hitShape.x, y: y - hitShape.y };
+        syncToolSettingsToShape(hitShape, setters);
+      } else if (hitText) {
+        isDragging.current = true;
+        dragType.current = "textbox";
+        dragOffset.current = { x: x - hitText.x, y: y - hitText.y };
+        syncToolSettingsToText(hitText, setters);
+      } else if (hitLine) {
+        isDragging.current = true;
+        dragType.current = "line";
+        lineDragOffset.current = {
+          x1: x - hitLine.x1,
+          x2: x - hitLine.x2,
+          y1: y - hitLine.y1,
+          y2: y - hitLine.y2,
+        };
+        syncToolSettingsToLine(hitLine, setters);
+      }
+
+      const hit = hitShape ?? hitLine ?? hitText;
+      if (!hit) return;
+      selectedId.current = hit.id;
+      setSelectedEle(hit);
+      doRedraw();
     };
-    syncToolSettingsToLine(hitLine, setters);
-  }
-
-  const hit = hitShape ?? hitLine ?? hitText;
-  if (!hit) return;
-  selectedId.current = hit.id;
-  setSelectedEle(hit);
-  doRedraw();
-};
 
     const onMouseMove = (e: MouseEvent) => {
       if (!selectedId.current) return;
@@ -362,17 +438,31 @@ export function useSelection(
       }
     };
 
+    const onKeyDown = (e: KeyboardEvent) => {
+      handleElementDelete(
+        e,
+        selectedId,
+        shapesRef,
+        linesRef,
+        textBoxesRef,
+        setSelectedEle,
+        doRedraw,
+        roomId,
+        activeTool,
+      );
+    };
+
     canvas.addEventListener("mousedown", onMouseDown);
     canvas.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     canvas.addEventListener("dblclick", onDblClick);
-    window.addEventListener("keydown", (e) => handleElementDelete(e, selectedId, shapesRef, linesRef, textBoxesRef));
+    window.addEventListener("keydown", onKeyDown);
     return () => {
       canvas.removeEventListener("mousedown", onMouseDown);
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("dblclick", onDblClick);
-      window.removeEventListener("keydown", (e) => handleElementDelete(e, selectedId, shapesRef, linesRef, textBoxesRef));
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [activeTool, color, doRedraw]);
 
