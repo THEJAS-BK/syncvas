@@ -8,28 +8,32 @@ export default function ColorGrid({
 }: {
   isMostUsedColorsNeeded: boolean;
 }) {
-  const { strokeColor, setStrokeColor, shadeIdx, setShadeIdx, setFillColor } =
-    useToolSettings();
+  const {
+    strokeColor,
+    setStrokeColor,
+    shadeIdx,
+    setShadeIdx,
+    setFillColor,
+    fillColor,
+  } = useToolSettings();
   const [colorList, setColorList] = useState<{ char: string; color: string }[]>(
     [],
   );
   const [selectedChar, setSelectedChar] = useState<string>("");
-  const [currentShade,setCurrentShade]=useState([""]);
+  const [currentShade, setCurrentShade] = useState([""]);
 
-  useEffect(()=>{
-      setCurrentShade(colorShades[selectedChar] ?? [])
-  },[selectedChar])
+  useEffect(() => {
+    setCurrentShade(colorShades[selectedChar] ?? []);
+  }, [selectedChar]);
 
-  useEffect(()=>{
-  const val =Object.entries(colorShades).find(([char,ele])=>{
-    return ele[ele.length-1]===strokeColor
-  })
-  if(!val)return
-    const shades= colorShades[val[0]] ?? [];
-    setCurrentShade(shades)
-  },[strokeColor])
-
-
+  useEffect(() => {
+    const val = Object.entries(colorShades).find(([char, ele]) => {
+      return ele[ele.length - 1] === strokeColor;
+    });
+    if (!val) return;
+    const shades = colorShades[val[0]] ?? [];
+    setCurrentShade(shades);
+  }, [strokeColor, fillColor]);
 
   useEffect(() => {
     const handleQuickColorChange = (e: KeyboardEvent) => {
@@ -50,9 +54,14 @@ export default function ColorGrid({
         return;
       }
 
+
       const match = colorList.find((c) => c.char === e.key);
       if (!match) return;
-      setStrokeColor(match.color);
+      {
+        isMostUsedColorsNeeded
+          ? setStrokeColor(match.color)
+          : setFillColor(match.color);
+      }
       setSelectedChar(match.char);
     };
 
@@ -60,18 +69,18 @@ export default function ColorGrid({
     return () => {
       window.removeEventListener("keydown", handleQuickColorChange);
     };
-  }, [setStrokeColor, selectedChar]);
+  }, [setStrokeColor, selectedChar, fillColor, setFillColor]);
 
   useEffect(() => {
     const temp = Object.entries(colorShades).map(([char, shades]) => ({
       char,
-      color: shades[shadeIdx],
+      color: shades[shades.length-1],
     }));
     setColorList(temp);
   }, [setShadeIdx]);
 
   return (
-    <div
+    <div 
       className={`absolute text-white left-[110%] w-[210px] top-5 flex flex-col justify-center rounded-2xl bg-[#1f1f2b] shadow-xl p-5 z-20`}
     >
       {isMostUsedColorsNeeded && (
@@ -94,7 +103,7 @@ export default function ColorGrid({
             key={stroke.color}
             style={{ backgroundColor: stroke.color }}
             className={`w-7 h-7 rounded cursor-pointer ${
-              strokeColor === stroke.color
+              strokeColor === stroke.color || fillColor === stroke.color
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
@@ -121,8 +130,8 @@ export default function ColorGrid({
           <div
             key={idx}
             style={{ backgroundColor: color }}
-            className={`w-6 h-6 ${
-              strokeColor === color
+            className={`w-6 h-6 rounded cursor-pointer ${
+              (strokeColor === color||fillColor===color)
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}

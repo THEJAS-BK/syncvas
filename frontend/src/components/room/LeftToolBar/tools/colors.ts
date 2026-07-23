@@ -16,7 +16,7 @@ const colorShades: Record<string, string[]> = {
   n:["#ef4444","#dc2626","#b91c1c","#991b1b","#f87171"]
 };
 
- const strokeColors = ["#495057", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
+ const strokeColors = ["#adb5bd", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
   const backgroundColors = [
     "transparent",
     "#7f1d1d",
