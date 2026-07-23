@@ -20,12 +20,20 @@ export const useWebRTC = (roomId: string) => {
   const [remoteVideoMuted, setRemoteVideoMuted] = useState<{
     [socketId: string]: boolean;
   }>({});
+  const [remoteAudioMuted, setRemoteAudioMuted] = useState<{
+    [socketId: string]: boolean;
+  }>({});
+
+  const [mySocketId, setMySocketId] = useState<string | undefined>(socket.id);
+
+  const [users, setUsers] = useState<{ [socketId: string]: string }>({});
 
   const audioToggle = () => {
     const track = localStream.current?.getAudioTracks()[0];
     if (track) {
       track.enabled = !track.enabled;
       setIsAudioMuted(!track.enabled);
+      socket.emit("audio-toggle", { roomId, muted: !track.enabled });
     }
   };
 
@@ -74,10 +82,12 @@ export const useWebRTC = (roomId: string) => {
 
       setIsReady(true); // trigger re-render so local video shows up
 
-      const join = () =>
+      const join = () => {
+        setMySocketId(socket.id);
         socket.emit("join-room", roomId, (res: any) => {
           if (!res.success) console.error(res.message);
         });
+      };
 
       if (socket.connected) {
         join();
@@ -145,7 +155,11 @@ export const useWebRTC = (roomId: string) => {
         return updated;
       });
       setRemoteVideoMuted((prev) => {
-        // ← added
+        const updated = { ...prev };
+        delete updated[socketId];
+        return updated;
+      });
+      setRemoteAudioMuted((prev) => {
         const updated = { ...prev };
         delete updated[socketId];
         return updated;
@@ -158,10 +172,16 @@ export const useWebRTC = (roomId: string) => {
         setRemoteVideoMuted((prev) => ({ ...prev, [from]: muted }));
       },
     );
+    socket.on(
+      "audio-toggle",
+      ({ from, muted }: { from: string; muted: boolean }) => {
+        setRemoteAudioMuted((prev) => ({ ...prev, [from]: muted }));
+      },
+    );
 
     return () => {
       localStream.current?.getTracks().forEach((t) => t.stop());
-      localStream.current = null; 
+      localStream.current = null;
       setIsReady(false);
       Object.values(peerConnections.current).forEach((pc) => pc.close());
       peerConnections.current = {};
@@ -172,6 +192,7 @@ export const useWebRTC = (roomId: string) => {
       socket.off("receive-ice-candidates");
       socket.off("user-left");
       socket.off("video-toggle");
+      socket.off("audio-toggle");
     };
   }, [roomId]);
 
@@ -184,5 +205,8 @@ export const useWebRTC = (roomId: string) => {
     isAudioMuted,
     isVideoMuted,
     remoteVideoMuted,
+    remoteAudioMuted,
+    users,
+    mySocketId,
   };
 };

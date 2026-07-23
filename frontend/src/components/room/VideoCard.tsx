@@ -1,27 +1,30 @@
-import { MicOff } from "lucide-react";
+import { MicOff,Mic } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function VideoCard({
   stream,
   muted = false,
   isVideoMuted,
-  isMicMuted,
-  name,
+  isAudioMuted,
+  users,
   openCursor,
 }: {
   stream: MediaStream;
   muted?: boolean;
   isVideoMuted?: boolean;
-  isMicMuted?: boolean;
-  name?: string;
+  isAudioMuted?: boolean;
+  users?: string;
   openCursor?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
+  <Mic />
 
   useEffect(() => {
+    console.log(users)
 
-    console.log(stream)
     if (!ref.current || !stream) return;
+
+      if (ref.current.srcObject === stream) return;
     ref.current.srcObject = stream;
 
     ref.current
@@ -36,9 +39,9 @@ export default function VideoCard({
         ref.current.srcObject = null;
       }
     };
-  }, [stream]);
+  }, [stream,users]);
 
-  const initial = (name?.trim()?.[0] ?? "z").toUpperCase();
+  const initial = (users?.trim()?.[0] ?? "z").toUpperCase();
 
   return (
     <div className="relative w-full h-[95%]">
@@ -60,7 +63,7 @@ export default function VideoCard({
 
       {isVideoMuted && (
         <div className="absolute top-1 left-1 flex items-center justify-center bg-black/60 rounded-full p-1.5">
-          <MicOff size={15} className="text-white" />
+          {isAudioMuted ? <MicOff size={15} className="text-white" /> : <Mic size={15} className="text-white" />}
           <p className="text-white text-sm ml-2">thejas</p>
         </div>
       )}

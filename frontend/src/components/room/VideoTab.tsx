@@ -1,6 +1,9 @@
 import { useWebRtcContext } from "../../context/WebRtcContext";
 import VideoCard from "./VideoCard";
 import OptionsFooter from "./OptionsFooter";
+import { useEffect } from "react";
+
+import { socket } from "../../services/socket";
 interface VideoTabProps {
   roomId: string;
   localStream: React.MutableRefObject<MediaStream | null>;
@@ -17,11 +20,14 @@ export default function VideoTab({
   isVideoMuted,
   openCursor,
 }: VideoTabProps) {
+
   const participantCount =
     (isReady && localStream.current ? 1 : 0) +
     Object.keys(remoteStreams).length;
 
-    const {remoteVideoMuted} = useWebRtcContext();
+  const { remoteVideoMuted, remoteAudioMuted, isAudioMuted, users, mySocketId } =
+    useWebRtcContext();
+
 
   const getTileSize = (count: number) => {
     if (count <= 1) return "w-full h-[90%] max-w-4xl";
@@ -44,7 +50,10 @@ export default function VideoTab({
               <VideoCard
                 stream={localStream.current}
                 isVideoMuted={isVideoMuted}
+                isAudioMuted={isAudioMuted}
                 openCursor={openCursor}
+                users={users[mySocketId??""]}
+
               />
             </div>
           )}
@@ -52,8 +61,10 @@ export default function VideoTab({
             <div key={id} className={getTileSize(participantCount)}>
               <VideoCard
                 stream={stream}
-                isVideoMuted={remoteVideoMuted[id]??false }
+                isVideoMuted={remoteVideoMuted[id] ?? false}
+                isAudioMuted={remoteAudioMuted[id] ?? false}
                 openCursor={openCursor}
+                users={users[id]}
               />
             </div>
           ))}
@@ -69,7 +80,9 @@ export default function VideoTab({
               <VideoCard
                 stream={localStream.current}
                 isVideoMuted={isVideoMuted}
+                isAudioMuted={isAudioMuted}
                 openCursor={openCursor}
+                 users={users[mySocketId??""]}
               />
             </div>
           )}
@@ -77,8 +90,10 @@ export default function VideoTab({
             <div key={id}>
               <VideoCard
                 stream={stream}
-               isVideoMuted={remoteVideoMuted[id]??false }
+                isVideoMuted={remoteVideoMuted[id] ?? false}
+                isAudioMuted={remoteAudioMuted[id] ?? false}
                 openCursor={openCursor}
+                users={users[id]}
               />
             </div>
           ))}
