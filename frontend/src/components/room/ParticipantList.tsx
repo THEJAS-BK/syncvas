@@ -1,8 +1,10 @@
-import { Mic, MicOff } from "lucide-react";
 import { useToolSettings } from "../../context/ToolBarLeftContext";
 import { useEffect, useState } from "react";
 import { socket } from "../../services/socket";
 import { X } from "lucide-react";
+
+import type { Participants } from "./Multicursor/types";
+
 export default function ParticipantList({ onClose }: { onClose: () => void }) {
   const [participantNames, setParticipantNames] = useState<string[]>([]);
   const { roomId } = useToolSettings();
@@ -12,8 +14,8 @@ export default function ParticipantList({ onClose }: { onClose: () => void }) {
 
     socket.emit("get-participants", roomId);
 
-    const handleList = (names: string[]) => {
-      setParticipantNames(names);
+    const handleList = (members: Participants[]) => {
+      setParticipantNames(members.map((member) => member.name));
     };
     socket.on("participants-list", handleList);
 

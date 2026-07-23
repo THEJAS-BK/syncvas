@@ -1,8 +1,6 @@
 import { useParams } from "react-router-dom";
-import ChatInterface from "../components/room/ChatInterface";
 import MainContent from "../components/room/MainContent";
-import RoomNavbar from "../components/room/RoomNavbar";
-import { useEffect, useRef, useState } from "react";
+import {  useRef, useState } from "react";
 import { WebRtcProvider } from "../context/WebRtcContext";
 import { ToolSettingsProvider } from "../context/ToolBarLeftContext.tsx";
 import MultiCursor from "../components/room/Multicursor/MultiCursor";
@@ -10,12 +8,11 @@ import MultiCursor from "../components/room/Multicursor/MultiCursor";
 //image upload function
 import { handleImageUpload } from "../components/room/Multicursor/tools/imageUpload.ts";
 
-import { Menu, TableOfContents } from "lucide-react";
+import { Menu } from "lucide-react";
 
 import Tools from "../components/room/Tools.tsx";
 import ToolBarContainer from "../components/room/LeftToolBar/ToolBarContainer.tsx";
 import HamberMenu from "../components/room/HamberMenu.tsx";
-import type { FaLessThanEqual } from "react-icons/fa";
 
 type BoardImage = {
   id: string;

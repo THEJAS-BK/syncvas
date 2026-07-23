@@ -29,6 +29,7 @@ import { useWebRtcContext } from "../../../context/WebRtcContext";
 import ZoomControls from "./ZoomControls";
 import { useLayers } from "./hooks/useLayers";
 import OptionsFooter from "../OptionsFooter";
+import { useFollowUserCamera } from "./hooks/useFollowUserCamera";
 
 export default function MultiCursor({
   images,
@@ -36,7 +37,7 @@ export default function MultiCursor({
   roomId,
   openCursor,
   setOpenCursor,
-  setIsViewMode
+  setIsViewMode,
 }: {
   images: React.RefObject<BoardImage[]>;
   imageUpdate: number;
@@ -73,16 +74,16 @@ export default function MultiCursor({
   const triggerUpdate = () => forceUpdate((n) => n + 1);
 
   //edit stroke color
-  const { strokeColor, setStrokeColor,viewMode } = useToolSettings();
+  const { strokeColor, setStrokeColor, viewMode } = useToolSettings();
   useEffect(() => {
     setStrokeColor(color);
   }, []);
   const { activeTool, selectedId } = useToolSettings();
 
   //view mode
-    useEffect(()=>{
-    setIsViewMode(viewMode)
-  },[viewMode])
+  useEffect(() => {
+    setIsViewMode(viewMode);
+  }, [viewMode]);
 
   //shapes,textBoxes and lines
   const {
@@ -137,6 +138,8 @@ export default function MultiCursor({
   useEffect(() => {
     doRedrawRef.current = doRedraw;
   }, [doRedraw]);
+
+  useFollowUserCamera( camera, doRedraw,roomId);
 
   useSelection(
     roomId ?? "",
@@ -197,7 +200,7 @@ export default function MultiCursor({
     textBoxesRef,
     doRedraw,
   );
-  useHandTool(canvasRef, camera, activeTool, doRedraw);
+  useHandTool(canvasRef, camera, activeTool, doRedraw,roomId);
   useSocketBoard(roomId ?? "", canvasRef, images, strokes, doRedraw);
   useSocketDraw(
     roomId ?? "",
@@ -216,7 +219,7 @@ export default function MultiCursor({
   );
 
   useEraser(roomId ?? "", canvasRef, camera, strokes, activeTool, doRedraw);
-  useCanvasZoom(wrapperRef, canvasRef, camera, handleCameraChange, doRedraw);
+  useCanvasZoom(wrapperRef, canvasRef, camera, handleCameraChange, doRedraw,roomId);
 
   //image transformations
   useImageTransform(
@@ -286,7 +289,6 @@ export default function MultiCursor({
       userIdRef.current = cb.userId;
     });
   }, []);
-
 
   const { toggleVideoTab } = useToolSettings();
   const tabSizeMap: Record<string, string> = {
@@ -425,7 +427,7 @@ export default function MultiCursor({
                 rect.right,
                 rect.bottom,
                 () => setPanTick((t) => t + 1),
-                doRedraw
+                doRedraw,
               );
             }}
             onBlur={(e) => {

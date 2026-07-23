@@ -60,12 +60,17 @@ export function registerRoomHandler(
       delete activeRooms[roomId];
     }
   });
- socket.on("get-participants", (roomId: string) => {
-  const memberIds = activeRooms[roomId] ?? new Set<string>();
-  const names = [...memberIds].map((id) => {
-    const memberSocket = io.sockets.sockets.get(id);
-    return memberSocket?.data.name ?? "Unknown";
+  socket.on("get-participants", (roomId: string) => {
+    const memberIds = activeRooms[roomId] ?? new Set<string>();
+    const names = [...memberIds].map((id) => {
+      const memberSocket = io.sockets.sockets.get(id);
+      return {
+        socketId: id,
+        userId: memberSocket?.data.userId,
+        name: memberSocket?.data.name ?? "Unknown",
+      };
+    });
+
+    socket.emit("participants-list", names);
   });
-  socket.emit("participants-list", names);
-});
 }

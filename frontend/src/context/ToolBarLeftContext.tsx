@@ -43,7 +43,6 @@ type ToolSettings = {
   strokeStyle: string;
   setStrokeStyle: Dispatch<SetStateAction<string>>;
 
-
   arrowType: string;
   setArrowType: Dispatch<SetStateAction<string>>;
 
@@ -73,29 +72,36 @@ type ToolSettings = {
   //do redraw ref
   doRedrawRef: RefObject<(() => void) | null>;
 
-  roomId:string|null
-  setRoomId:Dispatch<SetStateAction<string>>
-
+  roomId: string | null;
+  setRoomId: Dispatch<SetStateAction<string>>;
 
   //camera settings
-  toggleVideoTab:boolean;
-  setToggleVideoTab:Dispatch<SetStateAction<boolean>>
+  toggleVideoTab: boolean;
+  setToggleVideoTab: Dispatch<SetStateAction<boolean>>;
 
   //offline
-  isOffline:boolean;
-  setIsOffline:Dispatch<SetStateAction<boolean>>
+  isOffline: boolean;
+  setIsOffline: Dispatch<SetStateAction<boolean>>;
 
   //layer settings
-  layer:string;
-  setLayer:Dispatch<SetStateAction<string>>
+  layer: string;
+  setLayer: Dispatch<SetStateAction<string>>;
 
   //miniMize video in mulicursor
-  tabSize:string;
-  setTabSize:Dispatch<SetStateAction<string>>
+  tabSize: string;
+  setTabSize: Dispatch<SetStateAction<string>>;
 
   //viewMode
-  viewMode:boolean;
-  setViewMode:Dispatch<SetStateAction<boolean>>
+  viewMode: boolean;
+  setViewMode: Dispatch<SetStateAction<boolean>>;
+
+  //hambergermenu
+  followUserCamera: string;
+  setFollowUserCamera: Dispatch<SetStateAction<string>>;
+
+  //tick mark toggle
+  selectedMemId: string;
+  setSelectedMemId: Dispatch<SetStateAction<string>>;
 };
 
 const ToolBarLeftContext = createContext<ToolSettings | null>(null);
@@ -135,16 +141,20 @@ export function ToolSettingsProvider({
   const activeLine = useRef<Line | null>(null);
 
   const doRedrawRef = useRef<(() => void) | null>(null);
-  const [roomId,setRoomId]=useState<string>("")
+  const [roomId, setRoomId] = useState<string>("");
 
-  const [toggleVideoTab,setToggleVideoTab]=useState(true);
+  const [toggleVideoTab, setToggleVideoTab] = useState(true);
   const [isOffline, setIsOffline] = useState(false);
 
-  const [layer,setLayer]=useState("")
+  const [layer, setLayer] = useState("");
 
-  const [tabSize,setTabSize]=useState("")
+  const [tabSize, setTabSize] = useState("");
 
-  const [viewMode,setViewMode]=useState(true)
+  const [viewMode, setViewMode] = useState(true);
+
+  //hamberger menu
+  const [followUserCamera, setFollowUserCamera] = useState("");
+  const [selectedMemId, setSelectedMemId] = useState("");
 
   return (
     <ToolBarLeftContext.Provider
@@ -198,7 +208,11 @@ export function ToolSettingsProvider({
         tabSize,
         setTabSize,
         viewMode,
-        setViewMode
+        setViewMode,
+        followUserCamera,
+        setFollowUserCamera,
+        selectedMemId,
+        setSelectedMemId,
       }}
     >
       {children}

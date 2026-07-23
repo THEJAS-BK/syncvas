@@ -9,6 +9,7 @@ import { registerRoomHandler } from "./room";
 import { registerCanvasHandler } from "./canvasDraw";
 //types
 import { Stroke, ImageElement, CanvasElement } from "./types/canvasTypes";
+import { registerFollowUserCamera } from "./followUserCamera";
 
 
 let activeRooms: Record<string, Set<string>> = {};
@@ -47,6 +48,7 @@ const setSocketConnection = (server: any) => {
     registerChatInterfaceHandler(socket, io);
     registerCanvasHandler(socket, roomBoards, roomImages, roomElements);
     registerImageHandler(socket, roomImages);
+    registerFollowUserCamera(socket,io)
   });
   return io;
 };

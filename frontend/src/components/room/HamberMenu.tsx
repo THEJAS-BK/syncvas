@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useToolSettings } from "../../context/ToolBarLeftContext";
-import { LayoutGrid, Presentation, Settings } from "lucide-react";
-import { Users } from "lucide-react";
+import { Presentation, Check } from "lucide-react";
+import type { Participants } from "./Multicursor/types";
+import { socket } from "../../services/socket";
+
 interface HamberMenuProps {
   roomId: string;
   openCursor: boolean;
@@ -19,7 +21,26 @@ export default function HamberMenu({
   const [videoSettingsOpen, setVideoSettingsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const connectedUsers = ["Alice", "Bob", "Charlie"];
+  const [members, setMembers] = useState<Participants[]>([]);
+
+  const [isOtherMembers, setIsOtherMembers] = useState(true);
+
+  useEffect(() => {
+    socket.emit("get-participants", roomId);
+
+    const handleList = (members: Participants[]) => {
+      if (members.length === 1) {
+        setIsOtherMembers(false);
+      }
+      setMembers(members);
+    };
+
+    socket.on("participants-list", handleList);
+
+    return () => {
+      socket.off("participants-list", handleList);
+    };
+  }, []);
 
   const {
     viewMode,
@@ -27,7 +48,10 @@ export default function HamberMenu({
     setTabSize,
     setToggleVideoTab,
     toggleVideoTab,
-    setActiveTool
+    setActiveTool,
+    setFollowUserCamera,
+    selectedMemId,
+    setSelectedMemId,
   } = useToolSettings();
 
   useEffect(() => {
@@ -49,6 +73,11 @@ export default function HamberMenu({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [setIsHambergerMenuOpen]);
+
+  const handleFollowUser = (socketId: string) => {
+    setFollowUserCamera((prev)=>prev===socketId?"":socketId);
+    setSelectedMemId((prev)=>prev===socketId?"":socketId);
+  };
 
   return (
     <div
@@ -84,7 +113,6 @@ export default function HamberMenu({
               setVideoSettingsOpen((prev) => !prev);
             }}
           >
-         
             Video settings
           </button>
 
@@ -124,7 +152,12 @@ export default function HamberMenu({
         {/* Actions */}
         <li
           className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors border-b border-white/10"
-          onClick={() => { setActiveTool(null); setViewMode(!viewMode); }}
+          onClick={() => {
+            setActiveTool(null);
+            setViewMode(!viewMode);
+            if (viewMode === false) setFollowUserCamera("");
+            if (selectedMemId !== "") setSelectedMemId("");
+          }}
         >
           {viewMode ? "view only mode" : "draw mode"}
         </li>
@@ -140,20 +173,44 @@ export default function HamberMenu({
 
             {followMenuOpen && (
               <div className="absolute top-0 left-full ml-1 flex flex-col bg-[#1e1e2e] border border-white/10 rounded-lg shadow-xl min-w-[160px] z-40">
-                {connectedUsers.map((user) => (
-                  <button
-                    key={user}
-                    className="px-3 py-2 text-sm text-left text-gray-200 hover:bg-white/10 transition-colors"
-                    onClick={() => setFollowMenuOpen(false)}
-                  >
-                    {user}
-                  </button>
-                ))}
+                {isOtherMembers && (
+                  <>
+                    {members
+                      .filter((member) => member.socketId !== socket.id)
+                      .map((member) => (
+                        <button
+                          key={member.socketId}
+                          className="px-3 py-2 flex justify-between align-center text-sm text-left text-gray-200 hover:bg-white/10 transition-colors"
+                          onClick={() => {
+                       
+                            handleFollowUser(member.socketId);
+                          }}
+                        >
+                          {member.name}
+                          {selectedMemId === member.socketId ? (
+                            <span className="mt-1">
+                              <Check size={16} />
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </button>
+                      ))}
+                  </>
+                )}
+
+                {!isOtherMembers && (
+                  <>
+                    <div className="px-3 py-2 text-sm text-left text-gray-200 hover:bg-white/10 transition-colors">
+                      no Other members
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </li>
         )}
-         <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors ">
+        <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors ">
           Board colors
         </li>
 
@@ -163,7 +220,7 @@ export default function HamberMenu({
         <li className="px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer transition-colors ">
           Save Board
         </li>
-       
+
         <li className="px-4 py-2 text-sm text-red-400 hover:bg-white/10 cursor-pointer transition-colors">
           Exit room
         </li>

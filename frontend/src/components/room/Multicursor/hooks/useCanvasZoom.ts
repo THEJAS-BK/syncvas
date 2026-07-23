@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
+import { socket } from "../../../../services/socket";
 
 export function useCanvasZoom(
   wrapperRef: React.RefObject<HTMLDivElement | null>,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   camera: React.RefObject<any>,
   onCameraChange: () => void,
-  doRedraw:()=>void
+  doRedraw:()=>void,
+  roomId:string
 ) {
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -35,6 +37,9 @@ export function useCanvasZoom(
       } else {
         camera.current.y -= e.deltaY;
       }
+
+              socket.emit("camera-update",camera.current,roomId)
+      
 
      doRedraw();
 

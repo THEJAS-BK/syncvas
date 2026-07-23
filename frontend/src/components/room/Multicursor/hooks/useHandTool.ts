@@ -1,12 +1,14 @@
 import { useEffect, useRef } from "react";
-import type {  RefObject } from "react";
+import type { RefObject } from "react";
+import { socket } from "../../../../services/socket";
 
 export function useHandTool(
   canvasRef: RefObject<HTMLCanvasElement | null>,
   camera: RefObject<{ x: number; y: number; scale: number }>,
 
   activeTool: string | null,
-  doRedraw:()=>void
+  doRedraw: () => void,
+  roomId: string,
 ) {
   const isPanning = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
@@ -29,6 +31,8 @@ export function useHandTool(
       camera.current.y += dy;
       lastPos.current = { x: e.clientX, y: e.clientY };
       canvas.style.cursor = "grab";
+
+      socket.emit("camera-update", camera.current, roomId);
       doRedraw();
     };
 
@@ -45,5 +49,5 @@ export function useHandTool(
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [activeTool,doRedraw]);
+  }, [activeTool, doRedraw]);
 }

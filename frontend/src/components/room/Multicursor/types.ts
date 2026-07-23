@@ -112,3 +112,10 @@ export type {
   FontFamily,
   ToolSetters
 };
+
+
+export type Participants={
+  socketId:string;
+  userId:string;
+  name:string;
+}
