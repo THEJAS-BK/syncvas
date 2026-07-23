@@ -21,12 +21,16 @@ export default function VideoTab({
     (isReady && localStream.current ? 1 : 0) +
     Object.keys(remoteStreams).length;
 
-  const getTileSize = (count: number) => {
-    if (count <= 1) return "w-full h-[90%] max-w-4xl";
-    if (count <= 2) return "w-[48%] h-[90%]";
-    if (count <= 4) return "w-[48%] h-[45%]";
-    return "w-[32%] h-[45%]"; 
-  };
+const getTileSize = (count: number) => {
+  if (count <= 1) return "w-full h-[90%] max-w-4xl";
+  if (count === 2)
+    return "w-[calc(50%-0.25rem)] h-[90%] min-[1000px]:max-w-[520px]";
+  if (count === 3)
+    return "w-[calc(50%-0.25rem)] h-[calc(50%-0.25rem)] min-[1000px]:w-[calc(33.333%-0.34rem)] min-[1000px]:h-[90%] min-[1000px]:max-w-[440px]";
+  if (count === 4)
+    return "w-[calc(50%-0.25rem)] h-[calc(50%-0.25rem)] min-[1000px]:max-w-[440px]";
+  return "w-[calc(33.333%-0.34rem)] h-[calc(50%-0.25rem)] min-[1000px]:max-w-[380px]";
+};
   return (
     <>
      {!openCursor && (
