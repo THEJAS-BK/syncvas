@@ -18,4 +18,8 @@ export function registerWebRtcHandler(socket: Socket, io: Server, activeRooms: R
         candidate,
       });
     });
+    socket.on("video-toggle", ({ roomId, muted }) => {
+  socket.to(roomId).emit("video-toggle", { from: socket.id, muted });
+});
+    
 }

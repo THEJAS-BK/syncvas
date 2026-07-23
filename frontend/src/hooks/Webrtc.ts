@@ -14,24 +14,29 @@ export const useWebRTC = (roomId: string) => {
   const localStream = useRef<MediaStream | null>(null);
   const peerConnections = useRef<{ [socketId: string]: RTCPeerConnection }>({});
 
-  const [isAudioMuted,setIsAudioMuted]=useState(false);
-  const [isVideoMuted,setIsVideoMuted]=useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(false);
 
-  const audioToggle=()=>{
+  const [remoteVideoMuted, setRemoteVideoMuted] = useState<{
+    [socketId: string]: boolean;
+  }>({});
+
+  const audioToggle = () => {
     const track = localStream.current?.getAudioTracks()[0];
     if (track) {
       track.enabled = !track.enabled;
       setIsAudioMuted(!track.enabled);
     }
-  }
+  };
 
-  const videoToggle=()=>{
+  const videoToggle = () => {
     const track = localStream.current?.getVideoTracks()[0];
-    if(track){
-      track.enabled=!track.enabled;
-      setIsVideoMuted(!track.enabled)
+    if (track) {
+      track.enabled = !track.enabled;
+      setIsVideoMuted(!track.enabled);
+      socket.emit("video-toggle", { roomId, muted: !track.enabled });
     }
-  }
+  };
 
   const createPC = (remoteId: string) => {
     const pc = new RTCPeerConnection(ICE_CONFIG);
@@ -64,9 +69,8 @@ export const useWebRTC = (roomId: string) => {
       const audioTrack = localStream.current.getAudioTracks()[0];
 
       //disable audio at start
-      audioTrack.enabled=false;
-      setIsAudioMuted(true)
-      
+      audioTrack.enabled = false;
+      setIsAudioMuted(true);
 
       setIsReady(true); // trigger re-render so local video shows up
 
@@ -140,11 +144,24 @@ export const useWebRTC = (roomId: string) => {
         delete updated[socketId];
         return updated;
       });
+      setRemoteVideoMuted((prev) => {
+        // ← added
+        const updated = { ...prev };
+        delete updated[socketId];
+        return updated;
+      });
     });
+
+    socket.on(
+      "video-toggle",
+      ({ from, muted }: { from: string; muted: boolean }) => {
+        setRemoteVideoMuted((prev) => ({ ...prev, [from]: muted }));
+      },
+    );
 
     return () => {
       localStream.current?.getTracks().forEach((t) => t.stop());
-      localStream.current = null; // reset so re-mount reinitializes
+      localStream.current = null; 
       setIsReady(false);
       Object.values(peerConnections.current).forEach((pc) => pc.close());
       peerConnections.current = {};
@@ -154,8 +171,18 @@ export const useWebRTC = (roomId: string) => {
       socket.off("receive-answer");
       socket.off("receive-ice-candidates");
       socket.off("user-left");
+      socket.off("video-toggle");
     };
   }, [roomId]);
 
-  return { localStream, remoteStreams, isReady,audioToggle,videoToggle,isAudioMuted,isVideoMuted };
+  return {
+    localStream,
+    remoteStreams,
+    isReady,
+    audioToggle,
+    videoToggle,
+    isAudioMuted,
+    isVideoMuted,
+    remoteVideoMuted,
+  };
 };

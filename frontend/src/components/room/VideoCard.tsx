@@ -19,6 +19,8 @@ export default function VideoCard({
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+
+    console.log(stream)
     if (!ref.current || !stream) return;
     ref.current.srcObject = stream;
 
