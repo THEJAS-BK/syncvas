@@ -1,5 +1,5 @@
 import { Pipette } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
 import { colorShades } from "../tools/colors";
@@ -8,17 +8,28 @@ export default function ColorGrid({
 }: {
   isMostUsedColorsNeeded: boolean;
 }) {
-  const {
-    strokeColor,
-    setStrokeColor,
-    shadeIdx,
-    setShadeIdx,
-    setFillColor,
-  } = useToolSettings();
+  const { strokeColor, setStrokeColor, shadeIdx, setShadeIdx, setFillColor } =
+    useToolSettings();
   const [colorList, setColorList] = useState<{ char: string; color: string }[]>(
     [],
   );
   const [selectedChar, setSelectedChar] = useState<string>("");
+  const [currentShade,setCurrentShade]=useState([""]);
+
+  useEffect(()=>{
+      setCurrentShade(colorShades[selectedChar] ?? [])
+  },[selectedChar])
+
+  useEffect(()=>{
+  const val =Object.entries(colorShades).find(([char,ele])=>{
+    return ele[ele.length-1]===strokeColor
+  })
+  if(!val)return
+    const shades= colorShades[val[0]] ?? [];
+    setCurrentShade(shades)
+  },[strokeColor])
+
+
 
   useEffect(() => {
     const handleQuickColorChange = (e: KeyboardEvent) => {
@@ -59,7 +70,6 @@ export default function ColorGrid({
     setColorList(temp);
   }, [setShadeIdx]);
 
-  const currentShade = colorShades[selectedChar] ?? [];
   return (
     <div
       className={`absolute text-white left-[110%] w-[210px] top-5 flex flex-col justify-center rounded-2xl bg-[#1f1f2b] shadow-xl p-5 z-20`}
@@ -72,7 +82,7 @@ export default function ColorGrid({
           </span>
           <div
             style={{ backgroundColor: strokeColor }}
-            className="w-6 h-6"
+            className="h-6 w-6 rounded cursor-pointer "
           ></div>
         </>
       )}
@@ -91,7 +101,7 @@ export default function ColorGrid({
             onClick={() => {
               if (!isMostUsedColorsNeeded) {
                 setFillColor(stroke.color);
-                setSelectedChar(stroke.char)
+                setSelectedChar(stroke.char);
                 return;
               }
               setStrokeColor(stroke.color);

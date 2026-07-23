@@ -12,10 +12,11 @@ const colorShades: Record<string, string[]> = {
   x: ["#6fc4b0", "#52ab98", "#3d9b85", "#2f8470", "#236c5c"], // teal-green
   c: ["#e08a3e", "#cc7a28", "#c2691e", "#a85618", "#8a4512"], // burnt orange/brown
   v: ["#f5a05c", "#ec8a40", "#e8742c", "#d4621f", "#d97706"], // orange
-  b: ["#f7a3a3", "#f58f8f", "#f47c7c", "#ef6363", "#e64545"], // coral/salmon
+  b: ["#f7a3a3", "#f58f8f", "#f47c7c", "#ef6363", "#e64545"], 
+  n:["#ef4444","#dc2626","#b91c1c","#991b1b","#f87171"]
 };
 
- const strokeColors = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
+ const strokeColors = ["#495057", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
   const backgroundColors = [
     "transparent",
     "#7f1d1d",
