@@ -733,4 +733,5 @@ export {
   drawShape,
   drawLine,
   hitTestTextBoxRotationHandle,
+  resolveFontFamily
 };

@@ -3,7 +3,7 @@ import { socket } from "../../../services/socket";
 import { useNavigate } from "react-router-dom";
 const COLORS = ["#1f2937", "#f87171", "#22c55e", "#3b82f6", "#d97706"];
 //helper function
-import { redraw } from "./canvas";
+import { redraw, resolveFontFamily } from "./canvas";
 
 import VideoTab from "../VideoTab";
 //types
@@ -362,7 +362,7 @@ export default function MultiCursor({
               visibility: "hidden",
               whiteSpace: "pre",
               fontSize: activeTextBox.current.fontSize * camera.current.scale,
-              fontFamily: "monospace",
+              fontFamily: resolveFontFamily(activeTextBox.current.fontFamily),
               top: -9999,
             }}
           />
@@ -387,7 +387,7 @@ export default function MultiCursor({
               outline: "none",
 
               fontSize: activeTextBox.current.fontSize * camera.current.scale,
-              fontFamily: "monospace",
+              fontFamily: resolveFontFamily(activeTextBox.current.fontFamily),
               fontWeight: "normal",
               resize: "none",
               overflow: "hidden",
@@ -417,7 +417,9 @@ export default function MultiCursor({
               );
               measure.textContent = longest || " ";
               measure.style.fontSize = `${activeTextBox.current!.fontSize * scale}px`;
-              measure.style.fontFamily = "monospace";
+              if(!activeTextBox.current)return;
+              const fontFamily = resolveFontFamily(activeTextBox.current.fontFamily);
+              measure.style.fontFamily = fontFamily;
 
               const naturalWidth = measure.offsetWidth + 20;
               const leftPos =
