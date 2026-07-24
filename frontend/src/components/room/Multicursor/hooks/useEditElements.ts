@@ -38,7 +38,6 @@ export function useEditElements() {
 
   const handleEditShapeFillColor = (fillColor: string) => {
     if (!selectedEle || selectedEle.type !== "shape") return;
-
     const el = shapesRef.current.find((e) => e.id === selectedEle.id);
     if (!el) return;
 
@@ -68,7 +67,7 @@ export function useEditElements() {
 
   const handleEdgeUpdatation = (edge: string) => {
     if (!selectedEle || selectedEle.type !== "shape") return;
-
+    
     const el = shapesRef.current.find((e) => e.id === selectedEle.id);
     if (!el) return;
 
@@ -79,7 +78,7 @@ export function useEditElements() {
     socket.emit("element-update", {
       roomId,
       id: el.id,
-      changes: { edge },
+      changes: { edgeStyle:edge },
     });
   };
 

@@ -18,8 +18,6 @@ export function useFollowUserCamera(
 
     useEffect(()=>{
         if(!followUserCamera) return;
-
-        console.log(camera)
         socket.on("camera-update",(data:{socketId:string,camera:{x:number,y:number,scale:number}})=>{
            if(followUserCamera===data.socketId){
                camera.current.x=data.camera.x;

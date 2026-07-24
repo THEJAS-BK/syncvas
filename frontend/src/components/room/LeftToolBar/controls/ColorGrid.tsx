@@ -1,8 +1,9 @@
 import { Pipette } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Fragment } from "react";
 import { useToolSettings } from "../../../../context/ToolBarLeftContext";
 
-import { colorShades } from "../tools/colors";
+import { colorShades, transparentPattern } from "../tools/colors";
+import { useEditElements } from "../../Multicursor/hooks/useEditElements";
 export default function ColorGrid({
   isMostUsedColorsNeeded,
 }: {
@@ -11,11 +12,13 @@ export default function ColorGrid({
   const {
     strokeColor,
     setStrokeColor,
-    shadeIdx,
     setShadeIdx,
     setFillColor,
     fillColor,
+    selectedEle
   } = useToolSettings();
+   const { handleEditShapeOutlineColor, handleEditShapeFillColor } =
+      useEditElements();
   const [colorList, setColorList] = useState<{ char: string; color: string }[]>(
     [],
   );
@@ -27,13 +30,14 @@ export default function ColorGrid({
   }, [selectedChar]);
 
   useEffect(() => {
+    const activeColor = isMostUsedColorsNeeded ? strokeColor : fillColor;
     const val = Object.entries(colorShades).find(([char, ele]) => {
-      return ele[ele.length - 1] === strokeColor;
+      return ele[ele.length - 1] === activeColor;
     });
     if (!val) return;
     const shades = colorShades[val[0]] ?? [];
     setCurrentShade(shades);
-  }, [strokeColor, fillColor]);
+  }, [strokeColor, fillColor, isMostUsedColorsNeeded]);
 
   useEffect(() => {
     const handleQuickColorChange = (e: KeyboardEvent) => {
@@ -54,7 +58,6 @@ export default function ColorGrid({
         return;
       }
 
-
       const match = colorList.find((c) => c.char === e.key);
       if (!match) return;
       {
@@ -74,13 +77,13 @@ export default function ColorGrid({
   useEffect(() => {
     const temp = Object.entries(colorShades).map(([char, shades]) => ({
       char,
-      color: shades[shades.length-1],
+      color: shades[shades.length - 1],
     }));
     setColorList(temp);
   }, [setShadeIdx]);
 
   return (
-    <div 
+    <div
       className={`absolute text-white left-[110%] w-[210px] top-5 flex flex-col justify-center rounded-2xl bg-[#1f1f2b] shadow-xl p-5 z-20`}
     >
       {isMostUsedColorsNeeded && (
@@ -103,7 +106,8 @@ export default function ColorGrid({
             key={stroke.color}
             style={{ backgroundColor: stroke.color }}
             className={`w-7 h-7 rounded cursor-pointer ${
-              strokeColor === stroke.color || fillColor === stroke.color
+              (isMostUsedColorsNeeded ? strokeColor : fillColor) ===
+              stroke.color
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
@@ -111,10 +115,12 @@ export default function ColorGrid({
               if (!isMostUsedColorsNeeded) {
                 setFillColor(stroke.color);
                 setSelectedChar(stroke.char);
+                handleEditShapeFillColor(stroke.color)
                 return;
               }
               setStrokeColor(stroke.color);
               setSelectedChar(stroke.char);
+               if (selectedEle) handleEditShapeOutlineColor(stroke.color);
             }}
           >
             <span className="text-sm flex items-end mt-2 ml-0.5">
@@ -122,6 +128,17 @@ export default function ColorGrid({
             </span>
           </div>
         ))}
+
+        {!isMostUsedColorsNeeded && (
+          <div
+            style={transparentPattern}
+            className={`w-6 h-6 rounded cursor-pointer `}
+            onClick={() => {
+              setFillColor("transparent");
+              handleEditShapeFillColor("transparent")
+            }}
+          />
+        )}
       </div>
 
       <span className="mb-1 text-[12px]  text-white mt-4">Shades</span>
@@ -131,7 +148,7 @@ export default function ColorGrid({
             key={idx}
             style={{ backgroundColor: color }}
             className={`w-6 h-6 rounded cursor-pointer ${
-              (strokeColor === color||fillColor===color)
+              strokeColor === color || fillColor === color
                 ? "border-2 border-purple-500"
                 : "border border-transparent"
             }`}
@@ -139,9 +156,11 @@ export default function ColorGrid({
               setShadeIdx(idx);
               if (!isMostUsedColorsNeeded) {
                 setFillColor(color);
+                handleEditShapeFillColor(color)
                 return;
               }
               setStrokeColor(color);
+              if (selectedEle) handleEditShapeOutlineColor(color);
             }}
           />
         ))}
