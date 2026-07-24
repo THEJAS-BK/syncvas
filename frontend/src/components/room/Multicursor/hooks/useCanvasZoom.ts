@@ -15,9 +15,11 @@ export function useCanvasZoom(
     if (!wrapper || !canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+  
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
+
 
       if (e.ctrlKey) {
         const zoomAmount = e.deltaY * -0.001;

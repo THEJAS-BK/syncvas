@@ -20,7 +20,6 @@ export default function VideoCard({
   <Mic />
 
   useEffect(() => {
-    console.log(user,"   ",isVideoMuted, isAudioMuted)
     if (!ref.current || !stream) return;
 
       if (ref.current.srcObject === stream) return;

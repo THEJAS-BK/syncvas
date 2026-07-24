@@ -89,7 +89,7 @@ export default function VideoTab({
                 isVideoMuted={isVideoMuted}
                 isAudioMuted={isAudioMuted}
                 openCursor={openCursor}
-                 user={users[mySocketId??""]}
+                 user={curUserName}
               />
             </div>
           )}
@@ -97,8 +97,8 @@ export default function VideoTab({
             <div key={id}>
               <VideoCard
                 stream={stream}
-                isVideoMuted={remoteVideoMuted[id] ?? false}
-                isAudioMuted={remoteAudioMuted[id] ?? false}
+                isVideoMuted={remoteVideoMuted[id] ?? true}
+                isAudioMuted={remoteAudioMuted[id] ?? true}
                 openCursor={openCursor}
                 user={users[id]}
               />

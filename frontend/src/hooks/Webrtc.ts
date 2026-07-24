@@ -93,6 +93,7 @@ export const useWebRTC = (roomId: string) => {
             console.error(res.message);
             return;
           }
+          socket.emit("video-toggle",{})
         });
       };
 

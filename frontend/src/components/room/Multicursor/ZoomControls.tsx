@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Minus } from "lucide-react";
+import { useToolSettings } from "../../../context/ToolBarLeftContext";
 
 const MIN_SCALE = 0.2;
 const MAX_SCALE = 5;
@@ -15,6 +16,8 @@ export default function ZoomControls({
   doRedraw: () => void;
 }) {
   const [, forceUpdate] = useState(0);
+
+  const {viewMode}=useToolSettings();
 
   const zoomBy = (delta: number) => {
     const canvas = canvasRef.current;
@@ -45,7 +48,8 @@ export default function ZoomControls({
   const percentage = Math.round(camera.current.scale * 100);
 
   return (
-    <div className="absolute bottom-3 left-5.5 flex items-center gap-1 bg-black rounded-2xl border border-gray-800 shadow-lg px-2 py-2 text-white">
+   <>
+   {viewMode&& <div className="absolute bottom-3 left-5.5 flex items-center gap-1 bg-black rounded-2xl border border-gray-800 shadow-lg px-2 py-2 text-white">
       <button
         onClick={zoomOut}
         title="Zoom out"
@@ -67,6 +71,7 @@ export default function ZoomControls({
       >
         <Plus size={18} />
       </button>
-    </div>
+    </div>}
+   </>
   );
 }
