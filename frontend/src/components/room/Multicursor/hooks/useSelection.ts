@@ -331,6 +331,7 @@ export function useSelection(
       doRedraw();
     };
 
+
     const onDblClick = (e: MouseEvent) => {
       if (activeTool !== "mouse") return;
       const { x, y } = toCanvas(e.clientX, e.clientY);

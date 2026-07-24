@@ -417,8 +417,10 @@ export default function MultiCursor({
               );
               measure.textContent = longest || " ";
               measure.style.fontSize = `${activeTextBox.current!.fontSize * scale}px`;
-              if(!activeTextBox.current)return;
-              const fontFamily = resolveFontFamily(activeTextBox.current.fontFamily);
+              if (!activeTextBox.current) return;
+              const fontFamily = resolveFontFamily(
+                activeTextBox.current.fontFamily,
+              );
               measure.style.fontFamily = fontFamily;
 
               const naturalWidth = measure.offsetWidth + 20;
