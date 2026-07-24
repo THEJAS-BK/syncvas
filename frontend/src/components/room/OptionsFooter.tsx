@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import ChatInterface from "./ChatInterface";
-import { useToolSettings } from "../../context/ToolBarLeftContext";
 import ParticipantList from "./ParticipantList";
 interface VideoOptionsProp {
   audioToggle: () => void;

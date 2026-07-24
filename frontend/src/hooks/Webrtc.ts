@@ -80,12 +80,19 @@ export const useWebRTC = (roomId: string) => {
       audioTrack.enabled = false;
       setIsAudioMuted(true);
 
-      setIsReady(true); // trigger re-render so local video shows up
+      //disable video from start
+      const videoTrack = localStream.current.getVideoTracks()[0];
+      videoTrack.enabled = false;
+      setIsVideoMuted(true);
 
+      setIsReady(true); // trigger re-render so local video shows up
       const join = () => {
         setMySocketId(socket.id);
         socket.emit("join-room", roomId, (res: any) => {
-          if (!res.success) console.error(res.message);
+          if (!res.success) {
+            console.error(res.message);
+            return;
+          }
         });
       };
 
@@ -98,18 +105,26 @@ export const useWebRTC = (roomId: string) => {
     };
 
     init();
+    socket.on(
+      "existing-peers",
+      async (peers: { socketId: string; name: string }[]) => {
+        for (const { socketId, name } of peers) {
+          setUsers((prev) => ({ ...prev, [socketId]: name }));
 
-    socket.on("existing-peers", async (peers: string[]) => {
-      for (const peerId of peers) {
-        const pc = createPC(peerId);
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        socket.emit("offer", { to: peerId, offer });
-      }
-    });
+          const pc = createPC(socketId);
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          socket.emit("offer", { to: socketId, offer });
+        }
+      },
+    );
 
-    socket.on("joined-user", ({ socketId }: { socketId: string }) =>
-      createPC(socketId),
+    socket.on(
+      "joined-user",
+      ({ socketId, name }: { socketId: string; name: string }) => {
+        setUsers((prev) => ({ ...prev, [socketId]: name }));
+        createPC(socketId);
+      },
     );
 
     socket.on("receive-offer", async ({ from, offer }) => {
@@ -160,6 +175,11 @@ export const useWebRTC = (roomId: string) => {
         return updated;
       });
       setRemoteAudioMuted((prev) => {
+        const updated = { ...prev };
+        delete updated[socketId];
+        return updated;
+      });
+      setUsers((prev) => {
         const updated = { ...prev };
         delete updated[socketId];
         return updated;

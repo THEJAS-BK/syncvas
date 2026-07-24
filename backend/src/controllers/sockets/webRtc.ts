@@ -25,11 +25,14 @@ export function registerWebRtcHandler(
       candidate,
     });
   });
-  socket.on("video-toggle", ({ roomId, muted }) => {
-    socket.to(roomId).emit("video-toggle", { from: socket.id, muted });
-  });
-  socket.on("audio-toggle", ({ roomId, muted }) => {
-    socket.to(roomId).emit("audio-toggle", { from: socket.id, muted });
-  });
+socket.on("audio-toggle", ({ roomId, muted }) => {
+  socket.data.audioMuted = muted;
+  socket.to(roomId).emit("audio-toggle", { from: socket.id, muted });
+});
+
+socket.on("video-toggle", ({ roomId, muted }) => {
+  socket.data.videoMuted = muted;
+  socket.to(roomId).emit("video-toggle", { from: socket.id, muted });
+});
 
 }

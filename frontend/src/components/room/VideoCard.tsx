@@ -6,22 +6,21 @@ export default function VideoCard({
   muted = false,
   isVideoMuted,
   isAudioMuted,
-  users,
+  user,
   openCursor,
 }: {
   stream: MediaStream;
   muted?: boolean;
   isVideoMuted?: boolean;
   isAudioMuted?: boolean;
-  users?: string;
+  user?: string;
   openCursor?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   <Mic />
 
   useEffect(() => {
-    console.log(users)
-
+    console.log(user,"   ",isVideoMuted, isAudioMuted)
     if (!ref.current || !stream) return;
 
       if (ref.current.srcObject === stream) return;
@@ -39,9 +38,9 @@ export default function VideoCard({
         ref.current.srcObject = null;
       }
     };
-  }, [stream,users]);
+  }, [stream,user]);
 
-  const initial = (users?.trim()?.[0] ?? "z").toUpperCase();
+  const initial=user?.trim()[0]
 
   return (
     <div className="relative w-full h-[95%]">
@@ -64,7 +63,7 @@ export default function VideoCard({
       {isVideoMuted && (
         <div className="absolute top-1 left-1 flex items-center justify-center bg-black/60 rounded-full p-1.5">
           {isAudioMuted ? <MicOff size={15} className="text-white" /> : <Mic size={15} className="text-white" />}
-          <p className="text-white text-sm ml-2">thejas</p>
+          <p className="text-white text-sm ml-2">{user}</p>
         </div>
       )}
     </div>

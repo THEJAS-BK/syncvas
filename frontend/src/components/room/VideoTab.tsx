@@ -1,8 +1,6 @@
 import { useWebRtcContext } from "../../context/WebRtcContext";
 import VideoCard from "./VideoCard";
-import OptionsFooter from "./OptionsFooter";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 import { socket } from "../../services/socket";
 interface VideoTabProps {
   roomId: string;
@@ -27,6 +25,15 @@ export default function VideoTab({
 
   const { remoteVideoMuted, remoteAudioMuted, isAudioMuted, users, mySocketId } =
     useWebRtcContext();
+  
+    const [curUserName,setCurUserName]=useState("")
+
+    useEffect(()=>{
+      socket.emit("my-info", (cb: { userId: string; name: string }) => {
+            setCurUserName(cb.name);
+          
+          });
+    },[users])
 
 
   const getTileSize = (count: number) => {
@@ -52,7 +59,7 @@ export default function VideoTab({
                 isVideoMuted={isVideoMuted}
                 isAudioMuted={isAudioMuted}
                 openCursor={openCursor}
-                users={users[mySocketId??""]}
+                user={curUserName}
 
               />
             </div>
@@ -61,10 +68,10 @@ export default function VideoTab({
             <div key={id} className={getTileSize(participantCount)}>
               <VideoCard
                 stream={stream}
-                isVideoMuted={remoteVideoMuted[id] ?? false}
-                isAudioMuted={remoteAudioMuted[id] ?? false}
+                isVideoMuted={remoteVideoMuted[id] ?? true}
+                isAudioMuted={remoteAudioMuted[id] ?? true}
                 openCursor={openCursor}
-                users={users[id]}
+                user={users[id]}
               />
             </div>
           ))}
@@ -82,7 +89,7 @@ export default function VideoTab({
                 isVideoMuted={isVideoMuted}
                 isAudioMuted={isAudioMuted}
                 openCursor={openCursor}
-                 users={users[mySocketId??""]}
+                 user={users[mySocketId??""]}
               />
             </div>
           )}
@@ -93,7 +100,7 @@ export default function VideoTab({
                 isVideoMuted={remoteVideoMuted[id] ?? false}
                 isAudioMuted={remoteAudioMuted[id] ?? false}
                 openCursor={openCursor}
-                users={users[id]}
+                user={users[id]}
               />
             </div>
           ))}
