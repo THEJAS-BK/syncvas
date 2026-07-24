@@ -139,7 +139,7 @@ export default function MultiCursor({
     doRedrawRef.current = doRedraw;
   }, [doRedraw]);
 
-  useFollowUserCamera( camera, doRedraw,roomId);
+  useFollowUserCamera(camera, doRedraw, roomId);
 
   useSelection(
     roomId ?? "",
@@ -200,7 +200,7 @@ export default function MultiCursor({
     textBoxesRef,
     doRedraw,
   );
-  useHandTool(canvasRef, camera, activeTool, doRedraw,roomId);
+  useHandTool(canvasRef, camera, activeTool, doRedraw, roomId);
   useSocketBoard(roomId ?? "", canvasRef, images, strokes, doRedraw);
   useSocketDraw(
     roomId ?? "",
@@ -219,7 +219,14 @@ export default function MultiCursor({
   );
 
   useEraser(roomId ?? "", canvasRef, camera, strokes, activeTool, doRedraw);
-  useCanvasZoom(wrapperRef, canvasRef, camera, handleCameraChange, doRedraw,roomId);
+  useCanvasZoom(
+    wrapperRef,
+    canvasRef,
+    camera,
+    handleCameraChange,
+    doRedraw,
+    roomId,
+  );
 
   //image transformations
   useImageTransform(
@@ -374,6 +381,7 @@ export default function MultiCursor({
               top:
                 activeTextBox.current.y * camera.current.scale +
                 camera.current.y,
+              transform: `rotate(${activeTextBox.current.rotation ?? 0}rad)`,
 
               border: "none",
               outline: "none",
